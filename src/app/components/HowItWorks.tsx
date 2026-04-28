@@ -1,11 +1,10 @@
 "use client";
 
-import { ScanFace, ShieldCheck, QrCode, Sparkles } from "lucide-react";
+import { ScanFace, ShieldCheck, QrCode, Sparkles, Award, Clock, Zap } from "lucide-react";
 
 export default function TrustPillars() {
   return (
-    <section id="trust-pillars" className="py-16 sm:py-24 bg-white relative overflow-hidden">
-      {/* Subtle background accent */}
+    <section id="how-it-works" className="py-16 sm:py-24 bg-white relative overflow-hidden">
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-r from-primary/[0.03] to-secondary/[0.03] blur-[80px]" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -41,19 +40,39 @@ export default function TrustPillars() {
               <h3 className="text-xl font-bold text-text-dark mb-2">Verifikasi E-KYC</h3>
               <p className="text-xs font-semibold text-primary mb-3">Identitas Asli, Terjamin Aman</p>
               <p className="text-sm text-text-muted leading-relaxed max-w-md">
-                Setiap pengguna wajib melakukan verifikasi identitas melalui pemindaian KTP dan pengenalan wajah. 
-                Sistem liveness detection memastikan tidak ada pemalsuan identitas, sehingga Anda dapat menyewa dengan tenang.
+                Setiap pengguna wajib melakukan verifikasi identitas melalui pemindaian KTP dan pengenalan wajah.
+                Sistem liveness detection memastikan tidak ada pemalsuan identitas.
               </p>
               {/* Mini stats */}
               <div className="flex items-center gap-4 mt-6 pt-5 border-t border-border/40">
-                <div>
-                  <p className="text-lg font-bold text-text-dark">99.8%</p>
-                  <p className="text-[10px] text-text-muted">Akurasi Verifikasi</p>
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Zap size={14} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-text-dark">99.8%</p>
+                    <p className="text-[10px] text-text-muted">Akurasi</p>
+                  </div>
                 </div>
                 <div className="h-8 w-px bg-border/40" />
-                <div>
-                  <p className="text-lg font-bold text-text-dark">5,000+</p>
-                  <p className="text-[10px] text-text-muted">Pengguna Terverifikasi</p>
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-green-50 flex items-center justify-center">
+                    <Award size={14} className="text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-text-dark">5,000+</p>
+                    <p className="text-[10px] text-text-muted">Terverifikasi</p>
+                  </div>
+                </div>
+                <div className="h-8 w-px bg-border/40" />
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <Clock size={14} className="text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-text-dark">&lt;2 min</p>
+                    <p className="text-[10px] text-text-muted">Proses</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -69,14 +88,15 @@ export default function TrustPillars() {
                   <ShieldCheck size={26} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="text-lg font-bold text-text-dark">Aman dengan Escrow</h3>
                     <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">DP 50%</span>
+                    <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">🔒 Secure</span>
                   </div>
                   <p className="text-xs font-semibold text-secondary mb-2">Dana Ditahan Hingga Serah Terima</p>
                   <p className="text-sm text-text-muted leading-relaxed">
-                    Dana pembayaran disimpan dengan aman di sistem escrow. 
-                    Uang baru diteruskan ke pemilik setelah proses serah terima berhasil dikonfirmasi.
+                    Dana pembayaran disimpan dengan aman di sistem escrow.
+                    Uang baru diteruskan ke pemilik setelah serah terima berhasil dikonfirmasi.
                   </p>
                 </div>
               </div>
@@ -93,10 +113,13 @@ export default function TrustPillars() {
                   <QrCode size={26} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-bold text-text-dark mb-1">Serah Terima via QR Code</h3>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className="text-lg font-bold text-text-dark">Serah Terima via QR Code</h3>
+                    <span className="text-[10px] font-bold text-violet-700 bg-violet-100 px-2 py-0.5 rounded-full">📱 Instant</span>
+                  </div>
                   <p className="text-xs font-semibold text-violet-600 mb-2">Validasi COD yang Praktis & Aman</p>
                   <p className="text-sm text-text-muted leading-relaxed">
-                    Cukup pindai QR Code saat bertemu langsung. 
+                    Cukup pindai QR Code saat bertemu langsung.
                     Bukti serah terima tercatat otomatis di sistem, menghilangkan potensi perselisihan.
                   </p>
                 </div>

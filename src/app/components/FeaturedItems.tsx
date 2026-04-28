@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Star, ShoppingBag, BadgeCheck } from "lucide-react";
+import { Star, ShoppingBag, BadgeCheck, TrendingUp, Flame } from "lucide-react";
 import { products, categories, categoryEmoji, badgeConfig, type Product, type Category } from "../data/products";
 
 interface CatalogProps {
@@ -10,7 +11,33 @@ interface CatalogProps {
   onSelectProduct: (product: Product) => void;
 }
 
+function SkeletonCard() {
+  return (
+    <div className="rounded-3xl bg-white border border-border/50 overflow-hidden">
+      <div className="aspect-[4/3] skeleton" />
+      <div className="p-4 space-y-3">
+        <div className="h-4 skeleton rounded-full w-3/4" />
+        <div className="h-3 skeleton rounded-full w-1/2" />
+        <div className="h-5 skeleton rounded-full w-1/3" />
+        <div className="flex items-center gap-2 pt-1">
+          <div className="h-7 w-7 rounded-full skeleton" />
+          <div className="h-3 skeleton rounded-full w-20" />
+        </div>
+        <div className="h-10 skeleton rounded-2xl w-full mt-2" />
+      </div>
+    </div>
+  );
+}
+
 export default function Catalog({ activeCategory, onCategoryChange, onSelectProduct }: CatalogProps) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [activeCategory]);
+
   const filtered =
     activeCategory === "Semua"
       ? products.filter((p) => p.category.includes("Semua"))
@@ -33,6 +60,13 @@ export default function Catalog({ activeCategory, onCategoryChange, onSelectProd
           <p className="mt-3 text-text-muted leading-relaxed">
             Pilih kategori, temukan barang yang Anda butuhkan, dan langsung sewa dengan mudah.
           </p>
+          {/* Extra — results counter */}
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white border border-border/60 px-3 py-1 text-xs text-text-muted shadow-sm">
+            <TrendingUp size={12} className="text-secondary" />
+            <span><strong className="text-text-dark">{products.length}</strong> barang tersedia</span>
+            <span className="text-text-light">•</span>
+            <span className="text-green-600 font-semibold">Diperbarui hari ini</span>
+          </div>
         </div>
 
         {/* Category Tabs */}
@@ -54,79 +88,98 @@ export default function Catalog({ activeCategory, onCategoryChange, onSelectProd
         </div>
 
         {/* Product Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map((product, i) => {
-            const badge = badgeConfig[product.badge];
-            return (
-              <div
-                key={product.id}
-                onClick={() => onSelectProduct(product)}
-                className="group relative flex flex-col rounded-3xl bg-white border border-border/50 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 animate-fade-in-up"
-                style={{ animationDelay: `${i * 80}ms` }}
-              >
-                {/* Tagline Tag */}
-                <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-[10px] font-bold text-text-dark shadow-sm">
-                  <BadgeCheck size={10} className="text-secondary" />
-                  {product.tagline}
-                </div>
-
-                {/* Image */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-background to-white overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-5 transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Rating */}
-                  <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-xl bg-white/90 backdrop-blur-sm px-2 py-1 text-xs font-semibold shadow-sm">
-                    <Star size={12} className="text-amber-400 fill-amber-400" />
-                    <span className="text-text-dark">{product.rating}</span>
-                    <span className="text-text-light">({product.reviews})</span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex flex-col flex-1 p-4">
-                  <h3 className="text-sm font-bold text-text-dark leading-snug line-clamp-2 mb-1.5 group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h3>
-
-                  <p className="text-xs text-secondary font-semibold mb-3">
-                    Pemilik Terverifikasi ✅
-                  </p>
-
-                  <p className="text-lg font-bold text-secondary mb-3">
-                    {product.price}
-                    <span className="text-xs font-normal text-text-muted"> /hari</span>
-                  </p>
-
-                  {/* Owner */}
-                  <div className="flex items-center gap-2 mb-4 mt-auto">
-                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-[10px] font-bold shrink-0">
-                      {product.ownerInitial}
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filtered.map((product, i) => {
+              const badge = badgeConfig[product.badge];
+              const isTopRated = product.rating >= 4.8;
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => onSelectProduct(product)}
+                  className="group relative flex flex-col rounded-3xl bg-white border border-border/50 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 animate-fade-in-up"
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
+                  {/* Top-rated ribbon */}
+                  {isTopRated && (
+                    <div className="absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
+                      <Flame size={10} />
+                      Populer
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-text-dark truncate">{product.owner}</p>
-                      <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${badge.text}`}>
-                        {badge.icon} {badge.label}
-                      </span>
+                  )}
+
+                  {/* Tagline Tag */}
+                  <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-[10px] font-bold text-text-dark shadow-sm">
+                    <BadgeCheck size={10} className="text-secondary" />
+                    {product.tagline}
+                  </div>
+
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] bg-gradient-to-br from-background to-white overflow-hidden">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-contain p-5 transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {/* Rating */}
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-xl bg-white/90 backdrop-blur-sm px-2 py-1 text-xs font-semibold shadow-sm">
+                      <Star size={12} className="text-amber-400 fill-amber-400" />
+                      <span className="text-text-dark">{product.rating}</span>
+                      <span className="text-text-light">({product.reviews})</span>
+                    </div>
+                    {/* Quick price tag on image */}
+                    <div className="absolute bottom-3 right-3 rounded-lg bg-secondary/90 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
+                      {product.price}/hari
                     </div>
                   </div>
 
-                  {/* CTA */}
-                  <button
-                    id={`btn-detail-${product.id}`}
-                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.97]"
-                  >
-                    <ShoppingBag size={14} />
-                    Lihat Detail
-                  </button>
+                  {/* Content */}
+                  <div className="flex flex-col flex-1 p-4">
+                    <h3 className="text-sm font-bold text-text-dark leading-snug line-clamp-2 mb-1.5 group-hover:text-primary transition-colors">
+                      {product.name}
+                    </h3>
+
+                    <p className="text-xs text-secondary font-semibold mb-2">
+                      Pemilik Terverifikasi ✅
+                    </p>
+
+                    <p className="text-lg font-bold text-secondary mb-3">
+                      {product.price}
+                      <span className="text-xs font-normal text-text-muted"> /hari</span>
+                    </p>
+
+                    {/* Owner */}
+                    <div className="flex items-center gap-2 mb-4 mt-auto">
+                      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                        {product.ownerInitial}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium text-text-dark truncate">{product.owner}</p>
+                        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${badge.text}`}>
+                          🛡️ {badge.label}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* CTA */}
+                    <button
+                      id={`btn-detail-${product.id}`}
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.97]"
+                    >
+                      <ShoppingBag size={14} />
+                      Lihat Detail
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

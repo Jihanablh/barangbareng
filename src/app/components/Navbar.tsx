@@ -31,6 +31,9 @@ export default function Navbar() {
             <span className="text-xl sm:text-2xl font-bold text-secondary transition-all duration-200 group-hover:tracking-wide">
               Bareng
             </span>
+            <span className="ml-1.5 hidden sm:inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary">
+              BETA
+            </span>
           </a>
 
           {/* Search — desktop */}

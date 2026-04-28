@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, PackagePlus } from "lucide-react";
+import { ArrowRight, PackagePlus, TrendingUp, Users, ShieldCheck } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -15,6 +15,11 @@ export default function Hero() {
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/[0.06] blur-[100px]" />
       <div className="pointer-events-none absolute -bottom-32 -right-32 h-[420px] w-[420px] rounded-full bg-secondary/[0.06] blur-[100px]" />
+      {/* Extra decorative dots */}
+      <div className="pointer-events-none absolute top-32 right-[15%] h-3 w-3 rounded-full bg-primary/20 animate-pulse-soft" />
+      <div className="pointer-events-none absolute top-48 right-[25%] h-2 w-2 rounded-full bg-secondary/25 animate-pulse-soft animation-delay-300" />
+      <div className="pointer-events-none absolute bottom-24 left-[10%] h-4 w-4 rounded-full bg-secondary/15 animate-pulse-soft animation-delay-500" />
+      <div className="pointer-events-none absolute bottom-40 left-[20%] h-2 w-2 rounded-full bg-primary/20 animate-pulse-soft animation-delay-200" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -124,8 +129,34 @@ export default function Hero() {
                   </div>
                 </div>
               </div>
+              {/* Extra floating card — rating */}
+              <div className="absolute top-1/2 -right-16 glass rounded-2xl p-2.5 shadow-lg shadow-amber-500/10 border border-white/50 animate-pulse-soft animation-delay-500">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-sm">⭐</div>
+                  <div>
+                    <p className="text-[10px] font-bold text-text-dark">4.9/5.0</p>
+                    <p className="text-[9px] text-text-muted">Kepuasan</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* ——— Stats Bar (extra embellishment) ——— */}
+        <div className="mt-14 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 animate-fade-in-up animation-delay-600">
+          {[
+            { icon: Users, value: "5,000+", label: "Pengguna Aktif", color: "text-primary" },
+            { icon: PackagePlus, value: "12,000+", label: "Barang Tersedia", color: "text-secondary" },
+            { icon: ShieldCheck, value: "100%", label: "Transaksi Aman", color: "text-green-600" },
+            { icon: TrendingUp, value: "98%", label: "Tingkat Kepuasan", color: "text-amber-500" },
+          ].map((stat, i) => (
+            <div key={i} className="glass rounded-2xl border border-white/50 p-4 text-center group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+              <stat.icon size={20} className={`mx-auto mb-2 ${stat.color} transition-transform group-hover:scale-110`} />
+              <p className={`text-xl sm:text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              <p className="text-[11px] text-text-muted font-medium mt-0.5">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
