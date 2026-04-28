@@ -1,89 +1,86 @@
 "use client";
 
-import { ArrowRight, Package } from "lucide-react";
+import { ArrowRight, PackagePlus } from "lucide-react";
 
 export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden bg-gradient-to-br from-white via-background to-primary/5 pt-28 pb-16 sm:pt-36 sm:pb-24"
+      className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24"
+      style={{
+        background:
+          "linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 30%, rgba(59,130,246,0.07) 60%, rgba(20,184,166,0.06) 100%)",
+      }}
     >
       {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 h-[360px] w-[360px] rounded-full bg-secondary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/[0.06] blur-[100px]" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-[420px] w-[420px] rounded-full bg-secondary/[0.06] blur-[100px]" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — copy */}
           <div className="text-center lg:text-left">
             {/* Badge */}
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary mb-6 animate-fade-in">
+            <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-semibold text-primary mb-6 animate-fade-in border border-primary/10">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
               </span>
-              Platform Rental #1 untuk Mahasiswa
+              Platform Sewa-Menyewa #1 di Indonesia
             </span>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] font-bold leading-tight text-text-dark animate-fade-in-up">
-              Sewa Barang Kampus{" "}
-              <span className="text-primary">Lebih Mudah</span>,{" "}
-              <span className="text-secondary">Murah</span> &{" "}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] font-bold leading-[1.13] text-text-dark animate-fade-in-up">
+              Akses Barang Impianmu{" "}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Aman
+                Tanpa Harus Membeli.
               </span>
-              .
             </h1>
 
-            <p className="mt-5 text-base sm:text-lg text-text-muted leading-relaxed max-w-lg mx-auto lg:mx-0 animate-fade-in-up animation-delay-200">
-              Platform P2P rental antar mahasiswa dengan keamanan{" "}
-              <strong className="text-text-dark">E-KYC</strong>,{" "}
-              <strong className="text-text-dark">Escrow</strong>, dan kemudahan
-              COD via{" "}
-              <strong className="text-text-dark">QR Code</strong>.
+            <p className="mt-5 text-base sm:text-lg text-text-muted leading-relaxed max-w-xl mx-auto lg:mx-0 animate-fade-in-up animation-delay-200">
+              Platform sewa-menyewa antar pengguna yang aman, terjangkau, dan
+              praktis. Dilengkapi verifikasi{" "}
+              <strong className="text-text-dark">E-KYC</strong> dan sistem
+              pembayaran{" "}
+              <strong className="text-text-dark">Escrow</strong>.
             </p>
 
             {/* CTAs */}
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up animation-delay-400">
               <a
-                href="#featured"
-                id="cta-cari-barang"
-                className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95"
+                href="#catalog"
+                id="cta-cari-item"
+                className="group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-primary-dark px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-[0.97]"
               >
                 Cari Barang
-                <ArrowRight
-                  size={16}
-                  className="transition-transform group-hover:translate-x-1"
-                />
+                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
               </a>
               <a
                 href="#"
-                id="cta-sewakan-barang"
-                className="group inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-secondary px-7 py-3.5 text-sm font-semibold text-secondary transition-all hover:bg-secondary hover:text-white hover:shadow-lg hover:shadow-secondary/25 hover:-translate-y-0.5 active:scale-95"
+                id="cta-sewakan"
+                className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border-2 border-secondary text-secondary px-7 py-3.5 text-sm font-semibold transition-all duration-300 hover:bg-secondary hover:text-white hover:shadow-lg hover:shadow-secondary/20 hover:-translate-y-0.5 active:scale-[0.97]"
               >
-                <Package size={16} />
-                Sewakan Barang
+                <PackagePlus size={16} />
+                Sewakan Barangmu
               </a>
             </div>
 
             {/* Social proof */}
             <div className="mt-10 flex items-center gap-4 justify-center lg:justify-start animate-fade-in-up animation-delay-600">
-              {/* Stacked avatars */}
-              <div className="flex -space-x-2">
-                {["bg-primary", "bg-secondary", "bg-amber-400", "bg-rose-400"].map(
+              <div className="flex -space-x-2.5">
+                {["bg-primary", "bg-secondary", "bg-amber-400", "bg-rose-400", "bg-violet-400"].map(
                   (bg, i) => (
                     <div
                       key={i}
                       className={`h-8 w-8 rounded-full ${bg} ring-2 ring-white flex items-center justify-center text-white text-[10px] font-bold`}
                     >
-                      {["A", "R", "D", "S"][i]}
+                      {["A", "R", "D", "S", "M"][i]}
                     </div>
                   )
                 )}
               </div>
               <p className="text-sm text-text-muted">
-                <span className="font-bold text-text-dark">2,500+</span>{" "}
-                mahasiswa sudah bergabung
+                <span className="font-bold text-text-dark">5,000+</span>{" "}
+                pengguna telah bergabung
               </p>
             </div>
           </div>
@@ -91,47 +88,39 @@ export default function Hero() {
           {/* Right — illustration */}
           <div className="hidden lg:flex items-center justify-center">
             <div className="relative animate-float">
-              {/* Main card */}
-              <div className="w-80 h-80 rounded-3xl bg-gradient-to-br from-primary/20 via-secondary/10 to-primary/5 backdrop-blur-sm border border-white/60 shadow-2xl flex items-center justify-center">
+              {/* Main glass card */}
+              <div className="w-[340px] h-[340px] rounded-3xl glass border border-white/50 shadow-2xl shadow-primary/[0.06] flex items-center justify-center">
                 <div className="text-center space-y-4">
-                  <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-                    <Package size={40} className="text-white" />
+                  <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20">
+                    <PackagePlus size={38} className="text-white" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-text-dark">
-                      Sewa & Sewakan
-                    </p>
-                    <p className="text-sm text-text-muted">
-                      Dari sesama mahasiswa
-                    </p>
+                    <p className="text-lg font-bold text-text-dark">Sewa & Sewakan</p>
+                    <p className="text-sm text-text-muted">Antar pengguna, aman & praktis</p>
                   </div>
                 </div>
               </div>
 
               {/* Floating mini-cards */}
-              <div className="absolute -top-6 -right-6 rounded-2xl bg-white p-3 shadow-xl shadow-primary/10 animate-pulse-soft">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                    <span className="text-green-600 text-sm">✓</span>
+              <div className="absolute -top-5 -right-5 glass rounded-2xl p-3 shadow-xl shadow-primary/10 border border-white/50 animate-pulse-soft">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-green-50 flex items-center justify-center">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-text-dark">
-                      E-KYC Verified
-                    </p>
-                    <p className="text-[10px] text-text-muted">Aman & Terpercaya</p>
+                    <p className="text-xs font-semibold text-text-dark">E-KYC Verified</p>
+                    <p className="text-[10px] text-text-muted">Identitas terjamin</p>
                   </div>
                 </div>
               </div>
-              <div className="absolute -bottom-4 -left-8 rounded-2xl bg-white p-3 shadow-xl shadow-secondary/10 animate-pulse-soft animation-delay-300">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-secondary/10 flex items-center justify-center">
-                    <span className="text-secondary text-sm">💰</span>
+              <div className="absolute -bottom-4 -left-6 glass rounded-2xl p-3 shadow-xl shadow-secondary/10 border border-white/50 animate-pulse-soft animation-delay-300">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-secondary/10 flex items-center justify-center">
+                    <span className="text-secondary text-sm">🛡️</span>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-text-dark">
-                      Escrow Aktif
-                    </p>
-                    <p className="text-[10px] text-text-muted">Dana terlindungi</p>
+                    <p className="text-xs font-semibold text-text-dark">Escrow Aktif</p>
+                    <p className="text-[10px] text-text-muted">Dana dilindungi sistem</p>
                   </div>
                 </div>
               </div>
