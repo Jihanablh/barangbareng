@@ -41,21 +41,21 @@
   };
 
   const categories = [
-    { id: 1, name: "Elektronik & Produktivitas", icon: "laptop", count: 847, color: "from-blue-600 to-cyan-500", examples: "Laptop, iPad, Proyektor" },
-    { id: 2, name: "Kamera, Konten & Media", icon: "camera", count: 312, color: "from-cyan-500 to-teal-500", examples: "Kamera, Ring Light, Tripod" },
-    { id: 3, name: "Peralatan Kuliah & Akademik", icon: "book-open", count: 189, color: "from-amber-500 to-orange-500", examples: "Kalkulator, Drawing Tablet" },
-    { id: 4, name: "Kamar Kos & Daily Living", icon: "home", count: 423, color: "from-green-500 to-emerald-600", examples: "Meja Lipat, Kipas Angin" },
-    { id: 5, name: "Masak & Makan Anak Kos", icon: "utensils", count: 234, color: "from-orange-500 to-rose-500", examples: "Rice Cooker, Kompor Listrik" },
-    { id: 6, name: "Kebersihan & Laundry", icon: "sparkles", count: 167, color: "from-teal-500 to-blue-500", examples: "Setrika, Steamer, Vacuum" },
-    { id: 7, name: "Fashion Formal & Acara", icon: "shirt", count: 256, color: "from-purple-500 to-violet-600", examples: "Jas, Blazer, Toga" },
-    { id: 8, name: "Event, Organisasi & Kepanitiaan", icon: "calendar", count: 134, color: "from-pink-500 to-rose-600", examples: "Speaker, HT, Mic Wireless" },
-    { id: 9, name: "Outdoor, Travel & Healing", icon: "tent", count: 198, color: "from-emerald-500 to-green-700", examples: "Tenda, Sleeping Bag" },
-    { id: 10, name: "Kesehatan & Darurat", icon: "heart-pulse", count: 89, color: "from-red-500 to-amber-500", examples: "Termometer, P3K" },
-    { id: 11, name: "Beauty & Self-Care", icon: "smile", count: 112, color: "from-rose-500 to-fuchsia-600", examples: "Hair Dryer, Catokan" },
-    { id: 12, name: "Pinjam Gratis", icon: "gift", count: 156, color: "from-teal-500 to-emerald-600", examples: "Mukena, Payung, Charger" }
+    { id: 1, name: "Elektronik & Produktivitas", image: images.laptop, count: 847, color: "from-blue-600 to-cyan-500", examples: "Laptop, iPad, Proyektor" },
+    { id: 2, name: "Kamera, Konten & Media", image: images.canon, count: 312, color: "from-cyan-500 to-teal-500", examples: "Kamera, Ring Light, Tripod" },
+    { id: 3, name: "Peralatan Kuliah & Akademik", image: images.calculator, count: 189, color: "from-amber-500 to-orange-500", examples: "Kalkulator, Drawing Tablet" },
+    { id: 4, name: "Kamar Kos & Daily Living", image: images.desk, count: 423, color: "from-green-500 to-emerald-600", examples: "Meja Lipat, Kipas Angin" },
+    { id: 5, name: "Masak & Makan Anak Kos", image: images.cooker, count: 234, color: "from-orange-500 to-rose-500", examples: "Rice Cooker, Kompor Listrik" },
+    { id: 6, name: "Kebersihan & Laundry", image: images.iron, count: 167, color: "from-teal-500 to-blue-500", examples: "Setrika, Steamer, Vacuum" },
+    { id: 7, name: "Fashion Formal & Acara", image: images.suit, count: 256, color: "from-purple-500 to-violet-600", examples: "Jas, Blazer, Toga" },
+    { id: 8, name: "Event, Organisasi & Kepanitiaan", image: images.speaker, count: 134, color: "from-pink-500 to-rose-600", examples: "Speaker, HT, Mic Wireless" },
+    { id: 9, name: "Outdoor, Travel & Healing", image: images.tent, count: 198, color: "from-emerald-500 to-green-700", examples: "Tenda, Sleeping Bag" },
+    { id: 10, name: "Kesehatan & Darurat", image: images.umbrella, count: 89, color: "from-red-500 to-amber-500", examples: "Termometer, P3K" },
+    { id: 11, name: "Beauty & Self-Care", image: images.mirror, count: 112, color: "from-rose-500 to-fuchsia-600", examples: "Hair Dryer, Catokan" },
+    { id: 12, name: "Pinjam Gratis", image: images.umbrella, count: 156, color: "from-teal-500 to-emerald-600", examples: "Mukena, Payung, Charger" }
   ];
 
-  const campuses = ["Universitas Indonesia", "Universitas Bakrie", "BINUS University", "Trisakti", "Gunadarma", "Universitas Pancasila", "UPN Veteran Jakarta", "Universitas Negeri Jakarta"];
+  const campuses = ["Universitas Bakrie", "Universitas Indonesia", "BINUS University", "Universitas Trisakti", "Universitas Gunadarma", "Universitas Negeri Jakarta", "UPN Veteran Jakarta", "Universitas Pancasila"];
   const codLocations = ["Gerbang kampus utama", "Perpustakaan pusat", "Kantin lantai 1", "Lobby gedung", "Stasiun terdekat", "Kos area sekitar kampus", "Plaza Festival", "Stasiun Manggarai"];
   const bundles = ["Paket Anak Kos Baru", "Paket Sidang", "Paket Presentasi", "Paket Konten", "Paket Camping", "Paket Event Kampus", "Paket Masak Hemat", "Paket Laundry Kos"];
   const vouchers = [
@@ -71,26 +71,26 @@
     ["iPad 9th Gen", "Elektronik & Produktivitas", "Tablet", 35000, "sewa", "Rawamangun, Jakarta Timur", "Universitas Negeri Jakarta", images.ipad, "Farhan Maulana", "FM", "silver", ["Terdekat"]],
     ["Printer Canon Pixma", "Elektronik & Produktivitas", "Printer", 22000, "sewa", "Lenteng Agung", "Universitas Pancasila", images.printer, "Dewi Lestari", "DL", "silver", ["Cocok untuk Sidang"]],
     ["Proyektor Mini", "Elektronik & Produktivitas", "Proyektor", 40000, "sewa", "Kuningan, Jakarta Selatan", "Universitas Bakrie", images.projector, "Arga Tama", "AT", "gold", ["Event Ready"]],
-    ["Powerbank 20.000 mAh", "Elektronik & Produktivitas", "Powerbank", 12000, "sewa", "Grogol, Jakarta Barat", "Trisakti", images.powerbank, "Kevin Putra", "KP", "bronze", ["Budget Friendly"]],
-    ["Kabel HDMI / Converter Type-C", "Elektronik & Produktivitas", "Kabel & Converter", 8000, "sewa", "Pondok Cina", "Gunadarma", images.hdmi, "Tasya Nabila", "TN", "silver", ["Budget Friendly"]],
+    ["Powerbank 20.000 mAh", "Elektronik & Produktivitas", "Powerbank", 12000, "sewa", "Grogol, Jakarta Barat", "Universitas Trisakti", images.powerbank, "Kevin Putra", "KP", "bronze", ["Budget Friendly"]],
+    ["Kabel HDMI / Converter Type-C", "Elektronik & Produktivitas", "Kabel & Converter", 8000, "sewa", "Pondok Cina", "Universitas Gunadarma", images.hdmi, "Tasya Nabila", "TN", "silver", ["Budget Friendly"]],
     ["Kamera Canon EOS M50", "Kamera, Konten & Media", "Kamera Mirrorless", 55000, "sewa", "Kuningan, Jakarta Selatan", "Universitas Bakrie", images.canon, "Anisa Dewi", "AD", "gold", ["Top Rated", "Konten Ready"]],
     ["Sony A6000", "Kamera, Konten & Media", "Kamera Mirrorless", 50000, "sewa", "Depok Town Square", "Universitas Indonesia", images.sony, "Maya Putri", "MP", "gold", ["Banyak Dicari"]],
-    ["GoPro Hero 11", "Kamera, Konten & Media", "Action Cam", 45000, "sewa", "Kalimalang, Bekasi", "Gunadarma", images.gopro, "Rio Aditya", "RA", "silver", ["Outdoor Ready"]],
+    ["GoPro Hero 11", "Kamera, Konten & Media", "Action Cam", 45000, "sewa", "Kalimalang, Bekasi", "Universitas Gunadarma", images.gopro, "Rio Aditya", "RA", "silver", ["Outdoor Ready"]],
     ["Tripod Kamera", "Kamera, Konten & Media", "Tripod", 15000, "sewa", "Sudirman, Jakarta", "Universitas Bakrie", images.tripod, "Salma Rahma", "SR", "silver", ["Event Ready"]],
     ["Ring Light", "Kamera, Konten & Media", "Lighting", 18000, "sewa", "Cawang, Jakarta Timur", "UPN Veteran Jakarta", images.ring, "Laras Ayu", "LA", "silver", ["Konten Ready"]],
     ["Mic Clip-on Wireless", "Kamera, Konten & Media", "Microphone", 22000, "sewa", "Rawamangun, Jakarta Timur", "Universitas Negeri Jakarta", images.mic, "Bima Arya", "BA", "gold", ["Konten Ready"]],
     ["Kalkulator Scientific Casio", "Peralatan Kuliah & Akademik", "Kalkulator", 8000, "sewa", "Margonda, Depok", "Universitas Indonesia", images.calculator, "Fina Zahra", "FZ", "silver", ["Budget Friendly"]],
     ["Drawing Tablet Wacom", "Peralatan Kuliah & Akademik", "Drawing Tablet", 30000, "sewa", "Kemanggisan", "BINUS University", images.tablet, "Hana Pratiwi", "HP", "silver", ["Design Ready"]],
-    ["Pointer Presentasi", "Peralatan Kuliah & Akademik", "Presenter", 10000, "sewa", "Grogol", "Trisakti", images.pointer, "Reno Satria", "RS", "bronze", ["Cocok untuk Sidang"]],
-    ["Hard Disk Eksternal", "Peralatan Kuliah & Akademik", "Storage", 20000, "sewa", "Pondok Cina", "Gunadarma", images.hdd, "Tasya Nabila", "TN", "silver", ["Terdekat"]],
+    ["Pointer Presentasi", "Peralatan Kuliah & Akademik", "Presenter", 10000, "sewa", "Grogol", "Universitas Trisakti", images.pointer, "Reno Satria", "RS", "bronze", ["Cocok untuk Sidang"]],
+    ["Hard Disk Eksternal", "Peralatan Kuliah & Akademik", "Storage", 20000, "sewa", "Pondok Cina", "Universitas Gunadarma", images.hdd, "Tasya Nabila", "TN", "silver", ["Terdekat"]],
     ["Meja Lipat Anak Kos", "Kamar Kos & Daily Living", "Meja", 15000, "sewa", "Kukusan, Depok", "Universitas Indonesia", images.desk, "Dimas Prakoso", "DP", "silver", ["Cocok untuk Anak Kos"]],
     ["Kipas Angin Portable", "Kamar Kos & Daily Living", "Kipas", 12000, "sewa", "Cawang", "UPN Veteran Jakarta", images.fan, "Nia Amalia", "NA", "silver", ["Cocok untuk Anak Kos"]],
     ["Rak Susun Portable", "Kamar Kos & Daily Living", "Rak", 13000, "sewa", "Rawamangun", "Universitas Negeri Jakarta", images.rack, "Raka Wijaya", "RW", "bronze", ["Cocok untuk Anak Kos"]],
     ["Cermin Full Body", "Kamar Kos & Daily Living", "Cermin", 16000, "sewa", "Kemanggisan", "BINUS University", images.mirror, "Mira Kartika", "MK", "silver", ["Terdekat"]],
     ["Rice Cooker Mini", "Masak & Makan Anak Kos", "Rice Cooker", 14000, "sewa", "Kukusan, Depok", "Universitas Indonesia", images.cooker, "Alya Putri", "AP", "gold", ["Cocok untuk Anak Kos"]],
     ["Kompor Listrik", "Masak & Makan Anak Kos", "Kompor", 18000, "sewa", "Lenteng Agung", "Universitas Pancasila", images.stove, "Galih Ramadhan", "GR", "silver", ["KOSHEMAT"]],
-    ["Teflon Mini", "Masak & Makan Anak Kos", "Teflon", 8000, "sewa", "Grogol", "Trisakti", images.pan, "Vina Septi", "VS", "bronze", ["Budget Friendly"]],
-    ["Blender Mini", "Masak & Makan Anak Kos", "Blender", 15000, "sewa", "Kalimalang", "Gunadarma", images.blender, "Tio Nugraha", "TN", "silver", ["Cocok untuk Anak Kos"]],
+    ["Teflon Mini", "Masak & Makan Anak Kos", "Teflon", 8000, "sewa", "Grogol", "Universitas Trisakti", images.pan, "Vina Septi", "VS", "bronze", ["Budget Friendly"]],
+    ["Blender Mini", "Masak & Makan Anak Kos", "Blender", 15000, "sewa", "Kalimalang", "Universitas Gunadarma", images.blender, "Tio Nugraha", "TN", "silver", ["Cocok untuk Anak Kos"]],
     ["Setrika Philips", "Kebersihan & Laundry", "Setrika", 10000, "sewa", "Rawamangun", "Universitas Negeri Jakarta", images.iron, "Salsa Fitri", "SF", "silver", ["Budget Friendly"]],
     ["Steamer Baju", "Kebersihan & Laundry", "Steamer", 18000, "sewa", "Kuningan", "Universitas Bakrie", images.steamer, "Yudha Pratama", "YP", "silver", ["Cocok untuk Sidang"]],
     ["Vacuum Cleaner Mini", "Kebersihan & Laundry", "Vacuum", 17000, "sewa", "Depok", "Universitas Indonesia", images.vacuum, "Reza Fahmi", "RF", "bronze", ["Cocok untuk Anak Kos"]],
@@ -101,7 +101,7 @@
     ["Toga Wisuda", "Fashion Formal & Acara", "Toga", 30000, "sewa", "Depok", "Universitas Indonesia", images.toga, "Fajar Nugroho", "FN", "silver", ["Cocok untuk Sidang"]],
     ["HT Walkie Talkie", "Event, Organisasi & Kepanitiaan", "HT", 22000, "sewa", "Kuningan", "Universitas Bakrie", images.walkie, "Nando Pratama", "NP", "silver", ["Event Ready"]],
     ["Speaker JBL", "Event, Organisasi & Kepanitiaan", "Speaker", 38000, "sewa", "Kemanggisan", "BINUS University", images.speaker, "Dara Lestari", "DL", "gold", ["Event Ready"]],
-    ["Tenda Camping", "Outdoor, Travel & Healing", "Tenda", 50000, "sewa", "Depok", "Gunadarma", images.tent, "Yoga Saputra", "YS", "gold", ["Outdoor Ready"]],
+    ["Tenda Camping", "Outdoor, Travel & Healing", "Tenda", 50000, "sewa", "Depok", "Universitas Gunadarma", images.tent, "Yoga Saputra", "YS", "gold", ["Outdoor Ready"]],
     ["Sleeping Bag", "Outdoor, Travel & Healing", "Sleeping Bag", 18000, "sewa", "Lenteng Agung", "Universitas Pancasila", images.sleeping, "Rani Olivia", "RO", "silver", ["Budget Friendly"]],
     ["Payung Kampus", "Pinjam Gratis", "Payung", 0, "pinjam", "Gerbang UI", "Universitas Indonesia", images.umbrella, "Komunitas BB", "BB", "gold", ["Pinjam Gratis"]]
   ];

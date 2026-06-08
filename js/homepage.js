@@ -15,17 +15,17 @@
   ];
 
   const categories = [
-    ["Elektronik & Produktivitas", "Laptop, iPad, proyektor", "847 barang", "laptop", "from-blue-600 to-cyan-500"],
-    ["Kamera, Konten & Media Sosial", "Kamera, ring light, tripod", "312 barang", "camera", "from-cyan-500 to-teal-500"],
-    ["Kamar Kos & Daily Living", "Meja lipat, kipas, rak susun", "320 barang", "home", "from-teal-500 to-emerald-500"],
-    ["Masak & Makan Anak Kos", "Rice cooker, teflon, blender", "265 barang", "utensils", "from-amber-500 to-orange-500"],
-    ["Kebersihan & Laundry", "Setrika, steamer, vacuum", "184 barang", "sparkles", "from-sky-500 to-blue-500"],
-    ["Fashion Formal & Acara Kampus", "Jas, kebaya, toga", "226 barang", "shirt", "from-violet-500 to-fuchsia-500"],
-    ["Event & Organisasi", "HT, speaker, mic", "198 barang", "megaphone", "from-indigo-500 to-blue-500"],
-    ["Outdoor & Travel", "Tenda, sleeping bag", "142 barang", "tent", "from-green-500 to-teal-500"],
-    ["Kesehatan & Darurat", "Termometer, P3K, payung", "95 barang", "heart-pulse", "from-rose-500 to-red-500"],
-    ["Beauty & Self-Care", "Hair dryer, mirror, styling kit", "118 barang", "wand-sparkles", "from-pink-500 to-rose-500"],
-    ["Pinjam Gratis", "Payung, charger, buku", "73 barang", "hand-heart", "from-teal-500 to-cyan-500"]
+    ["Elektronik & Produktivitas", "Laptop, iPad, proyektor", "847 barang", "Laptop ASUS VivoBook"],
+    ["Kamera, Konten & Media Sosial", "Kamera, ring light, tripod", "312 barang", "Kamera Canon EOS M50"],
+    ["Kamar Kos & Daily Living", "Meja lipat, kipas, rak susun", "320 barang", "Meja Lipat Anak Kos"],
+    ["Masak & Makan Anak Kos", "Rice cooker, teflon, blender", "265 barang", "Rice Cooker Mini"],
+    ["Kebersihan & Laundry", "Setrika, steamer, vacuum", "184 barang", "Setrika Philips"],
+    ["Fashion Formal & Acara Kampus", "Jas, kebaya, toga", "226 barang", "Jas Pria Formal"],
+    ["Event & Organisasi", "HT, speaker, mic", "198 barang", "Speaker JBL"],
+    ["Outdoor & Travel", "Tenda, sleeping bag", "142 barang", "Tenda Camping"],
+    ["Kesehatan & Darurat", "Termometer, P3K, payung", "95 barang", "Payung Kampus"],
+    ["Beauty & Self-Care", "Hair dryer, mirror, styling kit", "118 barang", "Cermin Full Body"],
+    ["Pinjam Gratis", "Payung, charger, buku", "73 barang", "Payung Kampus"]
   ];
 
   const useCases = [
@@ -58,8 +58,8 @@
   ];
 
   const freeItems = [
-    ["Payung", "umbrella"], ["Mukena", "shirt"], ["Sajadah", "scan"], ["Charger HP", "battery-charging"],
-    ["Kabel HDMI", "cable"], ["Kalkulator", "calculator"], ["Buku Referensi", "book-open"], ["Lunch Box", "package"]
+    ["Payung", BBData.images.umbrella], ["Kabel HDMI", BBData.images.hdmi], ["Kalkulator", BBData.images.calculator], ["Buku Referensi", BBData.images.tablet],
+    ["Charger HP", BBData.images.powerbank], ["Lunch Box", BBData.images.cooker], ["Jas Cadangan", BBData.images.suit], ["Tripod", BBData.images.tripod]
   ];
 
   const faq = [
@@ -108,7 +108,7 @@
             <span class="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-bold text-brand-blue">Platform Sewa Barang Harian untuk Mahasiswa</span>
             <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-tight text-slate-950 sm:text-5xl lg:text-6xl">Sewa Barang Harian Mahasiswa, Lebih Hemat dan Praktis.</h1>
             <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">Temukan laptop, kamera, alat kos, outfit sidang, perlengkapan event, sampai kebutuhan harian dari sesama mahasiswa di sekitarmu.</p>
-            <div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-6 py-3" data-nav="browse">Jelajah Barang</button><button class="btn-secondary rounded-2xl px-6 py-3" data-modal="upload">Sewakan Barang</button></div>
+            <div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-6 py-3" data-nav="browse">Jelajah Barang</button><button class="btn-secondary rounded-2xl px-6 py-3" data-nav="upload-product">Sewakan Barang</button></div>
             <div class="mt-8 rounded-[32px] bg-white p-4 shadow-card-hover">
               <div class="grid gap-3 lg:grid-cols-[1fr_190px_190px_auto]">
                 <label class="field flex items-center gap-3">${icon("search", "h-5 w-5 text-brand-blue")}<input id="home-search" class="w-full outline-none" placeholder="Cari produk, kategori, kampus..."></label>
@@ -142,7 +142,10 @@
       </section>
 
       ${sectionHeader("Temukan Barang Sesuai Kebutuhanmu", "Pilih kategori yang paling sesuai dengan kebutuhan kuliah, kos, event, atau aktivitas harianmu.")}
-      <section class="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8"><div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">${categories.map(category => `<button class="product-card card p-5 text-left" data-home-category="${category[0]}"><span class="mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-r ${category[4]} text-white">${icon(category[3])}</span><strong class="text-slate-950">${category[0]}</strong><p class="mt-2 text-sm text-slate-500">${category[1]}</p><p class="mt-3 text-xs font-bold text-brand-blue">${category[2]}</p></button>`).join("")}</div></section>
+      <section class="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8"><div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">${categories.map(category => {
+        const item = byName(category[3]);
+        return `<button class="product-card card overflow-hidden text-left" data-home-category="${category[0]}"><img src="${item.image}" alt="${category[0]}" class="h-32 w-full object-cover"><div class="p-5"><strong class="text-slate-950">${category[0]}</strong><p class="mt-2 text-sm text-slate-500">${category[1]}</p><p class="mt-3 text-xs font-bold text-brand-blue">${category[2]}</p></div></button>`;
+      }).join("")}</div></section>
 
       ${sectionHeader("Lagi Banyak Dicari", "Barang populer yang sering disewa mahasiswa minggu ini.")}
       <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
@@ -162,9 +165,9 @@
 
       <section class="bg-white py-16">${sectionInner("Cari Barang di Sekitar Kampusmu", "Temukan barang dari mahasiswa di kampus dan area kos terdekat.", `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">${campuses.map(campus => `<article class="card p-5"><h3 class="font-extrabold text-slate-950">${campus[0]}</h3><p class="mt-2 text-sm text-slate-500">${campus[1]}</p><p class="mt-4 font-bold text-brand-blue">${campus[2]}</p><button class="btn-secondary mt-5 rounded-2xl px-4 py-3" data-campus="${campus[0]}">Lihat Barang</button></article>`).join("")}</div>`)}</section>
 
-      <section id="pinjam-gratis" class="bg-teal-50 py-16">${sectionInner("Butuh Barang Sementara? Cek Pinjam Gratis", "Beberapa barang bisa dipinjam tanpa biaya sewa, hanya dikenakan biaya layanan.", `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">${freeItems.map(item => `<article class="rounded-[24px] bg-white p-5 shadow-card"><span class="grid h-12 w-12 place-items-center rounded-2xl bg-teal-50 text-teal-600">${icon(item[1])}</span><h3 class="mt-4 font-extrabold">${item[0]}</h3><p class="mt-2 text-sm text-slate-500">Gratis - biaya layanan Rp5.000</p><span class="badge mt-4 bg-teal-50 text-teal-700">Pinjam Gratis</span></article>`).join("")}</div><button class="btn-primary mt-8 rounded-2xl px-6 py-3" data-free-browse>Lihat Semua Pinjam Gratis</button>`)}</section>
+      <section id="pinjam-gratis" class="bg-teal-50 py-16">${sectionInner("Butuh Barang Sementara? Cek Pinjam Gratis", "Beberapa barang bisa dipinjam tanpa biaya sewa, hanya dikenakan biaya layanan.", `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">${freeItems.map(item => `<article class="overflow-hidden rounded-[24px] bg-white shadow-card"><img src="${item[1]}" alt="${item[0]}" class="h-36 w-full object-cover"><div class="p-5"><h3 class="font-extrabold">${item[0]}</h3><p class="mt-2 text-sm text-slate-500">Gratis - biaya layanan Rp5.000</p><span class="badge mt-4 bg-teal-50 text-teal-700">Pinjam Gratis</span></div></article>`).join("")}</div><button class="btn-primary mt-8 rounded-2xl px-6 py-3" data-free-browse>Lihat Semua Pinjam Gratis</button>`)}</section>
 
-      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"><div class="overflow-hidden rounded-[36px] bg-gradient-to-br from-blue-600 to-teal-500 p-8 text-white shadow-blue lg:p-10"><div class="grid gap-8 lg:grid-cols-[1fr_.9fr] lg:items-center"><div><span class="badge bg-white/15 text-white">Untuk pemilik barang</span><h2 class="mt-4 text-3xl font-extrabold lg:text-5xl">Barangmu Nganggur? Jadikan Penghasilan.</h2><p class="mt-4 max-w-2xl text-white/85">Laptop, kamera, jas, rice cooker, atau alat event yang jarang dipakai bisa jadi sumber penghasilan tambahan.</p><div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="rounded-2xl bg-white px-6 py-3 font-extrabold text-brand-blue" data-modal="upload">Mulai Sewakan Barang</button><button class="rounded-2xl border border-white/40 px-6 py-3 font-extrabold text-white" data-scroll-target="how-it-works">Lihat Cara Kerja</button></div></div><div class="grid gap-3 sm:grid-cols-2">${[["Laptop", "Rp300rb-700rb/bulan"], ["Kamera", "Rp500rb-1jt/bulan"], ["Jas formal", "Rp150rb-400rb/bulan"], ["Speaker", "Rp200rb-600rb/bulan"]].map(item => `<div class="rounded-3xl bg-white/15 p-5 backdrop-blur"><p class="text-sm text-white/75">${item[0]}</p><strong class="mt-1 block text-xl">${item[1]}</strong></div>`).join("")}</div></div></div></section>
+      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"><div class="overflow-hidden rounded-[36px] bg-gradient-to-br from-blue-600 to-teal-500 p-8 text-white shadow-blue lg:p-10"><div class="grid gap-8 lg:grid-cols-[1fr_.9fr] lg:items-center"><div><span class="badge bg-white/15 text-white">Untuk pemilik barang</span><h2 class="mt-4 text-3xl font-extrabold lg:text-5xl">Barangmu Nganggur? Jadikan Penghasilan.</h2><p class="mt-4 max-w-2xl text-white/85">Laptop, kamera, jas, rice cooker, atau alat event yang jarang dipakai bisa jadi sumber penghasilan tambahan.</p><div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="rounded-2xl bg-white px-6 py-3 font-extrabold text-brand-blue" data-nav="upload-product">Mulai Sewakan Barang</button><button class="rounded-2xl border border-white/40 px-6 py-3 font-extrabold text-white" data-scroll-target="how-it-works">Lihat Cara Kerja</button></div></div><div class="grid gap-3 sm:grid-cols-2">${[["Laptop", "Rp300rb-700rb/bulan"], ["Kamera", "Rp500rb-1jt/bulan"], ["Jas formal", "Rp150rb-400rb/bulan"], ["Speaker", "Rp200rb-600rb/bulan"]].map(item => `<div class="rounded-3xl bg-white/15 p-5 backdrop-blur"><p class="text-sm text-white/75">${item[0]}</p><strong class="mt-1 block text-xl">${item[1]}</strong></div>`).join("")}</div></div></div></section>
 
       <section id="faq" class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8">${sectionTitle("FAQ Singkat", "Pertanyaan yang paling sering muncul dari pengguna baru.")}<div class="mt-8 grid gap-3">${faq.map((item, index) => `<article class="card overflow-hidden"><button class="flex w-full items-center justify-between gap-4 p-5 text-left font-extrabold text-slate-950" data-faq="${index}">${item[0]}${icon("chevron-down", "h-5 w-5 text-slate-400")}</button><div class="hidden px-5 pb-5 text-sm leading-6 text-slate-600" data-faq-panel="${index}">${item[1]}</div></article>`).join("")}</div></section>
     `;
@@ -192,7 +195,6 @@
 
   function bindHomepage() {
     components.bindNavEvents();
-    document.querySelectorAll("[data-modal]").forEach(button => button.addEventListener("click", () => ui.openModal(button.dataset.modal)));
     document.querySelector("#home-search-btn")?.addEventListener("click", () => {
       state.filters.query = document.querySelector("#home-search")?.value || "";
       state.filters.category = document.querySelector("#home-category")?.value || "all";

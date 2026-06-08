@@ -1,17 +1,4 @@
 (function () {
-  const modalRouteMap = {
-    login: "login",
-    register: "register",
-    topup: "topup",
-    chat: "chat",
-    upload: "upload-product",
-    checkout: "checkout",
-    "qr-handover": "qr-handover",
-    "payment-qr": "payment-qr",
-    "payment-verification": "payment-verification",
-    "transaction-success": "transaction-success"
-  };
-
   function toast(message) {
     const mount = document.querySelector("#toast-mount");
     if (!mount) return;
@@ -26,17 +13,5 @@
     }, 2600);
   }
 
-  function openModal(type) {
-    const route = modalRouteMap[type];
-    if (!route) return;
-    router.navigate(route);
-  }
-
-  function closeModals() {
-    document.querySelectorAll("[id^='modal-'][id$='-mount']").forEach(mount => {
-      mount.innerHTML = "";
-    });
-  }
-
-  window.ui = { toast, openModal, closeModals };
+  window.ui = { toast };
 })();

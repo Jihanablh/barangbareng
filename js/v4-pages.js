@@ -22,9 +22,9 @@
   }
 
   function renderLogin() {
-    document.querySelector("#login-view").innerHTML = shell("Masuk Akun", "Lanjutkan transaksi sewa, top up, dan dashboard tanpa popup.", `<section class="card grid gap-6 p-6 lg:grid-cols-[1fr_.8fr]">
+    document.querySelector("#login-view").innerHTML = shell("Masuk Akun", "Lanjutkan transaksi sewa, top up, dan dashboard lewat halaman penuh.", `<section class="card grid gap-6 p-6 lg:grid-cols-[1fr_.8fr]">
       <form class="grid gap-4"><input class="field" placeholder="Email kampus atau no. HP"><input class="field" type="password" placeholder="Password"><button class="btn-primary rounded-2xl px-5 py-3" data-login-success>Masuk</button><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Belum punya akun? Daftar</button></form>
-      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h2 class="font-extrabold">Akun demo proposal</h2><p class="mt-2 text-sm font-semibold">Semua proses ditampilkan sebagai halaman SPA, bukan modal.</p></aside>
+      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h2 class="font-extrabold">Akun demo proposal</h2><p class="mt-2 text-sm font-semibold">Semua proses ditampilkan sebagai halaman SPA di tab yang sama.</p></aside>
     </section>`);
     bindBase();
     document.querySelector("[data-login-success]")?.addEventListener("click", event => { event.preventDefault(); ui.toast("Masuk berhasil"); router.navigate("dashboard-buyer"); });
@@ -66,7 +66,7 @@
   }
 
   function renderUploadProduct() {
-    document.querySelector("#upload-product-view").innerHTML = shell("Upload Barang", "Tambahkan listing baru tanpa popup.", productForm({}, "Simpan Draft Listing", "data-save-upload"));
+    document.querySelector("#upload-product-view").innerHTML = shell("Upload Barang", "Tambahkan listing baru lewat halaman penuh.", productForm({}, "Simpan Draft Listing", "data-save-upload"));
     bindBase();
     document.querySelector("[data-save-upload]")?.addEventListener("click", event => { event.preventDefault(); ui.toast("Draft listing tersimpan"); router.navigate("dashboard-seller"); });
   }

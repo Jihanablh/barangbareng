@@ -3,8 +3,7 @@
   const rupiah = value => components.rupiah(value);
   const PAGE_SIZE = 16;
 
-  const campusOptions = ["Universitas Bakrie", "Universitas Indonesia", "BINUS University", "Universitas Trisakti", "Universitas Gunadarma", "Universitas Negeri Jakarta", "UPN Veteran Jakarta", "Universitas Pancasila", "Lainnya"];
-  const areaOptions = ["Kuningan", "Depok", "Kemanggisan", "Grogol", "Rawamangun", "Lenteng Agung", "Jakarta Selatan", "Jakarta Timur", "Jakarta Barat", "Bekasi", "Tangerang"];
+  const campusOptions = BBData.campuses;
   const codOptions = ["Gerbang kampus", "Perpustakaan", "Kantin", "Lobby gedung", "Stasiun terdekat", "Kos area sekitar kampus", "Bisa atur lokasi dengan pemilik"];
   const categoryOptions = ["Elektronik & Produktivitas", "Kamera, Konten & Media Sosial", "Kamar Kos & Daily Living", "Masak & Makan Anak Kos", "Kebersihan & Laundry", "Fashion Formal & Acara Kampus", "Event & Organisasi", "Outdoor & Travel", "Kesehatan & Darurat", "Beauty & Self-Care", "Pinjam Gratis"];
   const quickPrice = [
@@ -147,16 +146,14 @@
     return `<section class="border-b border-slate-100 py-4">
       <h3 class="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900">${icon(iconName, "h-4 w-4 text-brand-blue")} ${title}</h3>
       <div class="grid gap-2">${items.map(item => `<label class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-slate-600"><input class="rounded border-slate-300 accent-blue-600" type="checkbox" data-check-filter="${key}" value="${item}" ${selected.includes(item) ? "checked" : ""}>${item}</label>`).join("")}</div>
-      ${title === "Kampus" ? `<select class="field mt-3 text-sm"><option>Kampus tambahan</option><option>Universitas Budi Luhur</option><option>Universitas Esa Unggul</option></select>` : ""}
     </section>`;
   }
 
   function filterPanel(mobile = false) {
     return `<aside class="${mobile ? "fixed inset-x-0 bottom-0 z-[90] hidden max-h-[86vh] overflow-y-auto rounded-t-[32px] border border-slate-100 bg-white p-5 shadow-xl" : "sticky top-24 hidden h-fit w-72 shrink-0 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:block"}" id="${mobile ? "mobile-filter-sheet" : "desktop-filter"}">
       <div class="mb-3 flex items-center justify-between"><h2 class="flex items-center gap-2 text-lg font-extrabold text-slate-950">${icon("sliders-horizontal")} FILTER</h2>${mobile ? `<button class="grid h-10 w-10 place-items-center rounded-full bg-slate-100" data-close-filter>${icon("x")}</button>` : ""}</div>
-      ${checkboxGroup("Kampus", "campuses", campusOptions, "building-2")}
-      ${checkboxGroup("Area Sekitar Kampus", "areas", areaOptions, "map-pin")}
-      ${checkboxGroup("Lokasi COD", "codLocations", codOptions, "scan-line")}
+      ${checkboxGroup("Lokasi Universitas", "campuses", campusOptions, "building-2")}
+      ${checkboxGroup("Titik COD Kampus", "codLocations", codOptions, "scan-line")}
       ${checkboxGroup("Kategori", "categories", categoryOptions, "layout-grid")}
       <section class="border-b border-slate-100 py-4">
         <h3 class="mb-3 text-sm font-extrabold text-slate-900">Harga Sewa / Hari</h3>

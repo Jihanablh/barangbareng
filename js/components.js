@@ -52,7 +52,7 @@
 
   function categoryCard(category) {
     return `<button class="product-card card p-5 text-left" data-category="${category.name}">
-      <span class="mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-r ${category.color} text-white">${icon(category.icon)}</span>
+      <span class="mb-5 block h-28 overflow-hidden rounded-2xl bg-slate-100">${imgTag({ image: category.image, name: category.name }, "h-full w-full object-cover")}</span>
       <strong class="text-slate-950">${category.name}</strong>
       <p class="mt-1 text-sm font-semibold text-slate-500">${category.count} barang</p>
       <p class="mt-3 text-xs font-semibold text-slate-400">${category.examples}</p>
@@ -103,7 +103,7 @@
       <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">${BBData.categories.map(categoryCard).join("")}</div>
     </section>
     <section id="how-it-works" class="bg-white py-16"><div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><h2 class="text-3xl font-extrabold text-slate-950">Cara Kerja</h2><div class="mt-6 grid gap-4 md:grid-cols-4">${["Cari barang", "Bayar DP aman", "COD pakai QR", "Kembalikan barang"].map((step, index) => `<article class="card p-5"><span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-brand font-extrabold text-white">0${index + 1}</span><h3 class="mt-4 font-bold">${step}</h3><p class="mt-2 text-sm text-slate-500">Alur dibuat singkat, jelas, dan cocok untuk transaksi sekitar kampus.</p></article>`).join("")}</div></div></section>
-    <section id="coin-pricing" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"><div class="card grid gap-6 p-8 lg:grid-cols-[1fr_auto] lg:items-center"><div><p class="font-bold text-brand-blue">Harga & Koin</p><h2 class="mt-2 text-3xl font-extrabold">1 Koin = Rp1.000</h2><p class="mt-3 text-slate-500">Top up hanya via QRIS BarangBareng. Min. top up pertama 20 Koin.</p></div><button class="btn-primary rounded-2xl px-6 py-3" data-modal="topup">Top Up Koin</button></div></section>
+    <section id="coin-pricing" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"><div class="card grid gap-6 p-8 lg:grid-cols-[1fr_auto] lg:items-center"><div><p class="font-bold text-brand-blue">Harga & Koin</p><h2 class="mt-2 text-3xl font-extrabold">1 Koin = Rp1.000</h2><p class="mt-3 text-slate-500">Top up hanya via QRIS BarangBareng. Min. top up pertama 20 Koin.</p></div><button class="btn-primary rounded-2xl px-6 py-3" data-nav="topup">Top Up Koin</button></div></section>
     <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8"><div class="mb-6 flex items-end justify-between"><div><p class="font-bold text-brand-blue">Lagi Banyak Dicari</p><h2 class="text-3xl font-extrabold text-slate-950">Produk Populer</h2></div><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="browse">Lihat Semua</button></div><div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">${featured.map(p => productCard(p)).join("")}</div></section>`;
     bindCommonEvents();
     document.querySelector("#hero-search-btn").addEventListener("click", () => {
@@ -180,7 +180,7 @@
           <label class="mt-5 block text-sm font-bold">Pilih tanggal</label><input class="field mt-2" type="date">
           <label class="mt-5 block text-sm font-bold">Durasi: ${state.bookingDays} hari</label><input id="booking-days" class="mt-3 w-full accent-blue-600" type="range" min="${product.minDays}" max="${product.maxDays}" value="${state.bookingDays}">
           <div class="mt-5 rounded-3xl bg-slate-50 p-4 text-sm font-semibold">${feeRows(total)}</div>
-          <button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-modal="chat">Chat Pemilik</button><p class="mt-4 rounded-3xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran aman dan tercatat.</p>
+          <button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><p class="mt-4 rounded-3xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran aman dan tercatat.</p>
         </aside>
       </div>
     </div>`;
@@ -201,7 +201,7 @@
     if (!mount) return;
     mount.innerHTML = dashboardShell("Dashboard Penyewa", [
       ["Saldo Koin", `${state.coinBalance} Koin`], ["Pesanan Aktif", "2"], ["Wishlist", state.wishlist.length], ["Total Hemat", "Rp3,4jt"], ["Level Pengguna", "Silver"], ["Voucher Aktif", "3"]
-    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-modal="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
+    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
     bindCommonEvents();
   }
 
@@ -217,7 +217,7 @@
     const chart = [45, 60, 52, 80, 70, 96].map((height, index) => `<div class="flex flex-1 flex-col items-center gap-2"><div class="w-full rounded-t-2xl bg-gradient-brand" style="height:${height}%"></div><span class="text-xs font-bold text-slate-400">B${index + 1}</span></div>`).join("");
     mount.innerHTML = dashboardShell("Dashboard Pemilik", [
       ["Pendapatan", "Rp1,8jt"], ["Barang Aktif", "12"], ["Sedang Disewa", "4"], ["Request Masuk", "3"], ["Rating", "4.9"], ["Produk Laris", "Jas Formal"]
-    ], `<div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><section class="card p-6"><div class="flex items-center justify-between"><h2 class="text-xl font-bold">Listing Barang</h2><button class="btn-primary rounded-2xl px-4 py-2" data-modal="upload">Upload Barang</button></div>${listings}</section><section class="card p-6"><h2 class="text-xl font-bold">Request Masuk</h2>${requests}</section></div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Pendapatan</h2><div class="mt-5 flex h-48 items-end gap-3">${chart}</div><p class="mt-5 rounded-3xl bg-amber-50 p-4 text-sm font-semibold text-amber-700">Tips: foto real yang terang dan deskripsi kelengkapan meningkatkan peluang disewa.</p></section>`);
+    ], `<div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><section class="card p-6"><div class="flex items-center justify-between"><h2 class="text-xl font-bold">Listing Barang</h2><button class="btn-primary rounded-2xl px-4 py-2" data-nav="upload-product">Upload Barang</button></div>${listings}</section><section class="card p-6"><h2 class="text-xl font-bold">Request Masuk</h2>${requests}</section></div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Pendapatan</h2><div class="mt-5 flex h-48 items-end gap-3">${chart}</div><p class="mt-5 rounded-3xl bg-amber-50 p-4 text-sm font-semibold text-amber-700">Tips: foto real yang terang dan deskripsi kelengkapan meningkatkan peluang disewa.</p></section>`);
     bindCommonEvents();
   }
   function renderProfile() {
@@ -272,7 +272,6 @@
     document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => { event.stopPropagation(); state.toggleWishlist(Number(button.dataset.wishlist)); ui.toast(state.wishlist.includes(Number(button.dataset.wishlist)) ? "Ditambahkan ke wishlist" : "Dihapus dari wishlist"); viewInit[router.currentView]?.(); }));
     document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => { state.filters.category = button.dataset.category; router.navigate("browse"); }));
     document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => { state.filters.query = button.dataset.chip; router.navigate("browse"); }));
-    document.querySelectorAll("[data-modal]").forEach(button => button.addEventListener("click", () => ui.openModal(button.dataset.modal)));
     document.querySelectorAll("[data-reset-filter]").forEach(button => button.addEventListener("click", filters.reset));
     bindNavEvents();
     if (window.lucide) lucide.createIcons();

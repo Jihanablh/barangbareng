@@ -34,7 +34,7 @@
         <div class="rounded-3xl bg-amber-50 p-4"><p class="text-sm font-bold text-amber-700">DP dibayar</p><strong class="mt-2 block text-2xl text-amber-700">-${coinNeed} Koin</strong></div>
         <div class="rounded-3xl bg-teal-50 p-4"><p class="text-sm font-bold text-teal-700">Saldo akhir</p><strong class="mt-2 block text-2xl text-teal-700">${after} Koin</strong></div>
       </div>
-      ${insufficient ? `<div class="mx-5 mb-5 rounded-3xl bg-red-50 p-4 font-semibold text-red-700">Saldo belum cukup. Tambah minimal ${Math.abs(after)} Koin untuk melanjutkan.</div><button class="btn-primary mx-5 mb-5 rounded-2xl px-5 py-3" data-modal="topup">Top Up Koin</button>` : `<button class="btn-primary mx-5 mb-5 rounded-2xl px-5 py-3" data-pay-coins>Bayar dengan Koin</button>`}
+      ${insufficient ? `<div class="mx-5 mb-5 rounded-3xl bg-red-50 p-4 font-semibold text-red-700">Saldo belum cukup. Tambah minimal ${Math.abs(after)} Koin untuk melanjutkan.</div><button class="btn-primary mx-5 mb-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Koin</button>` : `<button class="btn-primary mx-5 mb-5 rounded-2xl px-5 py-3" data-pay-coins>Bayar dengan Koin</button>`}
     </div>`;
   }
 
