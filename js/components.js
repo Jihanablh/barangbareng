@@ -185,7 +185,7 @@
       </div>
     </div>`;
     bindCommonEvents();
-    document.querySelector("#booking-days").addEventListener("input", event => { state.bookingDays = Number(event.target.value); renderDetail(); });
+    document.querySelector("#booking-days")?.addEventListener("input", event => { state.bookingDays = Number(event.target.value); renderDetail(); });
   }
 
   function renderCheckout() {

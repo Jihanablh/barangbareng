@@ -22,7 +22,7 @@ Struktur aktif:
 components/   navbar, footer, toast
 css/          styling modular
 js/           data, router, render page, interaksi
-pages/        partial route SPA
+partials/     partial route SPA
 index.html    entry point
 run-local.bat server lokal
 ```
