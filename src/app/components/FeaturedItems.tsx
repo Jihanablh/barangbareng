@@ -30,11 +30,11 @@ function SkeletonCard() {
 }
 
 export default function Catalog({ activeCategory, onCategoryChange, onSelectProduct }: CatalogProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [settledCategory, setSettledCategory] = useState<Category>(activeCategory);
+  const isLoading = settledCategory !== activeCategory;
 
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 500);
+    const timer = setTimeout(() => setSettledCategory(activeCategory), 500);
     return () => clearTimeout(timer);
   }, [activeCategory]);
 
@@ -75,6 +75,7 @@ export default function Catalog({ activeCategory, onCategoryChange, onSelectProd
             <button
               key={cat}
               id={`tab-${cat.toLowerCase().replace(/\s|&/g, "-")}`}
+              suppressHydrationWarning
               onClick={() => onCategoryChange(cat)}
               className={`rounded-2xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 active:scale-95 ${
                 activeCategory === cat
@@ -124,6 +125,7 @@ export default function Catalog({ activeCategory, onCategoryChange, onSelectProd
                       src={product.image}
                       alt={product.name}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-contain p-5 transition-transform duration-500 group-hover:scale-110"
                     />
                     {/* Rating */}
@@ -169,6 +171,7 @@ export default function Catalog({ activeCategory, onCategoryChange, onSelectProd
                     {/* CTA */}
                     <button
                       id={`btn-detail-${product.id}`}
+                      suppressHydrationWarning
                       className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.97]"
                     >
                       <ShoppingBag size={14} />

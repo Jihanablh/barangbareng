@@ -80,7 +80,7 @@ export default function TrustPillars() {
 
           {/* Right column — 2 stacked cards */}
           <div className="md:col-span-3 flex flex-col gap-5 lg:gap-6">
-            {/* Card 2: Escrow */}
+            {/* Card 2: Pembayaran Aman */}
             <div className="group relative flex-1 rounded-3xl border border-border/50 bg-gradient-to-br from-white via-white to-secondary/[0.04] p-7 lg:p-8 transition-all duration-400 hover:shadow-2xl hover:shadow-secondary/8 hover:-translate-y-1 animate-fade-in-up animation-delay-200 overflow-hidden">
               <div className="bento-shimmer absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative z-10 flex gap-5 items-start">
@@ -89,13 +89,13 @@ export default function TrustPillars() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h3 className="text-lg font-bold text-text-dark">Aman dengan Escrow</h3>
+                    <h3 className="text-lg font-bold text-text-dark">Pembayaran Aman</h3>
                     <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">DP 50%</span>
-                    <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">🔒 Secure</span>
+                    <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">Tercatat</span>
                   </div>
                   <p className="text-xs font-semibold text-secondary mb-2">Dana Ditahan Hingga Serah Terima</p>
                   <p className="text-sm text-text-muted leading-relaxed">
-                    Dana pembayaran disimpan dengan aman di sistem escrow.
+                    Dana pembayaran disimpan dengan aman di sistem BarangBareng.
                     Uang baru diteruskan ke pemilik setelah serah terima berhasil dikonfirmasi.
                   </p>
                 </div>

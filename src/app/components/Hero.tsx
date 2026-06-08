@@ -46,7 +46,7 @@ export default function Hero() {
               praktis. Dilengkapi verifikasi{" "}
               <strong className="text-text-dark">E-KYC</strong> dan sistem
               pembayaran{" "}
-              <strong className="text-text-dark">Escrow</strong>.
+              <strong className="text-text-dark">Pembayaran Aman</strong>.
             </p>
 
             {/* CTAs */}
@@ -124,7 +124,7 @@ export default function Hero() {
                     <span className="text-secondary text-sm">🛡️</span>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-text-dark">Escrow Aktif</p>
+                    <p className="text-xs font-semibold text-text-dark">Pembayaran Aman</p>
                     <p className="text-[10px] text-text-muted">Dana dilindungi sistem</p>
                   </div>
                 </div>

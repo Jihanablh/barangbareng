@@ -1,26 +1,18 @@
 import type { Metadata } from "next";
-import { Fredoka } from "next/font/google";
 import "./globals.css";
 
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
 export const metadata: Metadata = {
-  title: "BarangBareng — Akses Barang Impianmu Tanpa Harus Membeli",
+  title: "BarangBareng - Sewa Bareng, Hemat Bareng",
   description:
-    "Platform sewa-menyewa antar pengguna yang aman, terjangkau, dan praktis. Dilengkapi verifikasi E-KYC, sistem pembayaran Escrow, dan serah terima via QR Code.",
+    "Platform sewa dan pinjam barang mahasiswa Indonesia dengan pembayaran aman, e-KYC, QR COD, dan simulasi booking.",
   keywords: [
     "sewa barang",
+    "pinjam barang",
     "P2P rental",
     "BarangBareng",
-    "sewa kamera",
-    "sewa PS5",
-    "sewa perlengkapan outdoor",
-    "rental aman",
-    "escrow rental",
+    "marketplace mahasiswa",
+    "pembayaran aman",
+    "QR COD",
   ],
 };
 
@@ -30,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${fredoka.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-fredoka bg-background">
+    <html lang="id" className="h-full antialiased">
+      <body className="min-h-full flex flex-col font-jakarta bg-background">
         {children}
       </body>
     </html>

@@ -46,6 +46,7 @@ export default function Navbar() {
               <input
                 id="search-bar"
                 type="text"
+                suppressHydrationWarning
                 placeholder="Cari barang: Kamera, Tenda, PS5..."
                 className="w-full rounded-2xl border border-border/80 bg-white/70 pl-11 pr-4 py-2.5 text-sm text-text-dark placeholder:text-text-light outline-none transition-all duration-300 focus:border-primary focus:ring-[3px] focus:ring-primary/10 focus:bg-white"
               />
@@ -74,6 +75,7 @@ export default function Navbar() {
           {/* Hamburger — mobile */}
           <button
             id="btn-mobile-menu"
+            suppressHydrationWarning
             className="md:hidden p-2 rounded-2xl text-text-dark hover:bg-white/60 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
@@ -92,6 +94,7 @@ export default function Navbar() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-light" size={17} />
             <input
               type="text"
+              suppressHydrationWarning
               placeholder="Cari barang: Kamera, Tenda, PS5..."
               className="w-full rounded-2xl border border-border bg-white pl-11 pr-4 py-2.5 text-sm text-text-dark placeholder:text-text-light outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10"
             />

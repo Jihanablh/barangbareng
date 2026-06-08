@@ -47,6 +47,7 @@ export default function ProductDetail({ product, onClose }: Props) {
         {/* Close button */}
         <button
           id="btn-close-detail"
+          suppressHydrationWarning
           onClick={onClose}
           className="absolute top-4 right-4 z-20 h-9 w-9 rounded-full glass-strong border border-border/40 flex items-center justify-center text-text-muted hover:text-text-dark hover:bg-white transition-all duration-200 shadow-sm"
           aria-label="Tutup detail"
@@ -62,6 +63,7 @@ export default function ProductDetail({ product, onClose }: Props) {
               src={product.image}
               alt={product.name}
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-contain p-8 sm:p-12 animate-scale-in"
             />
 
@@ -171,12 +173,13 @@ export default function ProductDetail({ product, onClose }: Props) {
             {/* CTA */}
             <button
               id="btn-sewa-sekarang"
+              suppressHydrationWarning
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-blue-500 to-secondary px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/25 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/35 hover:-translate-y-0.5 active:scale-[0.97]"
             >
               Sewa Sekarang
             </button>
             <p className="text-center text-[9px] text-text-light -mt-1">
-              Dilindungi sistem Escrow BarangBareng
+              Dilindungi sistem pembayaran aman BarangBareng
             </p>
           </div>
         </div>
