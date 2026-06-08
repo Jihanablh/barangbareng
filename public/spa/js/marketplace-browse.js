@@ -22,16 +22,6 @@
     ["rating", "Rating"],
     ["nearby", "Terdekat"]
   ];
-  const quickFilters = [
-    ["nearby", "Terdekat"],
-    ["today", "Tersedia Hari Ini"],
-    ["free", "Pinjam Gratis"],
-    ["rating", "Rating 4.8+"],
-    ["cheap", "Harga < Rp25.000"],
-    ["kos", "Cocok untuk Anak Kos"],
-    ["event", "Cocok untuk Event"]
-  ];
-
   function ensureBrowseState() {
     state.browsePage = state.browsePage || 1;
     state.browseLoading = state.browseLoading || false;
@@ -151,7 +141,7 @@
   }
 
   function filterPanel(mobile = false) {
-    return `<aside class="${mobile ? "fixed inset-x-0 bottom-0 z-[90] hidden max-h-[86vh] overflow-y-auto rounded-t-[32px] border border-slate-100 bg-white p-5 shadow-xl" : "sticky top-24 hidden h-fit w-72 shrink-0 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:block"}" id="${mobile ? "mobile-filter-sheet" : "desktop-filter"}">
+    return `<aside class="${mobile ? "fixed inset-x-0 bottom-0 z-[90] hidden max-h-[86vh] overflow-y-auto rounded-t-[32px] border border-slate-100 bg-white p-5 shadow-xl" : "sticky hidden h-fit w-72 shrink-0 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:block"}" style="${mobile ? "" : "top: var(--browse-panel-top, 184px)"}" id="${mobile ? "mobile-filter-sheet" : "desktop-filter"}">
       <div class="mb-3 flex items-center justify-between"><h2 class="flex items-center gap-2 text-lg font-extrabold text-slate-950">${icon("sliders-horizontal")} FILTER</h2>${mobile ? `<button class="grid h-10 w-10 place-items-center rounded-full bg-slate-100" data-close-filter>${icon("x")}</button>` : ""}</div>
       ${checkboxGroup("Kampus", "campuses", [...campusOptions, "Lainnya"], "building-2")}
       ${checkboxGroup("Area Sekitar Kampus", "areas", areaOptions, "map-pin")}
@@ -175,13 +165,16 @@
   }
 
   function sortBar(totalPages) {
-    return `<div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm">
-      <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div class="flex flex-wrap items-center gap-2"><span class="shrink-0 text-sm font-extrabold text-slate-500">Urutkan</span>${sortItems.map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-bold ${state.sortBy === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-sort="${item[0]}">${item[1]}${item[0] === "price-low" ? " v" : ""}</button>`).join("")}<select class="field w-44 shrink-0 text-sm" data-price-sort><option value="price-low" ${state.sortBy === "price-low" ? "selected" : ""}>Harga Terendah</option><option value="price-high" ${state.sortBy === "price-high" ? "selected" : ""}>Harga Tertinggi</option></select></div>
-        <div class="hidden items-center gap-2 text-sm font-bold text-slate-500 lg:flex"><span>${state.browsePage}/${Math.max(1, totalPages)}</span><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-prev>${icon("chevron-left", "h-4 w-4")}</button><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-next>${icon("chevron-right", "h-4 w-4")}</button></div>
+    const productChips = ["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Setrika", "Tenda Camping", "Proyektor", "Tripod"];
+    return `<section class="sticky z-30 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur-xl" style="top: var(--browse-sticky-top, 72px)">
+      <div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div class="flex flex-wrap items-center gap-2"><span class="shrink-0 text-sm font-extrabold text-slate-500">Urutkan</span>${sortItems.map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-bold ${state.sortBy === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-sort="${item[0]}">${item[1]}${item[0] === "price-low" ? " v" : ""}</button>`).join("")}<select class="field w-44 shrink-0 text-sm" data-price-sort><option value="price-low" ${state.sortBy === "price-low" ? "selected" : ""}>Harga Terendah</option><option value="price-high" ${state.sortBy === "price-high" ? "selected" : ""}>Harga Tertinggi</option></select></div>
+          <div class="hidden items-center gap-2 text-sm font-bold text-slate-500 lg:flex"><span>${state.browsePage}/${Math.max(1, totalPages)}</span><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-prev>${icon("chevron-left", "h-4 w-4")}</button><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-next>${icon("chevron-right", "h-4 w-4")}</button></div>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2">${productChips.map(chip => `<button class="badge border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
       </div>
-      <div class="mt-3 flex flex-wrap gap-2">${quickFilters.map(item => `<button class="badge shrink-0 ${state.filters.quickFilter === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-quick="${item[0]}">${item[1]}</button>`).join("")}</div>
-    </div>`;
+    </section>`;
   }
 
   function skeletonGrid() {
@@ -200,19 +193,14 @@
     const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
     state.browsePage = Math.min(state.browsePage, totalPages);
     const visible = all.slice((state.browsePage - 1) * PAGE_SIZE, state.browsePage * PAGE_SIZE);
-    const keyword = (state.filters.query || "").trim();
-    const chips = ["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Setrika", "Tenda Camping", "Proyektor", "Tripod"];
-    mount.innerHTML = `<div class="min-h-screen bg-[#F8FAFC] pb-16 pt-6">
+    mount.innerHTML = `<div class="min-h-screen bg-[#F8FAFC] pb-16">
+      ${sortBar(totalPages)}
       <div class="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
         ${filterPanel(false)}
         ${filterPanel(true)}
         <main class="min-w-0 flex-1">
-          <div class="mb-5 flex flex-col gap-4 rounded-[32px] border border-slate-100 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
-            <div><p class="font-bold text-brand-blue">Marketplace BarangBareng</p><h1 class="mt-1 text-3xl font-extrabold text-slate-950">${keyword ? `Hasil pencarian untuk "${keyword}"` : "Jelajah Semua Barang"}</h1><p class="mt-2 text-sm font-semibold text-slate-500">Menampilkan ${visible.length} dari 2.328 barang di sekitar kampus</p><div class="mt-4 flex flex-wrap gap-2">${chips.map(chip => `<button class="badge border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div></div>
-            <button class="btn-secondary shrink-0 rounded-2xl px-4 py-3 lg:hidden" data-open-filter>${icon("sliders-horizontal", "h-4 w-4")} Filter</button>
-          </div>
-          ${sortBar(totalPages)}
-          <section class="mt-5" aria-label="Product grid">${state.browseLoading ? skeletonGrid() : visible.length ? `<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">${visible.map(productCard).join("")}</div>` : emptyState()}</section>
+          <div class="mb-4 flex justify-end lg:hidden"><button class="btn-secondary shrink-0 rounded-2xl px-4 py-3" data-open-filter>${icon("sliders-horizontal", "h-4 w-4")} Filter</button></div>
+          <section class="scroll-mt-48" aria-label="Product grid">${state.browseLoading ? skeletonGrid() : visible.length ? `<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">${visible.map(productCard).join("")}</div>` : emptyState()}</section>
           <div class="mt-8 flex items-center justify-center gap-3 lg:hidden"><button class="btn-secondary rounded-2xl px-4 py-3" data-page-prev>Sebelumnya</button><span class="font-bold text-slate-500">${state.browsePage}/${totalPages}</span><button class="btn-primary rounded-2xl px-4 py-3" data-page-next>Berikutnya</button></div>
           <div class="mt-8 flex justify-center"><button class="btn-secondary rounded-2xl px-6 py-3" data-load-more>Muat Lebih Banyak</button></div>
         </main>
