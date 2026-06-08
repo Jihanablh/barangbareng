@@ -174,30 +174,13 @@
     </aside>`;
   }
 
-  function searchHeader() {
-    return `<section class="sticky top-[72px] z-40 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur-xl">
-      <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <div class="grid gap-3 lg:grid-cols-[auto_1fr_auto_auto_auto_auto_auto] lg:items-center">
-          <button class="hidden items-center gap-2 font-extrabold text-slate-950 lg:flex" data-nav="home"><span class="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-brand text-white">${icon("shopping-bag")}</span>BarangBareng</button>
-          <label class="field flex items-center gap-3 rounded-2xl">${icon("search", "h-5 w-5 text-brand-blue")}<input id="market-query" value="${state.filters.query || ""}" class="w-full outline-none" placeholder="Cari produk, kategori, kampus..."></label>
-          <button class="btn-primary rounded-2xl px-6 py-3" data-market-search>Cari</button>
-          <button class="hidden h-11 w-11 place-items-center rounded-2xl bg-slate-100 text-slate-600 sm:grid">${icon("bell")}</button>
-          <button class="hidden h-11 w-11 place-items-center rounded-2xl bg-slate-100 text-slate-600 sm:grid">${icon("heart")}</button>
-          <button class="hidden h-11 w-11 place-items-center rounded-2xl bg-slate-100 text-slate-600 sm:grid">${icon("shopping-basket")}</button>
-          <button class="hidden h-11 w-11 place-items-center rounded-2xl bg-gradient-brand text-sm font-extrabold text-white shadow-blue sm:grid" data-nav="profile">${state.currentUser.initials}</button>
-        </div>
-        <div class="mt-3 flex gap-2 overflow-x-auto pb-1 text-sm">${["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Setrika", "Tenda Camping", "Proyektor", "Tripod"].map(chip => `<button class="shrink-0 font-semibold text-slate-500 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
-      </div>
-    </section>`;
-  }
-
   function sortBar(totalPages) {
     return `<div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm">
       <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div class="flex items-center gap-2 overflow-x-auto pb-1"><span class="shrink-0 text-sm font-extrabold text-slate-500">Urutkan</span>${sortItems.map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-bold ${state.sortBy === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-sort="${item[0]}">${item[1]}${item[0] === "price-low" ? " ▾" : ""}</button>`).join("")}<select class="field w-40 shrink-0 text-sm" data-price-sort><option value="price-low" ${state.sortBy === "price-low" ? "selected" : ""}>Harga Terendah</option><option value="price-high" ${state.sortBy === "price-high" ? "selected" : ""}>Harga Tertinggi</option></select></div>
+        <div class="flex flex-wrap items-center gap-2"><span class="shrink-0 text-sm font-extrabold text-slate-500">Urutkan</span>${sortItems.map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-bold ${state.sortBy === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-sort="${item[0]}">${item[1]}${item[0] === "price-low" ? " v" : ""}</button>`).join("")}<select class="field w-44 shrink-0 text-sm" data-price-sort><option value="price-low" ${state.sortBy === "price-low" ? "selected" : ""}>Harga Terendah</option><option value="price-high" ${state.sortBy === "price-high" ? "selected" : ""}>Harga Tertinggi</option></select></div>
         <div class="hidden items-center gap-2 text-sm font-bold text-slate-500 lg:flex"><span>${state.browsePage}/${Math.max(1, totalPages)}</span><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-prev>${icon("chevron-left", "h-4 w-4")}</button><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-next>${icon("chevron-right", "h-4 w-4")}</button></div>
       </div>
-      <div class="mt-3 flex gap-2 overflow-x-auto pb-1">${quickFilters.map(item => `<button class="badge shrink-0 ${state.filters.quickFilter === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-quick="${item[0]}">${item[1]}</button>`).join("")}</div>
+      <div class="mt-3 flex flex-wrap gap-2">${quickFilters.map(item => `<button class="badge shrink-0 ${state.filters.quickFilter === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-quick="${item[0]}">${item[1]}</button>`).join("")}</div>
     </div>`;
   }
 
@@ -218,14 +201,14 @@
     state.browsePage = Math.min(state.browsePage, totalPages);
     const visible = all.slice((state.browsePage - 1) * PAGE_SIZE, state.browsePage * PAGE_SIZE);
     const keyword = (state.filters.query || "").trim();
-    mount.innerHTML = `<div class="min-h-screen bg-[#F8FAFC] pb-16 pt-[72px]">
-      ${searchHeader()}
+    const chips = ["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Setrika", "Tenda Camping", "Proyektor", "Tripod"];
+    mount.innerHTML = `<div class="min-h-screen bg-[#F8FAFC] pb-16 pt-6">
       <div class="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
         ${filterPanel(false)}
         ${filterPanel(true)}
         <main class="min-w-0 flex-1">
-          <div class="mb-4 flex items-center justify-between gap-3">
-            <div><h1 class="text-2xl font-extrabold text-slate-950">${keyword ? `Hasil pencarian untuk "${keyword}"` : "Jelajah Semua Barang"}</h1><p class="mt-1 text-sm font-semibold text-slate-500">Menampilkan ${visible.length} dari 2.328 barang di sekitar kampus</p></div>
+          <div class="mb-5 flex flex-col gap-4 rounded-[32px] border border-slate-100 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
+            <div><p class="font-bold text-brand-blue">Marketplace BarangBareng</p><h1 class="mt-1 text-3xl font-extrabold text-slate-950">${keyword ? `Hasil pencarian untuk "${keyword}"` : "Jelajah Semua Barang"}</h1><p class="mt-2 text-sm font-semibold text-slate-500">Menampilkan ${visible.length} dari 2.328 barang di sekitar kampus</p><div class="mt-4 flex flex-wrap gap-2">${chips.map(chip => `<button class="badge border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div></div>
             <button class="btn-secondary shrink-0 rounded-2xl px-4 py-3 lg:hidden" data-open-filter>${icon("sliders-horizontal", "h-4 w-4")} Filter</button>
           </div>
           ${sortBar(totalPages)}
