@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>BarangBareng - Sewa Bareng, Hemat Bareng</title>
+  <meta name="description" content="Platform sewa dan pinjam barang antar mahasiswa Indonesia. Sewa laptop, kamera, peralatan kos, outfit formal, dan kebutuhan event kampus dari sesama mahasiswa di sekitarmu.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { poppins: ["Poppins", "sans-serif"], jakarta: ["Poppins", "sans-serif"], sans: ["Poppins", "sans-serif"] },
+          colors: { brand: { blue: "#2563EB", teal: "#14B8A6" } },
+          boxShadow: {
+            card: "0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)",
+            "card-hover": "0 20px 40px rgba(37,99,235,0.12)",
+            blue: "0 8px 32px rgba(37,99,235,0.18)",
+            teal: "0 8px 32px rgba(20,184,166,0.18)"
+          },
+          backgroundImage: {
+            "gradient-brand": "linear-gradient(135deg, #2563EB 0%, #14B8A6 100%)",
+            "gradient-hero": "linear-gradient(135deg, #1D4ED8 0%, #2563EB 40%, #14B8A6 100%)"
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    #navbar-mount,
+    #overlay {
+      display: none !important;
+    }
+
+    .pt-\[72px\] {
+      padding-top: 0 !important;
+    }
+
+    .top-\[72px\] {
+      top: 0 !important;
+    }
+
+    .pt-28 {
+      padding-top: 2rem !important;
+    }
+
+    #app-main:empty::before {
+      content: "Memuat BarangBareng...";
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      color: #2563EB;
+      font-weight: 800;
+    }
+  </style>
+  <link rel="stylesheet" href="css/custom.css?v=20260606-9">
+  <link rel="stylesheet" href="css/animations.css?v=20260606-9">
+  <link rel="stylesheet" href="css/components.css?v=20260606-9">
+</head>
+<body class="min-h-screen bg-[#F8FAFC] font-poppins text-slate-800 antialiased">
+  <div id="navbar-mount"></div>
+  <main id="app-main" class="min-h-screen" data-static-home="true">
+    <section id="home-view" data-view="home"></section>
+  </main>
+  <div id="footer-mount"></div>
+
+  <div id="toast-mount" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+  <div id="overlay" class="fixed inset-0 z-40 hidden bg-black/50 backdrop-blur-sm transition-opacity duration-300"></div>
+
+  <script src="js/data.js?v=20260606-9"></script>
+  <script src="js/state.js?v=20260606-9"></script>
+  <script src="js/router.js?v=20260606-9"></script>
+  <script src="js/ui.js?v=20260606-9"></script>
+  <script src="js/filters.js?v=20260606-9"></script>
+  <script src="js/components.js?v=20260606-9"></script>
+  <script src="js/qris.js?v=20260606-9"></script>
+  <script src="js/checkout.js?v=20260606-9"></script>
+  <script src="js/v4-pages.js?v=20260606-9"></script>
+  <script src="js/homepage.js?v=20260606-9"></script>
+  <script src="js/marketplace-browse.js?v=20260606-9"></script>
+  <script src="js/animations.js?v=20260606-9"></script>
+  <script src="js/app.js?v=20260606-9"></script>
+</body>
+</html>

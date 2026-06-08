@@ -1,0 +1,44 @@
+<nav id="site-navbar" class="fixed inset-x-0 top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-xl transition-all duration-300">
+  <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <button class="flex items-center gap-3" data-nav="home" aria-label="BarangBareng beranda">
+      <span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-brand text-white shadow-blue">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 8h14l-1 12H6L5 8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      <span class="gradient-text text-xl font-extrabold">BarangBareng</span>
+    </button>
+    <div class="hidden items-center gap-8 lg:flex">
+      <button class="nav-link" data-nav="home">Beranda</button>
+      <button class="nav-link" data-nav="browse">Jelajah</button>
+      <button class="nav-link" data-scroll-target="how-it-works">Cara Kerja</button>
+      <button class="nav-link" data-scroll-target="pinjam-gratis">Pinjam Gratis</button>
+      <button class="nav-link" data-nav="upload-product">Sewakan Barang</button>
+    </div>
+    <div class="hidden items-center gap-3 lg:flex">
+      <button class="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-brand-blue" data-nav="login">Masuk</button>
+      <button class="btn-secondary rounded-full px-5 py-2.5" data-nav="register">Daftar</button>
+      <button class="btn-primary rounded-full px-5 py-2.5" data-nav="upload-product">Mulai Sewakan</button>
+    </div>
+    <button id="mobile-menu-btn" class="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-card lg:hidden" aria-label="Buka menu">
+      <i data-lucide="menu" class="h-5 w-5"></i>
+    </button>
+  </div>
+</nav>
+<aside id="mobile-drawer" class="drawer fixed inset-y-0 left-0 z-[70] w-[320px] bg-white p-5 shadow-lg lg:hidden">
+  <div class="flex items-center justify-between">
+    <span class="gradient-text text-xl font-extrabold">BarangBareng</span>
+    <button id="drawer-close" class="grid h-10 w-10 place-items-center rounded-full bg-slate-100"><i data-lucide="x" class="h-5 w-5"></i></button>
+  </div>
+  <div class="mt-6 rounded-3xl bg-blue-50 p-4">
+    <p class="font-bold text-slate-900">Marketplace mahasiswa</p>
+    <p class="text-sm font-medium text-slate-500">Sewa, pinjam, dan sewakan barang sekitar kampus.</p>
+  </div>
+  <div class="mt-5 grid gap-2">
+    <button class="drawer-link" data-nav="home">Beranda</button>
+    <button class="drawer-link" data-nav="browse">Jelajah</button>
+    <button class="drawer-link" data-scroll-target="how-it-works">Cara Kerja</button>
+    <button class="drawer-link" data-scroll-target="pinjam-gratis">Pinjam Gratis</button>
+    <button class="drawer-link" data-nav="login">Masuk</button>
+    <button class="drawer-link" data-nav="register">Daftar</button>
+  </div>
+  <button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-nav="upload-product">Mulai Sewakan</button>
+</aside>
