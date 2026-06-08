@@ -25,8 +25,6 @@ type SpaRoute =
 const navItems: { label: string; route: SpaRoute }[] = [
   { label: "Beranda", route: "home" },
   { label: "Jelajah", route: "browse" },
-  { label: "Cara Kerja", route: "home" },
-  { label: "Pinjam Gratis", route: "home" },
   { label: "Sewakan Barang", route: "upload-product" },
 ];
 
@@ -57,7 +55,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#F8FAFC] text-slate-800">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/60 bg-white/88 shadow-sm shadow-slate-900/[0.04] backdrop-blur-2xl">
-        <nav className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <nav className="mx-auto flex h-[72px] max-w-[1536px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <button className="flex shrink-0 items-center gap-3 rounded-2xl outline-none transition focus-visible:ring-4 focus-visible:ring-bb-blue/15" onClick={() => navigate("home", "Beranda")} aria-label="BarangBareng beranda">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-bb-blue to-bb-teal text-white shadow-lg shadow-bb-blue/20">
               <ShoppingBag className="h-5 w-5" />
@@ -68,7 +66,7 @@ export default function HomePage() {
             </span>
           </button>
 
-          <div className="hidden flex-1 items-center justify-center gap-1.5 lg:flex">
+          <div className="hidden flex-1 items-center justify-center gap-3 lg:flex">
             {navItems.map((item) => (
               <button
                 key={item.label}
@@ -84,7 +82,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="hidden w-[300px] shrink-0 items-center gap-2 2xl:flex">
+          <div className="hidden w-[360px] shrink-0 items-center gap-2 xl:flex 2xl:w-[430px]">
             <label className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-bb-border bg-white/90 px-3 py-2.5 shadow-sm">
               <Search className="h-4 w-4 text-bb-blue" />
               <input
@@ -94,7 +92,7 @@ export default function HomePage() {
                   if (event.key === "Enter") runSearch();
                 }}
                 className="w-full min-w-0 bg-transparent text-sm font-semibold outline-none placeholder:text-slate-400"
-                placeholder="Cari barang..."
+                placeholder="Cari produk, kategori, kampus..."
               />
             </label>
             <button className="rounded-2xl bg-gradient-to-r from-bb-blue to-bb-teal px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-bb-blue/15 outline-none transition hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-bb-blue/20" onClick={runSearch}>
