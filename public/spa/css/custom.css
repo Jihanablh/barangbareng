@@ -11,7 +11,10 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  font-size: 15px;
+}
 body {
   background:
     radial-gradient(circle at 12% 7%, rgba(37,99,235,.12), transparent 25%),

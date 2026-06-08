@@ -34,26 +34,36 @@
   </script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    document.documentElement.dataset.embedded = window.self !== window.top ? "true" : "false";
+  </script>
   <style>
-    #navbar-mount,
-    #overlay {
-      display: none !important;
+    :root {
+      --browse-page-top: 72px;
+      --browse-sticky-top: 72px;
+      --browse-panel-top: 184px;
     }
 
-    :root {
+    html[data-embedded="true"] {
+      --browse-page-top: 0px;
       --browse-sticky-top: 0px;
       --browse-panel-top: 112px;
     }
 
-    .pt-\[72px\] {
+    html[data-embedded="true"] #navbar-mount,
+    html[data-embedded="true"] #overlay {
+      display: none !important;
+    }
+
+    html[data-embedded="true"] .pt-\[72px\] {
       padding-top: 0 !important;
     }
 
-    .top-\[72px\] {
+    html[data-embedded="true"] .top-\[72px\] {
       top: 0 !important;
     }
 
-    .pt-28 {
+    html[data-embedded="true"] .pt-28 {
       padding-top: 2rem !important;
     }
 

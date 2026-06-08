@@ -111,23 +111,23 @@
     const liked = state.wishlist.includes(product.id);
     const status = product.status === "low" ? "Hampir Habis" : "Tersedia";
     const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.rentedCount > 40 ? "Terdekat" : product.badges[0] || "Event Ready";
-    return `<article class="group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-      <div class="relative h-48 overflow-hidden bg-slate-100">
-        <img src="${product.image}" alt="${product.name}" class="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
-        <div class="absolute left-3 top-3 flex flex-wrap gap-2"><span class="badge ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="badge bg-blue-50 text-brand-blue">${extra}</span></div>
-        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart")}</button>
+    return `<article class="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div class="relative h-36 overflow-hidden bg-slate-100">
+        <img src="${product.image}" alt="${product.name}" class="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
+        <div class="absolute left-2 top-2 flex flex-wrap gap-1.5"><span class="badge ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="badge bg-blue-50 text-brand-blue">${extra}</span></div>
+        <button class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart", "h-4 w-4")}</button>
       </div>
-      <div class="p-4">
-        <button class="block text-left" data-product="${product.id}"><h3 class="line-clamp-2 min-h-[3.25rem] text-base font-extrabold text-slate-950">${product.name}</h3></button>
-        <p class="mt-2 text-sm font-semibold text-slate-600">★ ${product.rating} | ${product.reviewCount} ulasan | ${product.rentedCount}x disewa</p>
-        <p class="mt-3 text-lg font-extrabold text-brand-blue">${product.type === "pinjam" ? `Gratis <span class="text-xs text-slate-500">· biaya layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-xs text-slate-500">/hari</span>`}</p>
-        <p class="mt-2 text-sm font-semibold text-slate-500">${product.location}</p>
-        <p class="text-sm text-slate-500">${product.campus}</p>
-        <div class="mt-3 flex items-center justify-between gap-2">
+      <div class="p-3">
+        <button class="block text-left" data-product="${product.id}"><h3 class="line-clamp-2 min-h-[2.45rem] text-sm font-extrabold leading-snug text-slate-950">${product.name}</h3></button>
+        <p class="mt-1.5 line-clamp-1 text-[0.78rem] font-semibold text-slate-600">Rating ${product.rating} | ${product.reviewCount} ulasan | ${product.rentedCount}x disewa</p>
+        <p class="mt-2 text-base font-extrabold text-brand-blue">${product.type === "pinjam" ? `Gratis <span class="text-[0.7rem] text-slate-500">- biaya layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-[0.7rem] text-slate-500">/hari</span>`}</p>
+        <p class="mt-1.5 line-clamp-1 text-[0.78rem] font-semibold text-slate-500">${product.location}</p>
+        <p class="line-clamp-1 text-[0.78rem] text-slate-500">${product.campus}</p>
+        <div class="mt-2.5 flex items-center justify-between gap-2">
           <span class="badge ${product.owner.level === "gold" ? "bg-amber-100 text-amber-700" : product.owner.level === "silver" ? "bg-slate-100 text-slate-700" : "bg-lime-100 text-lime-700"}">${product.owner.level[0].toUpperCase() + product.owner.level.slice(1)} Owner</span>
           <span class="text-xs font-bold text-slate-400">${product.owner.initials}</span>
         </div>
-        <button class="btn-ripple mt-4 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02]" data-book="${product.id}">Sewa Sekarang</button>
+        <button class="btn-ripple mt-3 w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02]" data-book="${product.id}">Sewa Sekarang</button>
       </div>
     </article>`;
   }
@@ -167,7 +167,7 @@
   function sortBar(totalPages) {
     const productChips = ["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Setrika", "Tenda Camping", "Proyektor", "Tripod"];
     return `<section class="sticky z-30 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur-xl" style="top: var(--browse-sticky-top, 72px)">
-      <div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-[1480px] px-4 py-3 sm:px-6 lg:px-8">
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div class="flex flex-wrap items-center gap-2"><span class="shrink-0 text-sm font-extrabold text-slate-500">Urutkan</span>${sortItems.map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-bold ${state.sortBy === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-sort="${item[0]}">${item[1]}${item[0] === "price-low" ? " v" : ""}</button>`).join("")}<select class="field w-44 shrink-0 text-sm" data-price-sort><option value="price-low" ${state.sortBy === "price-low" ? "selected" : ""}>Harga Terendah</option><option value="price-high" ${state.sortBy === "price-high" ? "selected" : ""}>Harga Tertinggi</option></select></div>
           <div class="hidden items-center gap-2 text-sm font-bold text-slate-500 lg:flex"><span>${state.browsePage}/${Math.max(1, totalPages)}</span><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-prev>${icon("chevron-left", "h-4 w-4")}</button><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-next>${icon("chevron-right", "h-4 w-4")}</button></div>
@@ -178,7 +178,7 @@
   }
 
   function skeletonGrid() {
-    return `<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">${Array.from({ length: 8 }, () => `<article class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm"><div class="skeleton h-48 w-full"></div><div class="skeleton mt-4 h-5 w-4/5"></div><div class="skeleton mt-3 h-4 w-2/3"></div><div class="skeleton mt-5 h-10 w-full"></div></article>`).join("")}</div>`;
+    return `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">${Array.from({ length: 10 }, () => `<article class="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm"><div class="skeleton h-36 w-full"></div><div class="skeleton mt-3 h-4 w-4/5"></div><div class="skeleton mt-2 h-3 w-2/3"></div><div class="skeleton mt-4 h-9 w-full"></div></article>`).join("")}</div>`;
   }
 
   function emptyState() {
@@ -193,14 +193,14 @@
     const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
     state.browsePage = Math.min(state.browsePage, totalPages);
     const visible = all.slice((state.browsePage - 1) * PAGE_SIZE, state.browsePage * PAGE_SIZE);
-    mount.innerHTML = `<div class="min-h-screen bg-[#F8FAFC] pb-16">
+    mount.innerHTML = `<div class="min-h-screen bg-[#F8FAFC] pb-16" style="padding-top: var(--browse-page-top, 72px)">
       ${sortBar(totalPages)}
-      <div class="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <div class="mx-auto flex max-w-[1480px] gap-5 px-4 py-6 sm:px-6 lg:px-8">
         ${filterPanel(false)}
         ${filterPanel(true)}
         <main class="min-w-0 flex-1">
           <div class="mb-4 flex justify-end lg:hidden"><button class="btn-secondary shrink-0 rounded-2xl px-4 py-3" data-open-filter>${icon("sliders-horizontal", "h-4 w-4")} Filter</button></div>
-          <section class="scroll-mt-48" aria-label="Product grid">${state.browseLoading ? skeletonGrid() : visible.length ? `<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">${visible.map(productCard).join("")}</div>` : emptyState()}</section>
+          <section class="scroll-mt-48" aria-label="Product grid">${state.browseLoading ? skeletonGrid() : visible.length ? `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">${visible.map(productCard).join("")}</div>` : emptyState()}</section>
           <div class="mt-8 flex items-center justify-center gap-3 lg:hidden"><button class="btn-secondary rounded-2xl px-4 py-3" data-page-prev>Sebelumnya</button><span class="font-bold text-slate-500">${state.browsePage}/${totalPages}</span><button class="btn-primary rounded-2xl px-4 py-3" data-page-next>Berikutnya</button></div>
           <div class="mt-8 flex justify-center"><button class="btn-secondary rounded-2xl px-6 py-3" data-load-more>Muat Lebih Banyak</button></div>
         </main>
