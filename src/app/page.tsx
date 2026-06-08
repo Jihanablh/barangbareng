@@ -32,6 +32,7 @@ const navItems: { label: string; route: SpaRoute }[] = [
 
 export default function HomePage() {
   const [route, setRoute] = useState<SpaRoute>("home");
+  const [activeNav, setActiveNav] = useState("Beranda");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -40,47 +41,51 @@ export default function HomePage() {
     return `/spa/index.html${hash}`;
   }, [route]);
 
-  function navigate(nextRoute: SpaRoute) {
+  function navigate(nextRoute: SpaRoute, label?: string) {
     setRoute(nextRoute);
+    if (label) setActiveNav(label);
+    if (nextRoute === "login") setActiveNav("");
+    if (nextRoute === "register") setActiveNav("");
+    if (nextRoute === "dashboard-buyer") setActiveNav("");
     setDrawerOpen(false);
   }
 
   function runSearch() {
-    navigate("browse");
+    navigate("browse", "Jelajah");
   }
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] text-slate-800">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/50 bg-white/82 shadow-sm shadow-slate-900/[0.04] backdrop-blur-2xl">
-        <nav className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <button className="flex shrink-0 items-center gap-2" onClick={() => navigate("home")} aria-label="BarangBareng beranda">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-bb-blue to-bb-teal text-white shadow-lg shadow-bb-blue/20">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/60 bg-white/88 shadow-sm shadow-slate-900/[0.04] backdrop-blur-2xl">
+        <nav className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <button className="flex shrink-0 items-center gap-3 rounded-2xl outline-none transition focus-visible:ring-4 focus-visible:ring-bb-blue/15" onClick={() => navigate("home", "Beranda")} aria-label="BarangBareng beranda">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-bb-blue to-bb-teal text-white shadow-lg shadow-bb-blue/20">
               <ShoppingBag className="h-5 w-5" />
             </span>
-            <span className="text-xl font-extrabold tracking-tight">
+            <span className="text-[1.28rem] font-extrabold tracking-tight">
               <span className="text-bb-blue">Barang</span>
               <span className="text-bb-teal">Bareng</span>
             </span>
           </button>
 
-          <div className="hidden flex-1 items-center justify-center gap-2 lg:flex">
+          <div className="hidden flex-1 items-center justify-center gap-1.5 lg:flex">
             {navItems.map((item) => (
               <button
                 key={item.label}
-                className={`relative rounded-full px-4 py-2 text-sm font-bold transition ${
-                  route === item.route
-                    ? "text-bb-blue after:absolute after:inset-x-4 after:-bottom-1 after:h-1 after:rounded-full after:bg-gradient-to-r after:from-bb-blue after:to-bb-teal"
-                    : "text-slate-600 hover:bg-bb-light-blue hover:text-bb-blue"
+                className={`relative rounded-2xl px-3 py-2 text-[0.92rem] font-extrabold leading-tight outline-none transition focus-visible:ring-4 focus-visible:ring-bb-blue/15 xl:px-4 ${
+                  activeNav === item.label
+                    ? "bg-bb-light-blue text-bb-blue after:absolute after:inset-x-4 after:-bottom-1 after:h-1 after:rounded-full after:bg-gradient-to-r after:from-bb-blue after:to-bb-teal"
+                    : "text-slate-600 hover:bg-bb-light-blue/70 hover:text-bb-blue"
                 }`}
-                onClick={() => navigate(item.route)}
+                onClick={() => navigate(item.route, item.label)}
               >
                 {item.label}
               </button>
             ))}
           </div>
 
-          <div className="hidden max-w-sm flex-1 items-center gap-2 xl:flex">
-            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-bb-border bg-white/80 px-3 py-2.5 shadow-sm">
+          <div className="hidden w-[300px] shrink-0 items-center gap-2 2xl:flex">
+            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-bb-border bg-white/90 px-3 py-2.5 shadow-sm">
               <Search className="h-4 w-4 text-bb-blue" />
               <input
                 value={query}
@@ -88,37 +93,37 @@ export default function HomePage() {
                 onKeyDown={(event) => {
                   if (event.key === "Enter") runSearch();
                 }}
-                className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-slate-400"
-                placeholder="Cari produk, kategori, kampus..."
+                className="w-full min-w-0 bg-transparent text-sm font-semibold outline-none placeholder:text-slate-400"
+                placeholder="Cari barang..."
               />
             </label>
-            <button className="rounded-2xl bg-gradient-to-r from-bb-blue to-bb-teal px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-bb-blue/15" onClick={runSearch}>
+            <button className="rounded-2xl bg-gradient-to-r from-bb-blue to-bb-teal px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-bb-blue/15 outline-none transition hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-bb-blue/20" onClick={runSearch}>
               Cari
             </button>
           </div>
 
           <div className="hidden items-center gap-2 md:flex">
-            <button className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm" aria-label="Notifikasi">
+            <button className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm outline-none transition hover:text-bb-blue focus-visible:ring-4 focus-visible:ring-bb-blue/15" aria-label="Notifikasi">
               <Bell className="h-5 w-5" />
             </button>
-            <button className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm" aria-label="Wishlist">
+            <button className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm outline-none transition hover:text-bb-blue focus-visible:ring-4 focus-visible:ring-bb-blue/15" aria-label="Wishlist">
               <Heart className="h-5 w-5" />
             </button>
-            <button className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm" aria-label="Booking">
+            <button className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm outline-none transition hover:text-bb-blue focus-visible:ring-4 focus-visible:ring-bb-blue/15" aria-label="Booking">
               <ShoppingBasket className="h-5 w-5" />
             </button>
-            <button className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-600 hover:text-bb-blue" onClick={() => navigate("login")}>
+            <button className="rounded-full px-3 py-2 text-sm font-extrabold text-slate-600 outline-none transition hover:bg-bb-light-blue hover:text-bb-blue focus-visible:ring-4 focus-visible:ring-bb-blue/15 xl:px-4" onClick={() => navigate("login")}>
               Masuk
             </button>
-            <button className="rounded-full bg-gradient-to-r from-bb-blue to-bb-teal px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-bb-blue/15" onClick={() => navigate("register")}>
+            <button className="rounded-full bg-gradient-to-r from-bb-blue to-bb-teal px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-bb-blue/15 outline-none transition hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-bb-blue/20 xl:px-5" onClick={() => navigate("register")}>
               Daftar
             </button>
-            <button className="grid h-11 w-11 place-items-center rounded-2xl bg-bb-light-blue text-bb-blue" onClick={() => navigate("dashboard-buyer")} aria-label="Profil">
+            <button className="grid h-10 w-10 place-items-center rounded-2xl bg-bb-light-blue text-bb-blue outline-none transition focus-visible:ring-4 focus-visible:ring-bb-blue/15" onClick={() => navigate("dashboard-buyer")} aria-label="Profil">
               <UserRound className="h-5 w-5" />
             </button>
           </div>
 
-          <button className="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-sm md:hidden" onClick={() => setDrawerOpen((open) => !open)} aria-label="Menu">
+          <button className="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-sm outline-none focus-visible:ring-4 focus-visible:ring-bb-blue/15 md:hidden" onClick={() => setDrawerOpen((open) => !open)} aria-label="Menu">
             {drawerOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </nav>
@@ -135,7 +140,7 @@ export default function HomePage() {
               />
             </label>
             {navItems.map((item) => (
-              <button key={item.label} className="rounded-2xl px-4 py-3 text-left font-bold text-slate-700 hover:bg-bb-light-blue" onClick={() => navigate(item.route)}>
+              <button key={item.label} className="rounded-2xl px-4 py-3 text-left font-bold text-slate-700 hover:bg-bb-light-blue" onClick={() => navigate(item.route, item.label)}>
                 {item.label}
               </button>
             ))}
