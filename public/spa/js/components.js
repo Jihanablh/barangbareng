@@ -25,12 +25,12 @@
   }
 
   function productCard(product, list = false) {
-    const liked = state.wishlist.includes(product.id);
+    const liked = state.isWishlisted(product.id);
     return `<article class="product-card card overflow-hidden ${list ? "grid gap-4 p-4 md:grid-cols-[190px_1fr_180px]" : ""}">
       <div class="relative ${list ? "h-40 rounded-2xl" : "h-52 rounded-t-3xl"} overflow-hidden bg-slate-100">
         ${imgTag(product, "h-full w-full object-cover")}
         <div class="absolute left-3 top-3 flex flex-wrap gap-2">${productBadges(product)}</div>
-        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart")}</button>
+        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart", liked ? "h-5 w-5 fill-current" : "h-5 w-5")}</button>
       </div>
       <div class="${list ? "p-0" : "p-5"}">
         <div class="mb-2 flex flex-wrap gap-2">${product.badges.map(badge => `<span class="badge bg-slate-100 text-slate-600">${badge}</span>`).join("")}</div>
@@ -163,25 +163,26 @@
     const days = detailDuration();
     const total = detailFee(product, days);
     const similar = similarProducts(product);
-    const liked = state.wishlist.includes(product.id);
+    const liked = state.isWishlisted(product.id);
+    const inCart = state.isInCart(product.id);
     mount.innerHTML = `<main class="min-h-screen bg-slate-50">
       <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
         <div class="mb-6 flex flex-col gap-3 text-sm font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p class="min-w-0 truncate">Beranda &gt; Jelajah Barang &gt; ${product.category} &gt; ${product.name}</p>
-          <button class="inline-flex w-fit items-center gap-2 text-sm font-bold text-brand-blue transition hover:text-teal-600" data-nav="browse">${icon("arrow-left", "h-4 w-4")} Kembali ke Jelajah Produk</button>
+          <button class="inline-flex w-fit items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-brand-blue" data-nav="browse">${icon("arrow-left", "h-4 w-4")} Kembali ke Jelajah Barang</button>
         </div>
 
         <section class="grid gap-6 xl:grid-cols-12 xl:items-start">
           <article class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-5 xl:col-span-5">
-            <div class="relative overflow-hidden rounded-3xl border border-slate-100 bg-slate-100">
-              <img src="${activeImage}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 hover:scale-[1.02]" onerror="this.src='${fallbackImage}'">
-              <div class="absolute left-4 top-4 flex max-w-[80%] flex-wrap gap-2">${productBadges(product)}</div>
+            <div class="relative overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm">
+              <img src="${activeImage}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 hover:scale-[1.03]" onerror="this.src='${fallbackImage}'">
+              <div class="absolute left-4 top-4 flex max-w-[80%] flex-wrap gap-2">${productBadges(product)}<span class="badge bg-white/95 text-slate-700">${product.subcategory}</span></div>
             </div>
-            <div class="mt-4 grid grid-cols-5 gap-3">${gallery.map((src, index) => `<button class="overflow-hidden rounded-2xl border-2 ${src === activeImage ? "border-brand-blue ring-2 ring-teal-200" : "border-slate-100"} bg-slate-100 transition hover:border-blue-300" data-gallery-index="${index}"><img src="${src}" alt="Galeri ${index + 1} ${product.name}" class="aspect-square w-full object-cover" onerror="this.src='${fallbackImage}'"></button>`).join("")}</div>
+            <div class="mt-4 grid grid-cols-4 gap-3">${gallery.slice(0, 4).map((src, index) => `<button class="overflow-hidden rounded-2xl border-2 ${src === activeImage ? "border-brand-blue ring-2 ring-teal-200" : "border-slate-100"} bg-slate-100 transition hover:border-blue-300" data-gallery-index="${index}"><img src="${src}" alt="Galeri ${index + 1} ${product.name}" class="aspect-square w-full object-cover" onerror="this.src='${fallbackImage}'"></button>`).join("")}</div>
           </article>
 
           <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm xl:col-span-4">
-            <div class="flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge bg-slate-100 text-slate-600">${product.subcategory}</span></div>
+            <div class="flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge status-available">${product.status === "low" ? "Hampir Habis" : "Tersedia"}</span><span class="badge bg-amber-50 text-amber-700">Top Rated</span></div>
             <h1 class="mt-4 text-2xl font-extrabold leading-tight text-slate-950 lg:text-3xl">${product.name}</h1>
             <p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Rating ${product.rating} dari 5 | ${product.reviewCount} penilaian | ${product.rentedCount}x disewa</p>
             <div class="mt-5 grid gap-2 text-sm font-semibold text-slate-600">
@@ -200,12 +201,12 @@
               </div>
             </div>
             <div class="mt-5 grid grid-cols-2 gap-3">
-              <button class="btn-secondary rounded-2xl px-4 py-3 text-sm ${liked ? "text-red-500" : ""}" data-wishlist="${product.id}">${icon("heart", "h-4 w-4")} Simpan</button>
+              <button class="btn-secondary rounded-2xl px-4 py-3 text-sm ${liked ? "text-red-500" : ""}" data-wishlist="${product.id}">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")} ${liked ? "Tersimpan" : "Simpan"}</button>
               <button class="btn-secondary rounded-2xl px-4 py-3 text-sm" data-share-product>${icon("share-2", "h-4 w-4")} Bagikan</button>
             </div>
           </article>
 
-          <aside class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm xl:sticky xl:top-[96px] xl:col-span-3">
+          <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm xl:sticky xl:top-[96px] xl:col-span-3">
           <p class="text-sm font-bold text-slate-500">Booking Barang</p>
           <p class="mt-2 text-3xl font-extrabold text-brand-blue">${price(product)}</p>
           <div class="mt-5 grid gap-3">
@@ -214,8 +215,8 @@
             <p class="rounded-2xl bg-blue-50 px-4 py-3 text-sm font-bold text-brand-blue">Durasi: ${days} hari</p>
           </div>
           <div class="mt-5 rounded-3xl bg-slate-50 p-4 text-sm font-semibold text-slate-700">${detailFeeRows(product, total, days)}</div>
-          <button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button>
-          <button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-add-cart="${product.id}">${icon("shopping-basket", "h-4 w-4")} Masukkan ke Keranjang</button>
+          <button class="mt-5 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-4 text-base font-bold text-white shadow-lg transition hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]" data-book="${product.id}">Sewa Sekarang</button>
+          <button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3 ${inCart ? "border-teal-200 bg-teal-50 text-teal-700" : ""}" data-add-cart="${product.id}">${icon(inCart ? "check" : "shopping-basket", "h-4 w-4")} ${inCart ? "Sudah di Keranjang" : "Masukkan ke Keranjang"}</button>
           <button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">${icon("message-circle", "h-4 w-4")} Chat Pemilik</button>
           <p class="mt-4 rounded-3xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p>
         </aside>
@@ -258,7 +259,8 @@
     const subtotal = product.type === "pinjam" ? 0 : product.price * days;
     const service = product.type === "pinjam" ? 5000 : Math.max(2500, Math.round(subtotal * 0.025));
     const total = subtotal + service;
-    return { subtotal, service, total, dp: Math.round(total * 0.5), remaining: total - Math.round(total * 0.5) };
+    const dp = Math.ceil(total * 0.3);
+    return { subtotal, service, total, dp, remaining: total - dp };
   }
 
   function detailFeeRows(product, total, days) {
@@ -267,8 +269,8 @@
       <div class="mt-2 flex justify-between gap-4"><span>Biaya layanan</span><b>${rupiah(total.service)}</b></div>
       <hr class="my-3">
       <div class="flex justify-between gap-4 text-slate-950"><span>Total</span><b>${rupiah(total.total)}</b></div>
-      <div class="mt-2 flex justify-between gap-4 text-brand-blue"><span>DP sekarang</span><b>${rupiah(total.dp)}</b></div>
-      <div class="mt-2 flex justify-between gap-4 text-teal-600"><span>Sisa saat COD</span><b>${rupiah(total.remaining)}</b></div>`;
+      <div class="mt-2 flex justify-between gap-4 text-brand-blue"><span>DP 30%</span><b>${rupiah(total.dp)}</b></div>
+      <div class="mt-2 flex justify-between gap-4 text-teal-600"><span>Sisa pembayaran</span><b>${rupiah(total.remaining)}</b></div>`;
   }
 
   function usageHint(product) {
@@ -374,7 +376,7 @@
       renderDetail();
     }));
     document.querySelector("[data-share-product]")?.addEventListener("click", async () => {
-      const link = `${location.origin}${location.pathname}#/product-detail?productId=${product.id}`;
+      const link = `${location.origin}${location.pathname}#/product-detail/${product.id}`;
       try {
         await navigator.clipboard?.writeText(link);
         ui.toast("Link produk berhasil disalin");
@@ -388,9 +390,196 @@
       renderDetail();
     }));
     document.querySelector("[data-add-cart]")?.addEventListener("click", () => {
-      state.cart = [...new Set([...(state.cart || []), product.id])];
-      ui.toast("Produk ditambahkan ke keranjang");
+      const added = state.addCart(product.id, { startDate: state.bookingStart, endDate: state.bookingEnd, duration: state.bookingDays });
+      ui.toast(added ? "Produk berhasil dimasukkan ke keranjang" : "Produk sudah ada di keranjang");
+      renderDetail();
     });
+  }
+
+  function productById(id) {
+    return BBData.products.find(product => product.id === Number(id));
+  }
+
+  function cartDuration(item) {
+    if (!item.startDate || !item.endDate) return 0;
+    const diff = Math.round((new Date(item.endDate) - new Date(item.startDate)) / 86400000) + 1;
+    return Math.max(0, Number.isFinite(diff) ? diff : 0);
+  }
+
+  function cartLineTotal(product, item) {
+    const days = cartDuration(item);
+    if (!days) return 0;
+    return product.type === "pinjam" ? 5000 : product.price * days;
+  }
+
+  function renderCart() {
+    const mount = document.querySelector("#cart-view");
+    if (!mount) return;
+    const items = state.cart.map(item => ({ item, product: productById(item.productId) })).filter(entry => entry.product);
+    const selected = items.filter(entry => entry.item.selected);
+    const rentTotal = selected.reduce((sum, entry) => sum + cartLineTotal(entry.product, entry.item), 0);
+    const dp = Math.ceil(rentTotal * 0.3);
+    const remaining = rentTotal - dp;
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50">
+      <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+        <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div><p class="text-sm font-bold text-brand-blue">Keranjang Sewa</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Keranjang Sewa</h1><p class="mt-2 text-slate-500">Kelola barang yang ingin kamu sewa sebelum melanjutkan checkout.</p></div>
+          <button class="btn-secondary w-fit rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang Lagi</button>
+        </div>
+        ${items.length ? `<section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+          <div class="grid gap-4">${items.map(({ item, product }) => cartItemCard(item, product)).join("")}</div>
+          <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+            <h2 class="text-xl font-extrabold text-slate-950">Ringkasan Keranjang</h2>
+            <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
+              ${summaryLine("Total item dipilih", selected.length)}
+              ${summaryLine("Total biaya sewa", rupiah(rentTotal))}
+              ${summaryLine("Estimasi DP 30%", rupiah(dp), "text-brand-blue")}
+              ${summaryLine("Sisa pembayaran", rupiah(remaining), "text-teal-600")}
+            </div>
+            <button class="btn-primary mt-6 w-full rounded-2xl px-5 py-4" data-cart-checkout>Lanjut Checkout</button>
+            <button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang Lagi</button>
+            <p class="mt-4 rounded-2xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p>
+          </aside>
+        </section>` : emptyCartState()}
+      </div>
+    </main>`;
+    bindCommonEvents();
+    bindCartEvents();
+  }
+
+  function cartItemCard(item, product) {
+    const duration = cartDuration(item);
+    const total = cartLineTotal(product, item);
+    const warning = product.status === "low" ? `<p class="rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">Stok hampir habis, konfirmasi ke pemilik sebelum checkout.</p>` : "";
+    return `<article class="rounded-[24px] border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
+      <div class="grid gap-4 lg:grid-cols-[auto_140px_1fr_auto] lg:items-start">
+        <input class="mt-2 h-5 w-5 accent-blue-600" type="checkbox" ${item.selected ? "checked" : ""} data-cart-select="${product.id}" aria-label="Pilih ${product.name}">
+        <img src="${product.image}" alt="${product.name}" class="h-36 w-full rounded-2xl object-cover lg:h-32" onerror="this.src='${fallbackImage}'">
+        <div class="min-w-0">
+          <h2 class="text-lg font-extrabold text-slate-950">${product.name}</h2>
+          <p class="mt-1 text-sm font-semibold text-slate-500">${product.category}</p>
+          <p class="mt-2 text-sm text-slate-500">${product.campus} | ${product.location}</p>
+          <p class="mt-3 text-lg font-extrabold text-brand-blue">${price(product)}</p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <label class="text-xs font-bold text-slate-500">Tanggal mulai<input class="field mt-1" type="date" value="${item.startDate || ""}" data-cart-start="${product.id}"></label>
+            <label class="text-xs font-bold text-slate-500">Tanggal selesai<input class="field mt-1" type="date" value="${item.endDate || ""}" data-cart-end="${product.id}"></label>
+          </div>
+          <p class="mt-3 text-sm font-bold text-slate-600">Durasi: ${duration ? `${duration} hari` : "Lengkapi tanggal"} | Total: ${rupiah(total)}</p>
+          <div class="mt-3">${warning}</div>
+        </div>
+        <div class="grid gap-2 lg:w-44">
+          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-remove-cart="${product.id}">Hapus</button>
+          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-cart-to-wishlist="${product.id}">Pindahkan ke Wishlist</button>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function emptyCartState() {
+    return `<section class="rounded-[28px] border border-slate-100 bg-white p-10 text-center shadow-sm">
+      ${icon("shopping-basket", "mx-auto h-16 w-16 text-slate-300")}
+      <h2 class="mt-5 text-2xl font-extrabold text-slate-950">Keranjang kamu masih kosong</h2>
+      <p class="mx-auto mt-2 max-w-md text-slate-500">Cari barang yang kamu butuhkan dan tambahkan ke keranjang.</p>
+      <button class="btn-primary mt-6 rounded-2xl px-6 py-3" data-nav="browse">Jelajah Barang</button>
+    </section>`;
+  }
+
+  function renderWishlist() {
+    const mount = document.querySelector("#wishlist-view");
+    if (!mount) return;
+    const products = state.wishlist.map(productById).filter(Boolean);
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50">
+      <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+        <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div><p class="text-sm font-bold text-brand-blue">Wishlist Saya</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Wishlist Saya</h1><p class="mt-2 text-slate-500">Barang yang kamu simpan untuk disewa nanti.</p></div>
+          <button class="btn-secondary w-fit rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang</button>
+        </div>
+        ${products.length ? `<section class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">${products.map(wishlistCard).join("")}</section>` : emptyWishlistState()}
+      </div>
+    </main>`;
+    bindCommonEvents();
+    bindWishlistEvents();
+  }
+
+  function wishlistCard(product) {
+    return `<article class="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <button class="block w-full text-left" data-product="${product.id}"><img src="${product.image}" alt="${product.name}" class="h-44 w-full object-cover" onerror="this.src='${fallbackImage}'"></button>
+      <div class="p-4">
+        <div class="flex flex-wrap gap-2">${productBadges(product)}</div>
+        <button class="mt-3 text-left" data-product="${product.id}"><h2 class="line-clamp-2 text-lg font-extrabold text-slate-950">${product.name}</h2></button>
+        <p class="mt-2 text-sm font-semibold text-slate-500">Rating ${product.rating} | ${product.location}</p>
+        <p class="mt-1 text-sm text-slate-500">${product.campus}</p>
+        <p class="mt-3 text-xl font-extrabold text-brand-blue">${price(product)}</p>
+        <div class="mt-4 grid gap-2">
+          <button class="btn-primary rounded-2xl px-4 py-2.5 text-sm" data-book="${product.id}">Sewa Sekarang</button>
+          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-add-cart-from-list="${product.id}">Masukkan ke Keranjang</button>
+          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm text-red-500" data-remove-wishlist="${product.id}">Hapus dari Wishlist</button>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function emptyWishlistState() {
+    return `<section class="rounded-[28px] border border-slate-100 bg-white p-10 text-center shadow-sm">
+      ${icon("heart", "mx-auto h-16 w-16 text-slate-300")}
+      <h2 class="mt-5 text-2xl font-extrabold text-slate-950">Belum ada barang yang kamu sukai</h2>
+      <p class="mx-auto mt-2 max-w-md text-slate-500">Klik icon hati di produk untuk menyimpannya ke wishlist.</p>
+      <button class="btn-primary mt-6 rounded-2xl px-6 py-3" data-nav="browse">Jelajah Barang</button>
+    </section>`;
+  }
+
+  function summaryLine(label, value, cls = "") {
+    return `<div class="flex justify-between gap-4"><span>${label}</span><b class="text-right ${cls}">${value}</b></div>`;
+  }
+
+  function bindCartEvents() {
+    document.querySelectorAll("[data-cart-select]").forEach(input => input.addEventListener("change", event => {
+      state.updateCartItem(event.target.dataset.cartSelect, { selected: event.target.checked });
+      renderCart();
+    }));
+    document.querySelectorAll("[data-cart-start]").forEach(input => input.addEventListener("change", event => {
+      state.updateCartItem(event.target.dataset.cartStart, { startDate: event.target.value });
+      renderCart();
+    }));
+    document.querySelectorAll("[data-cart-end]").forEach(input => input.addEventListener("change", event => {
+      state.updateCartItem(event.target.dataset.cartEnd, { endDate: event.target.value });
+      renderCart();
+    }));
+    document.querySelectorAll("[data-remove-cart]").forEach(button => button.addEventListener("click", () => {
+      state.removeCart(button.dataset.removeCart);
+      ui.toast("Produk dihapus dari keranjang");
+      renderCart();
+    }));
+    document.querySelectorAll("[data-cart-to-wishlist]").forEach(button => button.addEventListener("click", () => {
+      state.moveCartToWishlist(button.dataset.cartToWishlist);
+      ui.toast("Produk dipindahkan ke wishlist");
+      renderCart();
+    }));
+    document.querySelector("[data-cart-checkout]")?.addEventListener("click", () => {
+      const selected = state.cart.filter(item => item.selected);
+      if (!selected.length) return ui.toast("Pilih minimal satu barang untuk checkout");
+      const invalid = selected.find(item => !item.startDate || !item.endDate || cartDuration(item) < 1);
+      if (invalid) return ui.toast("Lengkapi tanggal sewa sebelum checkout");
+      const item = selected[0];
+      state.rememberProduct(item.productId);
+      state.bookingStart = item.startDate;
+      state.bookingEnd = item.endDate;
+      state.bookingDays = cartDuration(item);
+      router.navigate("checkout");
+    });
+  }
+
+  function bindWishlistEvents() {
+    document.querySelectorAll("[data-remove-wishlist]").forEach(button => button.addEventListener("click", () => {
+      if (state.isWishlisted(button.dataset.removeWishlist)) state.toggleWishlist(button.dataset.removeWishlist);
+      ui.toast("Produk dihapus dari wishlist");
+      renderWishlist();
+    }));
+    document.querySelectorAll("[data-add-cart-from-list]").forEach(button => button.addEventListener("click", () => {
+      const added = state.addCart(button.dataset.addCartFromList);
+      ui.toast(added ? "Produk berhasil dimasukkan ke keranjang" : "Produk sudah ada di keranjang");
+      renderWishlist();
+    }));
   }
 
   function renderCheckout() {
@@ -440,7 +629,7 @@
   }
 
   function feeRows(total) {
-    return `<div class="flex justify-between"><span>Subtotal</span><b>${rupiah(total.subtotal)}</b></div><div class="mt-2 flex justify-between"><span>Biaya layanan</span><b>${rupiah(total.service)}</b></div><div class="mt-2 flex justify-between"><span>Biaya transaksi</span><b>${rupiah(total.transaction)}</b></div><hr class="my-3"><div class="flex justify-between"><span>Total</span><b>${rupiah(total.total)}</b></div><div class="mt-2 flex justify-between text-brand-blue"><span>DP 50%</span><b>${rupiah(total.dp)}</b></div><div class="mt-2 flex justify-between text-teal-600"><span>Sisa bayar saat COD</span><b>${rupiah(total.remaining)}</b></div>`;
+    return `<div class="flex justify-between"><span>Subtotal</span><b>${rupiah(total.subtotal)}</b></div><div class="mt-2 flex justify-between"><span>Biaya layanan</span><b>${rupiah(total.service)}</b></div><div class="mt-2 flex justify-between"><span>Biaya transaksi</span><b>${rupiah(total.transaction)}</b></div><hr class="my-3"><div class="flex justify-between"><span>Total</span><b>${rupiah(total.total)}</b></div><div class="mt-2 flex justify-between text-brand-blue"><span>DP 30%</span><b>${rupiah(total.dp)}</b></div><div class="mt-2 flex justify-between text-teal-600"><span>Sisa pembayaran</span><b>${rupiah(total.remaining)}</b></div>`;
   }
 
   function optionList(items, selected, allLabel) {
@@ -474,7 +663,12 @@
   function bindCommonEvents() {
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
     document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
-    document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => { event.stopPropagation(); state.toggleWishlist(Number(button.dataset.wishlist)); ui.toast(state.wishlist.includes(Number(button.dataset.wishlist)) ? "Ditambahkan ke wishlist" : "Dihapus dari wishlist"); viewInit[router.currentView]?.(); }));
+    document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => {
+      event.stopPropagation();
+      const liked = state.toggleWishlist(Number(button.dataset.wishlist));
+      ui.toast(liked ? "Produk ditambahkan ke wishlist" : "Produk dihapus dari wishlist");
+      viewInit[router.currentView]?.();
+    }));
     document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => { state.filters.category = button.dataset.category; router.navigate("browse"); }));
     document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => { state.filters.query = button.dataset.chip; router.navigate("browse"); }));
     document.querySelectorAll("[data-reset-filter]").forEach(button => button.addEventListener("click", filters.reset));
@@ -484,6 +678,21 @@
 
   function bindNavEvents() {
     document.querySelectorAll("[data-nav]").forEach(button => button.addEventListener("click", () => router.navigate(button.dataset.nav)));
+    refreshNavBadges();
+  }
+
+  function refreshNavBadges() {
+    updateBadge("wishlist", state.wishlistCount?.() || state.wishlist.length || 0);
+    updateBadge("cart", state.cartCount?.() || state.cart?.length || 0);
+  }
+
+  function updateBadge(name, count) {
+    document.querySelectorAll(`[data-nav-badge="${name}"]`).forEach(badge => {
+      badge.textContent = count;
+      badge.classList.toggle("hidden", count < 1);
+      badge.classList.add("scale-110");
+      setTimeout(() => badge.classList.remove("scale-110"), 180);
+    });
   }
 
   function debounce(fn, delay) {
@@ -494,5 +703,5 @@
     };
   }
 
-  window.components = { renderHome, renderBrowse, renderDetail, renderCheckout, renderBuyer, renderSeller, renderProfile, bindNavEvents, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
+  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderCheckout, renderBuyer, renderSeller, renderProfile, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
 })();

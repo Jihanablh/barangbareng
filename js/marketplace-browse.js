@@ -108,14 +108,14 @@
   }
 
   function productCard(product) {
-    const liked = state.wishlist.includes(product.id);
+    const liked = state.isWishlisted(product.id);
     const status = product.status === "low" ? "Hampir Habis" : "Tersedia";
     const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.rentedCount > 40 ? "Terdekat" : product.badges[0] || "Event Ready";
     return `<article class="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div class="relative h-36 overflow-hidden bg-slate-100">
         <img src="${product.image}" alt="${product.name}" class="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
         <div class="absolute left-2 top-2 flex flex-wrap gap-1.5"><span class="badge ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="badge bg-blue-50 text-brand-blue">${extra}</span></div>
-        <button class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart", "h-4 w-4")}</button>
+        <button class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
       </div>
       <div class="p-3">
         <button class="block text-left" data-product="${product.id}"><h3 class="line-clamp-2 min-h-[2.45rem] text-sm font-extrabold leading-snug text-slate-950">${product.name}</h3></button>
@@ -248,7 +248,12 @@
   function bindSharedEvents() {
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
     document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
-    document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => { event.stopPropagation(); state.toggleWishlist(Number(button.dataset.wishlist)); ui.toast(state.wishlist.includes(Number(button.dataset.wishlist)) ? "Ditambahkan ke wishlist" : "Dihapus dari wishlist"); renderBrowse(); }));
+    document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => {
+      event.stopPropagation();
+      const liked = state.toggleWishlist(Number(button.dataset.wishlist));
+      ui.toast(liked ? "Produk ditambahkan ke wishlist" : "Produk dihapus dari wishlist");
+      renderBrowse();
+    }));
     document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => { state.filters.query = button.dataset.chip; requestBrowseUpdate(); }));
     document.querySelectorAll("[data-reset-filter]").forEach(button => button.addEventListener("click", () => {
       state.filters = { query: "", category: "all", priceMin: 0, priceMax: 200000, location: "all", campus: "all", rating: 0, type: "all", level: "all", availability: "all", quickFilter: null, campuses: [], areas: [], codLocations: [], categories: [], ownerLevels: [], availabilityList: [], listingTypes: [] };

@@ -58,6 +58,8 @@
     home: components.renderHome,
     browse: components.renderBrowse,
     "product-detail": components.renderDetail,
+    keranjang: components.renderCart,
+    wishlist: components.renderWishlist,
     checkout: components.renderCheckout,
     login: components.renderLogin,
     register: components.renderRegister,

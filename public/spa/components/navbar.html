@@ -18,8 +18,8 @@
       </label>
       <button class="btn-primary rounded-2xl px-5 py-2.5" data-nav="browse">Cari</button>
       <button class="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" aria-label="Notifikasi"><i data-lucide="bell" class="h-5 w-5"></i></button>
-      <button class="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" aria-label="Wishlist"><i data-lucide="heart" class="h-5 w-5"></i></button>
-      <button class="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" aria-label="Booking"><i data-lucide="shopping-basket" class="h-5 w-5"></i></button>
+      <button class="relative grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="wishlist" aria-label="Wishlist"><i data-lucide="heart" class="h-5 w-5"></i><span data-nav-badge="wishlist" class="hidden absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1 text-[11px] font-extrabold text-white transition-transform"></span></button>
+      <button class="relative grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="keranjang" aria-label="Keranjang"><i data-lucide="shopping-basket" class="h-5 w-5"></i><span data-nav-badge="cart" class="hidden absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue px-1 text-[11px] font-extrabold text-white transition-transform"></span></button>
       <button class="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-brand-blue" data-nav="login">Masuk</button>
       <button class="btn-secondary rounded-full px-5 py-2.5" data-nav="register">Daftar</button>
       <button class="grid h-11 w-11 place-items-center rounded-2xl bg-blue-50 text-brand-blue" data-nav="dashboard-buyer" aria-label="Profil"><i data-lucide="user" class="h-5 w-5"></i></button>
@@ -41,6 +41,8 @@
   <div class="mt-5 grid gap-2">
     <button class="drawer-link" data-nav="home">Beranda</button>
     <button class="drawer-link" data-nav="browse">Jelajah</button>
+    <button class="drawer-link flex items-center justify-between" data-nav="wishlist">Wishlist <span data-nav-badge="wishlist" class="hidden rounded-full bg-red-500 px-2 py-0.5 text-xs font-extrabold text-white transition-transform"></span></button>
+    <button class="drawer-link flex items-center justify-between" data-nav="keranjang">Keranjang <span data-nav-badge="cart" class="hidden rounded-full bg-brand-blue px-2 py-0.5 text-xs font-extrabold text-white transition-transform"></span></button>
     <button class="drawer-link" data-nav="login">Masuk</button>
     <button class="drawer-link" data-nav="register">Daftar</button>
   </div>
