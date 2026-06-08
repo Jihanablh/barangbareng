@@ -146,21 +146,118 @@
   }
 
   function renderPaymentQr() {
-    const total = checkout.calculate(product(), state.bookingDays);
-    document.querySelector("#payment-qr-view").innerHTML = shell("QR Pembayaran DP", "Scan QRIS di halaman penuh, lalu lanjut verifikasi.", `<section class="card p-6 text-center"><p class="text-3xl font-extrabold text-brand-blue">${rupiah(total.dp)}</p><div id="payment-page-qr" class="qr-container mx-auto mt-5 w-[240px]"></div><p class="mt-4 font-bold text-amber-600">Berlaku <span id="payment-page-timer">15:00</span></p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="payment-verification">Saya Sudah Bayar</button></section>`);
+    const item = product();
+    checkout.ensureCheckoutState(item);
+    const total = checkout.calculate(item, checkout.durationFromDates());
+    document.querySelector("#payment-qr-view").innerHTML = paymentShell("Pembayaran DP", "Selesaikan pembayaran DP agar pesanan kamu dapat diproses oleh pemilik barang.", "DP", total.dp, total, `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button>`);
     bindBase();
-    qris.createQr("payment-page-qr", `BB-DP-${state.selectedProductId}-${Date.now()}`);
+    qris.createQr("payment-page-qr", `GOPAY-MERCHANT-DP-${state.orderCode}-${total.dp}`);
     qris.startTimer("payment-page-timer", 900);
+    bindPaymentActions("dp");
   }
 
   function renderPaymentVerification() {
-    document.querySelector("#payment-verification-view").innerHTML = shell("Verifikasi Pembayaran", "Simulasi pengecekan otomatis pembayaran DP.", `<section class="card p-8 text-center"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran terdeteksi</h2><p class="mt-2 text-slate-500">DP sudah tercatat dan menunggu konfirmasi pemilik.</p><button class="btn-primary mt-6 rounded-2xl px-5 py-3" data-nav="transaction-success">Lanjut</button></section>`);
+    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Simulasi polling status pembayaran GoPay Merchant QRIS.", `<section class="rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Status akan diperbarui otomatis setelah sistem menerima konfirmasi.</p><button class="btn-primary mt-6 rounded-2xl px-5 py-3" data-payment-paid="dp">Simulasikan Webhook Berhasil</button></section>`);
     bindBase();
+    bindPaymentActions("dp");
   }
 
   function renderTransactionSuccess() {
-    document.querySelector("#transaction-success-view").innerHTML = shell("Transaksi Berhasil", "Booking sudah masuk dan QR COD siap dipakai saat bertemu.", `<section class="card p-8 text-center"><i data-lucide="check-circle-2" class="mx-auto h-16 w-16 text-teal-500"></i><h2 class="mt-4 text-2xl font-extrabold">Booking dikonfirmasi</h2><p class="mt-2 text-slate-500">Gunakan QR serah terima saat COD dengan pemilik barang.</p><button class="btn-primary mt-6 rounded-2xl px-5 py-3" data-nav="qr-handover">Lihat QR COD</button></section>`);
+    const item = product();
+    const total = checkout.calculate(item, checkout.durationFromDates());
+    document.querySelector("#transaction-success-view").innerHTML = `<main class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
+      <div class="mx-auto max-w-4xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+        <section class="rounded-[24px] border border-slate-100 bg-white p-8 text-center shadow-sm">
+          <span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-teal-50 text-teal-600">${icon("check-circle-2", "h-12 w-12")}</span>
+          <h1 class="mt-5 text-3xl font-extrabold text-slate-950">Pembayaran DP berhasil diterima</h1>
+          <p class="mx-auto mt-3 max-w-2xl text-slate-500">Pesanan kamu sedang diproses. Silakan pantau status transaksi di halaman detail transaksi.</p>
+          <div class="mx-auto mt-8 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
+            ${successMetric("Nomor Transaksi", state.orderCode)}
+            ${successMetric("Status", state.orderStatus || "DP_PAID")}
+            ${successMetric("Total Sewa", rupiah(total.total))}
+            ${successMetric("DP yang Dibayar", rupiah(total.dp))}
+            ${successMetric("Sisa Pelunasan", rupiah(total.remaining))}
+            ${successMetric("Jadwal Pelunasan", `Sebelum ${state.bookingStart}, pukul 12.00 WIB`)}
+          </div>
+          <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="order-detail">Lihat Detail Transaksi</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="home">Kembali ke Beranda</button></div>
+        </section>
+      </div>
+    </main>`;
     bindBase();
+  }
+
+  function renderPaymentFinal() {
+    const item = product();
+    checkout.ensureCheckoutState(item);
+    const total = checkout.calculate(item, checkout.durationFromDates());
+    document.querySelector("#payment-final-view").innerHTML = paymentShell("Pembayaran Pelunasan", "Selesaikan pelunasan agar barang bisa diserahkan kepada kamu.", "Pelunasan", total.remaining, total, `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-payment-paid="final">Cek Status Pembayaran</button>`);
+    bindBase();
+    qris.createQr("payment-page-qr", `GOPAY-MERCHANT-FINAL-${state.orderCode}-${total.remaining}`);
+    qris.startTimer("payment-page-timer", 900);
+    bindPaymentActions("final");
+  }
+
+  function renderOrderDetail() {
+    const item = product();
+    const total = checkout.calculate(item, checkout.durationFromDates());
+    const status = state.orderStatus || "DP_PAID";
+    document.querySelector("#order-detail-view").innerHTML = shell("Detail Transaksi", "Pantau pembayaran, persetujuan pemilik, dan proses serah terima barang.", `<section class="grid gap-6 lg:grid-cols-[1fr_340px]">
+      <article class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm">
+        <div class="flex flex-col gap-4 sm:flex-row"><img src="${item.image}" alt="${item.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32"><div><p class="badge bg-blue-50 text-brand-blue">${status}</p><h2 class="mt-3 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} | ${state.bookingDays} hari</p><p class="mt-2 text-sm text-slate-500">${item.location} | ${item.campus}</p></div></div>
+        <div class="mt-6 grid gap-3 sm:grid-cols-2">${successMetric("Order", state.orderCode)}${successMetric("Total", rupiah(total.total))}${successMetric("DP Dibayar", status === "WAITING_DP_PAYMENT" ? "Belum dibayar" : rupiah(total.dp))}${successMetric("Sisa Pelunasan", rupiah(total.remaining))}</div>
+      </article>
+      <aside class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Sisa pembayaran wajib dilunasi sebelum barang diserahkan.</p><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
+    </section>`, "max-w-7xl");
+    bindBase();
+  }
+
+  function paymentShell(title, subtitle, invoiceType, amount, total, actionHtml) {
+    const item = product();
+    return `<main class="min-h-screen bg-slate-50"><div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+      <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Beranda &gt; Checkout &gt; ${title}</p><h1 class="mt-2 text-2xl font-extrabold text-slate-950 lg:text-3xl">${title}</h1><p class="mt-2 text-slate-500">${subtitle}</p></div>
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+        <section class="grid gap-5">
+          <article class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
+            <div class="grid gap-4 sm:grid-cols-2">${successMetric("Invoice Number", invoiceType === "DP" ? state.invoiceNumber : `INV-FINAL-20260609-${String(item.id).padStart(4, "0")}`)}${successMetric("Nama Barang", item.name)}${successMetric("Total Tagihan", rupiah(total.total))}${successMetric(`Nominal ${invoiceType}`, rupiah(amount))}</div>
+            <span class="badge mt-5 bg-amber-50 text-amber-700">Menunggu Pembayaran</span>
+          </article>
+          <article class="rounded-[24px] border border-slate-100 bg-white p-6 text-center shadow-sm">
+            <h2 class="text-xl font-extrabold text-slate-950">Scan QRIS GoPay Merchant</h2>
+            <p class="mt-2 text-sm text-slate-500">Scan QRIS untuk membayar ${invoiceType === "DP" ? "DP" : "pelunasan"}.</p>
+            <div id="payment-page-qr" data-size="220" class="qr-container mx-auto mt-5 w-[260px]"></div>
+            <p class="mt-4 font-bold text-amber-600">Berlaku dalam <span id="payment-page-timer">15:00</span></p>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2"><button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-payment-qr>Refresh QR</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="payment-verification">Cek Status</button></div>
+            ${actionHtml}
+          </article>
+        </section>
+        <aside class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-24"><h2 class="text-xl font-extrabold">Ringkasan Order</h2><div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">${checkout.summaryRow("Order", state.orderCode)}${checkout.summaryRow("Durasi", `${state.bookingDays} hari`)}${checkout.summaryRow("DP", rupiah(total.dp), "text-brand-blue")}${checkout.summaryRow("Sisa", rupiah(total.remaining), "text-teal-600")}</div><p class="mt-5 rounded-2xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p></aside>
+      </div>
+    </div></main>`;
+  }
+
+  function successMetric(label, value) {
+    return `<div class="rounded-2xl bg-slate-50 p-4"><p class="text-xs font-bold text-slate-500">${label}</p><b class="mt-1 block text-slate-950">${value}</b></div>`;
+  }
+
+  function bindPaymentActions(type) {
+    document.querySelector("[data-refresh-payment-qr]")?.addEventListener("click", () => {
+      qris.createQr("payment-page-qr", `GOPAY-MERCHANT-${type.toUpperCase()}-${state.orderCode}-${Date.now()}`);
+      qris.startTimer("payment-page-timer", 900);
+      ui.toast("QRIS berhasil diperbarui");
+    });
+    document.querySelectorAll("[data-payment-paid]").forEach(button => button.addEventListener("click", () => {
+      if (button.dataset.paymentPaid === "final") {
+        state.orderStatus = "READY_FOR_PICKUP";
+        ui.toast("Pelunasan berhasil diterima");
+        router.navigate("order-detail");
+        return;
+      }
+      state.paymentStatus = "PAID";
+      state.orderStatus = "DP_PAID";
+      ui.toast("Pembayaran DP berhasil diterima");
+      animations.confetti();
+      router.navigate("transaction-success");
+    }));
   }
 
   function renderQrHandover() {
@@ -195,6 +292,8 @@
     renderPaymentQr,
     renderPaymentVerification,
     renderTransactionSuccess,
+    renderPaymentFinal,
+    renderOrderDetail,
     renderQrHandover
   });
 })();

@@ -26,3 +26,9 @@ partials/     partial route SPA
 index.html    entry point
 run-local.bat server lokal
 ```
+
+Dokumentasi teknis:
+
+```text
+docs/checkout-gopay-qris-flow.md
+```

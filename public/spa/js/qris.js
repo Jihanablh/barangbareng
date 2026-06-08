@@ -5,10 +5,11 @@
     const el = document.getElementById(id);
     if (!el) return;
     el.innerHTML = "";
+    const size = Number(el.dataset.size || 220);
     if (window.QRCode) {
-      new QRCode(el, { text, width: 178, height: 178 });
+      new QRCode(el, { text, width: size, height: size });
     } else {
-      el.innerHTML = `<div class="grid h-44 w-44 place-items-center rounded-2xl bg-slate-100 text-sm font-bold text-slate-500">${text}</div>`;
+      el.innerHTML = `<div class="grid place-items-center rounded-2xl bg-slate-100 text-sm font-bold text-slate-500" style="height:${size}px;width:${size}px">${text}</div>`;
     }
     const logo = document.createElement("span");
     logo.className = "qr-logo-overlay";

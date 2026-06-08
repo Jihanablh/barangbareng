@@ -157,35 +157,240 @@
     const mount = document.querySelector("#detail-view");
     if (!mount) return;
     const product = selectedProduct();
-    const total = checkout.calculate(product, state.bookingDays);
-    const similar = BBData.products.filter(item => item.category === product.category && item.id !== product.id).slice(0, 4);
-    mount.innerHTML = `<div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-      <button class="btn-secondary mb-5 rounded-2xl px-4 py-2" data-nav="browse">Kembali</button>
-      <p class="mb-5 text-sm font-semibold text-slate-500">Beranda / ${product.category} / ${product.name}</p>
-      <div class="grid gap-8 lg:grid-cols-[1fr_380px]">
-        <section class="card p-5">
-          ${imgTag(product, "h-[420px] w-full rounded-3xl object-cover")}
-          <div class="mt-3 grid grid-cols-4 gap-3">${product.gallery.map(src => `<img src="${src}" alt="Galeri ${product.name}" class="h-24 w-full rounded-2xl object-cover" onerror="this.src='${fallbackImage}'">`).join("")}</div>
-          <div class="mt-7 flex flex-wrap gap-2">${productBadges(product)}<span class="badge bg-blue-100 text-brand-blue">Mahasiswa Terverifikasi</span></div>
-          <div class="mt-5 flex flex-col justify-between gap-4 sm:flex-row"><div><h1 class="text-3xl font-extrabold text-slate-950">${product.name}</h1><p class="mt-2 font-semibold text-slate-600">Rating ${product.rating} · ${product.reviewCount} ulasan · ${product.location}</p></div><div class="flex gap-2"><button class="btn-secondary rounded-2xl px-4">${icon("share-2")}</button><button class="btn-secondary rounded-2xl px-4" data-wishlist="${product.id}">${icon("heart")}</button></div></div>
-          <p class="mt-5 leading-7 text-slate-600">${product.description}</p>
-          <div class="mt-7 grid gap-4 md:grid-cols-3"><article class="rounded-3xl bg-slate-50 p-5"><h3 class="font-bold">Spesifikasi</h3><ul class="mt-3 grid gap-2 text-sm text-slate-600"><li>Kategori: ${product.category}</li><li>Subkategori: ${product.subcategory}</li><li>Minimal sewa: ${product.minDays} hari</li><li>Maksimal sewa: ${product.maxDays} hari</li></ul></article><article class="rounded-3xl bg-slate-50 p-5"><h3 class="font-bold">Kelengkapan</h3><ul class="mt-3 grid gap-2 text-sm text-slate-600">${product.includes.map(item => `<li>${item}</li>`).join("")}</ul></article><article class="rounded-3xl bg-slate-50 p-5"><h3 class="font-bold">Kondisi Barang</h3><div class="mt-4 h-3 rounded-full bg-slate-200"><div class="progress-animated h-full rounded-full bg-gradient-brand" style="width:${product.condition}%"></div></div><p class="mt-2 text-sm text-slate-500">${product.condition}% sangat layak pakai</p></article></div>
-          <div class="mt-5 grid gap-4 md:grid-cols-2"><article class="rounded-3xl bg-blue-50 p-5"><h3 class="font-bold text-brand-blue">Syarat Pemilik</h3><p class="mt-2 text-sm text-blue-700">${product.notes}</p></article><article class="rounded-3xl bg-teal-50 p-5"><h3 class="font-bold text-teal-700">Pembayaran Aman</h3><p class="mt-2 text-sm text-teal-700">Pembayaran aman dan tercatat. QR serah terima dipakai saat COD.</p></article></div>
-          <h2 class="mt-8 text-2xl font-extrabold">Kalender Ketersediaan</h2><div class="mt-4 grid grid-cols-7 gap-2">${Array.from({ length: 14 }, (_, i) => `<span class="rounded-2xl ${i % 5 === 0 ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"} py-3 text-center text-sm font-bold">${i + 1}</span>`).join("")}</div>
-          <h2 class="mt-8 text-2xl font-extrabold">Ulasan</h2>${product.reviews.map(review => `<article class="mt-4 rounded-3xl bg-slate-50 p-5"><strong>${review.name}</strong><p class="text-sm text-slate-500">Rating ${review.rating} · ${review.date}</p><p class="mt-2">${review.text}</p></article>`).join("")}
-          <h2 class="mt-8 text-2xl font-extrabold">Produk Serupa</h2><div class="mt-4 grid gap-4 md:grid-cols-2">${similar.map(item => productCard(item)).join("")}</div>
-        </section>
-        <aside class="booking-card-sticky card p-6">
-          <p class="text-3xl font-extrabold text-brand-blue">${price(product)}</p><p class="mt-2 text-sm text-slate-500">${product.campus} · estimasi dekat area COD</p>
-          <label class="mt-5 block text-sm font-bold">Pilih tanggal</label><input class="field mt-2" type="date">
-          <label class="mt-5 block text-sm font-bold">Durasi: ${state.bookingDays} hari</label><input id="booking-days" class="mt-3 w-full accent-blue-600" type="range" min="${product.minDays}" max="${product.maxDays}" value="${state.bookingDays}">
-          <div class="mt-5 rounded-3xl bg-slate-50 p-4 text-sm font-semibold">${feeRows(total)}</div>
-          <button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><p class="mt-4 rounded-3xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran aman dan tercatat.</p>
+    ensureDetailState(product);
+    const gallery = [product.image, ...(product.gallery || [])].filter((src, index, list) => src && list.indexOf(src) === index).slice(0, 5);
+    const activeImage = gallery[state.detailGallery?.[product.id] || 0] || product.image;
+    const days = detailDuration();
+    const total = detailFee(product, days);
+    const similar = similarProducts(product);
+    const liked = state.wishlist.includes(product.id);
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50">
+      <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+        <div class="mb-6 flex flex-col gap-3 text-sm font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p class="min-w-0 truncate">Beranda &gt; Jelajah Barang &gt; ${product.category} &gt; ${product.name}</p>
+          <button class="inline-flex w-fit items-center gap-2 text-sm font-bold text-brand-blue transition hover:text-teal-600" data-nav="browse">${icon("arrow-left", "h-4 w-4")} Kembali ke Jelajah Produk</button>
+        </div>
+
+        <section class="grid gap-6 xl:grid-cols-12 xl:items-start">
+          <article class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-5 xl:col-span-5">
+            <div class="relative overflow-hidden rounded-3xl border border-slate-100 bg-slate-100">
+              <img src="${activeImage}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 hover:scale-[1.02]" onerror="this.src='${fallbackImage}'">
+              <div class="absolute left-4 top-4 flex max-w-[80%] flex-wrap gap-2">${productBadges(product)}</div>
+            </div>
+            <div class="mt-4 grid grid-cols-5 gap-3">${gallery.map((src, index) => `<button class="overflow-hidden rounded-2xl border-2 ${src === activeImage ? "border-brand-blue ring-2 ring-teal-200" : "border-slate-100"} bg-slate-100 transition hover:border-blue-300" data-gallery-index="${index}"><img src="${src}" alt="Galeri ${index + 1} ${product.name}" class="aspect-square w-full object-cover" onerror="this.src='${fallbackImage}'"></button>`).join("")}</div>
+          </article>
+
+          <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm xl:col-span-4">
+            <div class="flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge bg-slate-100 text-slate-600">${product.subcategory}</span></div>
+            <h1 class="mt-4 text-2xl font-extrabold leading-tight text-slate-950 lg:text-3xl">${product.name}</h1>
+            <p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Rating ${product.rating} dari 5 | ${product.reviewCount} penilaian | ${product.rentedCount}x disewa</p>
+            <div class="mt-5 grid gap-2 text-sm font-semibold text-slate-600">
+              <p class="flex items-center gap-2">${icon("map-pin", "h-4 w-4 text-brand-blue")} ${product.location}</p>
+              <p class="flex items-center gap-2">${icon("school", "h-4 w-4 text-brand-blue")} ${product.campus}</p>
+              <p class="flex items-center gap-2">${icon("tag", "h-4 w-4 text-brand-blue")} ${product.type === "pinjam" ? "Pinjam Gratis" : "Sewa Harian"}</p>
+            </div>
+            <p class="mt-6 text-3xl font-extrabold text-brand-blue">${price(product)}</p>
+            <div class="mt-5 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+              <p class="font-semibold">Cocok untuk ${usageHint(product)}.</p>
+              <div class="mt-3 grid gap-2 text-xs font-bold text-slate-500 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                <span>Tersedia Hari Ini</span>
+                <span>Min. sewa ${product.minDays} hari</span>
+                <span>Maks. sewa ${product.maxDays} hari</span>
+                <span>COD sekitar kampus</span>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-3">
+              <button class="btn-secondary rounded-2xl px-4 py-3 text-sm ${liked ? "text-red-500" : ""}" data-wishlist="${product.id}">${icon("heart", "h-4 w-4")} Simpan</button>
+              <button class="btn-secondary rounded-2xl px-4 py-3 text-sm" data-share-product>${icon("share-2", "h-4 w-4")} Bagikan</button>
+            </div>
+          </article>
+
+          <aside class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm xl:sticky xl:top-[96px] xl:col-span-3">
+          <p class="text-sm font-bold text-slate-500">Booking Barang</p>
+          <p class="mt-2 text-3xl font-extrabold text-brand-blue">${price(product)}</p>
+          <div class="mt-5 grid gap-3">
+            <label class="text-sm font-bold text-slate-700">Tanggal Mulai<input id="booking-start" class="field mt-2" type="date" value="${state.bookingStart}"></label>
+            <label class="text-sm font-bold text-slate-700">Tanggal Selesai<input id="booking-end" class="field mt-2" type="date" value="${state.bookingEnd}"></label>
+            <p class="rounded-2xl bg-blue-50 px-4 py-3 text-sm font-bold text-brand-blue">Durasi: ${days} hari</p>
+          </div>
+          <div class="mt-5 rounded-3xl bg-slate-50 p-4 text-sm font-semibold text-slate-700">${detailFeeRows(product, total, days)}</div>
+          <button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button>
+          <button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-add-cart="${product.id}">${icon("shopping-basket", "h-4 w-4")} Masukkan ke Keranjang</button>
+          <button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">${icon("message-circle", "h-4 w-4")} Chat Pemilik</button>
+          <p class="mt-4 rounded-3xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p>
         </aside>
+        </section>
+
+        <div class="mt-8">${ownerProfile(product)}</div>
+        <div class="mt-8">${detailInfoSections(product)}</div>
+        <div class="mt-10">${ratingSection(product)}</div>
+        <div class="mt-10">${similarSection(similar)}</div>
       </div>
-    </div>`;
+    </main>`;
     bindCommonEvents();
-    document.querySelector("#booking-days")?.addEventListener("input", event => { state.bookingDays = Number(event.target.value); renderDetail(); });
+    bindDetailEvents(product);
+  }
+
+  function ensureDetailState(product) {
+    state.detailGallery = state.detailGallery || {};
+    state.cart = state.cart || [];
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + Math.max(2, state.bookingDays || product.minDays || 1));
+    state.bookingStart = state.bookingStart || formatDate(start);
+    state.bookingEnd = state.bookingEnd || formatDate(end);
+    if (state.detailGallery[product.id] === undefined) state.detailGallery[product.id] = 0;
+  }
+
+  function formatDate(date) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  function detailDuration() {
+    const start = new Date(state.bookingStart);
+    const end = new Date(state.bookingEnd);
+    const diff = Math.round((end - start) / 86400000) + 1;
+    state.bookingDays = Math.max(1, Number.isFinite(diff) ? diff : 1);
+    return state.bookingDays;
+  }
+
+  function detailFee(product, days) {
+    const subtotal = product.type === "pinjam" ? 0 : product.price * days;
+    const service = product.type === "pinjam" ? 5000 : Math.max(2500, Math.round(subtotal * 0.025));
+    const total = subtotal + service;
+    return { subtotal, service, total, dp: Math.round(total * 0.5), remaining: total - Math.round(total * 0.5) };
+  }
+
+  function detailFeeRows(product, total, days) {
+    const base = product.type === "pinjam" ? "Gratis" : `${rupiah(product.price)} x ${days} hari`;
+    return `<div class="flex justify-between gap-4"><span>${base}</span><b>${rupiah(total.subtotal)}</b></div>
+      <div class="mt-2 flex justify-between gap-4"><span>Biaya layanan</span><b>${rupiah(total.service)}</b></div>
+      <hr class="my-3">
+      <div class="flex justify-between gap-4 text-slate-950"><span>Total</span><b>${rupiah(total.total)}</b></div>
+      <div class="mt-2 flex justify-between gap-4 text-brand-blue"><span>DP sekarang</span><b>${rupiah(total.dp)}</b></div>
+      <div class="mt-2 flex justify-between gap-4 text-teal-600"><span>Sisa saat COD</span><b>${rupiah(total.remaining)}</b></div>`;
+  }
+
+  function usageHint(product) {
+    if (product.category.includes("Kamera")) return "tugas fotografi, dokumentasi event, dan konten";
+    if (product.category.includes("Fashion")) return "sidang, wisuda, interview, dan acara kampus";
+    if (product.category.includes("Outdoor")) return "camping, kegiatan alam, dan acara komunitas";
+    if (product.category.includes("Masak")) return "kebutuhan kos, masak hemat, dan acara kecil";
+    return "kuliah, kegiatan kampus, kos, dan kebutuhan harian";
+  }
+
+  function ownerProfile(product) {
+    const ownerStats = [
+      ["Penilaian", product.owner.rating.toFixed(1)],
+      ["Produk", `${8 + product.id % 7}`],
+      ["Chat Dibalas", `${94 + product.id % 5}%`],
+      ["Waktu Balas", "< 1 jam"],
+      ["Bergabung", "Mar 2025"],
+      ["Transaksi", `${product.owner.txCount}`]
+    ];
+    return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
+      <div class="grid gap-6 lg:grid-cols-[1.1fr_1.6fr] lg:items-center">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <span class="grid h-16 w-16 shrink-0 place-items-center rounded-[22px] bg-gradient-brand text-xl font-extrabold text-white">${product.owner.initials}</span>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-brand-blue">Pemilik Barang</p>
+            <h2 class="text-2xl font-extrabold text-slate-950">${product.owner.name}</h2>
+            <p class="mt-1 text-sm font-semibold text-slate-500">Aktif 5 menit lalu</p>
+            <p class="mt-2 flex flex-wrap gap-2">${levelBadge(product.owner.level)}<span class="badge bg-teal-50 text-teal-700">Mahasiswa Terverifikasi</span></p>
+            <div class="mt-4 grid gap-2 sm:flex sm:flex-wrap"><button class="btn-primary rounded-2xl px-4 py-2.5 text-sm" data-nav="chat">${icon("message-circle", "h-4 w-4")} Chat Sekarang</button><button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-nav="profile">Lihat Profil</button></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">${ownerStats.map(stat => `<div class="rounded-2xl bg-slate-50 p-4"><p class="text-xs font-bold text-slate-500">${stat[0]}</p><b class="mt-1 block text-slate-950">${stat[1]}</b></div>`).join("")}</div>
+      </div>
+    </section>`;
+  }
+
+  function detailInfoSections(product) {
+    const specs = [
+      ["Merek", product.name.split(" ")[0]],
+      ["Model", product.subcategory],
+      ["Kategori", product.category],
+      ["Warna", product.id % 2 ? "Hitam" : "Putih"],
+      ["Kondisi", `${product.condition}%`],
+      ["Lokasi COD", product.location],
+      ["Kampus", product.campus],
+      ["Tipe", product.type === "pinjam" ? "Pinjam Gratis" : "Sewa Harian"]
+    ];
+    const rules = [
+      `Minimal sewa ${product.minDays} hari`,
+      `Maksimal sewa ${product.maxDays} hari`,
+      "COD di sekitar kampus atau titik yang disepakati",
+      "Jam serah terima mengikuti kesepakatan pemilik",
+      "Harap menjaga barang dengan baik",
+      "Keterlambatan pengembalian dikenakan biaya tambahan"
+    ];
+    return `<section class="grid gap-5 lg:grid-cols-2">
+      <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Spesifikasi Produk</h2><div class="mt-4 divide-y divide-slate-100">${specs.map(item => `<div class="flex justify-between gap-4 py-3 text-sm"><span class="font-semibold text-slate-500">${item[0]}</span><b class="text-right text-slate-900">${item[1]}</b></div>`).join("")}</div></article>
+      <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Deskripsi Produk</h2><p class="mt-4 max-w-3xl leading-7 text-slate-600">${product.description} Foto real, kondisi dicek sebelum serah terima, dan cocok untuk ${usageHint(product)}.</p><p class="mt-5 rounded-2xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">Cocok untuk: ${usageHint(product)}.</p></article>
+      <div class="grid gap-5 lg:col-span-2 lg:grid-cols-2">
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Kelengkapan</h2><div class="mt-4 grid gap-2 sm:grid-cols-2">${product.includes.concat(["Aksesori tambahan sesuai stok", "Bukti kondisi awal"]).map(item => `<p class="flex items-center gap-2 rounded-2xl bg-teal-50 p-3 text-sm font-semibold text-teal-700">${icon("check", "h-4 w-4 shrink-0")} ${item}</p>`).join("")}</div></article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Kondisi Barang</h2><div class="mt-4 flex items-end gap-2"><p class="text-4xl font-extrabold text-brand-blue">${product.condition}%</p><span class="pb-1 text-sm font-bold text-slate-500">layak pakai</span></div><div class="mt-4 h-3 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${product.condition}%"></div></div><p class="mt-4 text-sm leading-6 text-slate-600">Kondisi fisik terawat dengan pemakaian wajar. Semua fungsi utama sudah dicek oleh pemilik sebelum disewakan.</p></article>
+      </div>
+      <div class="grid gap-5 lg:col-span-2 lg:grid-cols-[1fr_1.15fr]">
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Syarat Pemilik</h2><div class="mt-4 grid gap-2">${rules.map(item => `<p class="rounded-2xl bg-slate-50 p-3 text-sm font-semibold text-slate-600">${item}</p>`).join("")}</div></article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Kalender Ketersediaan</h2>${availabilityCalendar()}</article>
+      </div>
+    </section>`;
+  }
+
+  function availabilityCalendar() {
+    const labels = ["S", "S", "R", "K", "J", "S", "M"];
+    const cells = Array.from({ length: 28 }, (_, index) => {
+      const day = index + 1;
+      const style = index === 8 ? "bg-brand-blue text-white" : index % 9 === 0 ? "bg-rose-50 text-rose-600" : index % 7 === 0 ? "bg-slate-100 text-slate-500" : "bg-teal-50 text-teal-700";
+      return `<span class="rounded-xl ${style} py-2 text-center text-xs font-bold">${day}</span>`;
+    }).join("");
+    return `<div class="mt-4 grid grid-cols-7 gap-2">${labels.map(label => `<b class="text-center text-xs text-slate-400">${label}</b>`).join("")}${cells}</div>
+      <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold"><span class="badge bg-teal-50 text-teal-700">Tersedia</span><span class="badge bg-rose-50 text-rose-600">Sudah dibooking</span><span class="badge bg-slate-100 text-slate-500">Tidak tersedia</span><span class="badge bg-blue-50 text-brand-blue">Dipilih</span></div>`;
+  }
+
+  function ratingSection(product) {
+    const breakdown = [Math.max(1, product.reviewCount - 16), 11, 4, 1, 0];
+    return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
+      <h2 class="text-xl font-extrabold text-slate-950">Penilaian Produk</h2>
+      <div class="mt-5 grid gap-6 lg:grid-cols-[280px_1fr]">
+        <aside class="rounded-3xl bg-slate-50 p-5"><p class="text-5xl font-extrabold text-brand-blue">${product.rating}</p><p class="mt-1 text-sm font-bold text-slate-500">dari 5 | ${product.reviewCount} penilaian</p><div class="mt-5 grid gap-3">${breakdown.map((count, index) => `<div class="grid grid-cols-[64px_1fr_34px] items-center gap-2 text-xs font-bold text-slate-500"><span>${5 - index} bintang</span><span class="h-2 rounded-full bg-slate-200"><span class="block h-full rounded-full bg-gradient-brand" style="width:${Math.min(100, count / breakdown[0] * 100)}%"></span></span><span>${count}</span></div>`).join("")}</div></aside>
+        <div class="min-w-0"><div class="flex flex-wrap gap-2">${["Semua", "Dengan Foto", "Terbaru", "Rating 5", "Rating 4", "Rating 3 ke bawah"].map((item, index) => `<button class="badge ${index === 0 ? "bg-brand-blue text-white" : "border border-slate-200 bg-white text-slate-600"}">${item}</button>`).join("")}</div><div class="mt-5 grid gap-3">${product.reviews.concat([{ name: "Nadia F.", initials: "NF", rating: 5, date: "2 hari lalu", text: "Barang bersih, pemilik ramah dan fast response. Sangat membantu untuk tugas kampus." }]).slice(0, 3).map(review => `<article class="rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-brand text-sm font-extrabold text-white">${review.initials}</span><div><b>${review.name}</b><p class="text-sm font-semibold text-slate-500">Rating ${review.rating} | ${review.date}</p><p class="mt-2 text-sm leading-6 text-slate-600">${review.text}</p></div></div></article>`).join("")}</div><button class="btn-secondary mt-5 rounded-2xl px-5 py-3">Lihat Semua Penilaian</button></div>
+      </div>
+    </section>`;
+  }
+
+  function similarProducts(product) {
+    return BBData.products.filter(item => item.id !== product.id && (item.category === product.category || item.campus === product.campus)).sort((a, b) => b.rating - a.rating).slice(0, 8);
+  }
+
+  function similarSection(products) {
+    return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Produk Serupa yang Mungkin Kamu Suka</h2><div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">${products.map(item => `<article class="overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><img src="${item.image}" alt="${item.name}" class="h-36 w-full object-cover" onerror="this.src='${fallbackImage}'"><div class="p-4"><h3 class="line-clamp-2 min-h-[2.4rem] text-sm font-extrabold text-slate-950">${item.name}</h3><p class="mt-2 text-sm font-bold text-brand-blue">${price(item)}</p><p class="mt-1 text-xs font-semibold text-slate-500">Rating ${item.rating} | ${item.location}</p><button class="btn-secondary mt-3 w-full rounded-xl px-3 py-2 text-xs" data-product="${item.id}">Lihat Detail</button></div></article>`).join("")}</div></section>`;
+  }
+
+  function bindDetailEvents(product) {
+    document.querySelectorAll("[data-gallery-index]").forEach(button => button.addEventListener("click", () => {
+      state.detailGallery[product.id] = Number(button.dataset.galleryIndex);
+      renderDetail();
+    }));
+    document.querySelector("[data-share-product]")?.addEventListener("click", async () => {
+      const link = `${location.origin}${location.pathname}#/product-detail?productId=${product.id}`;
+      try {
+        await navigator.clipboard?.writeText(link);
+        ui.toast("Link produk berhasil disalin");
+      } catch {
+        ui.toast("Link produk siap dibagikan");
+      }
+    });
+    document.querySelectorAll("#booking-start,#booking-end").forEach(input => input.addEventListener("change", event => {
+      if (event.target.id === "booking-start") state.bookingStart = event.target.value;
+      if (event.target.id === "booking-end") state.bookingEnd = event.target.value;
+      renderDetail();
+    }));
+    document.querySelector("[data-add-cart]")?.addEventListener("click", () => {
+      state.cart = [...new Set([...(state.cart || []), product.id])];
+      ui.toast("Produk ditambahkan ke keranjang");
+    });
   }
 
   function renderCheckout() {

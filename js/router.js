@@ -14,7 +14,9 @@
     "product-statistics": '<section id="product-statistics-view" data-view="product-statistics"></section>',
     "payment-qr": '<section id="payment-qr-view" data-view="payment-qr"></section>',
     "payment-verification": '<section id="payment-verification-view" data-view="payment-verification"></section>',
+    "payment-final": '<section id="payment-final-view" data-view="payment-final"></section>',
     "transaction-success": '<section id="transaction-success-view" data-view="transaction-success"></section>',
+    "order-detail": '<section id="order-detail-view" data-view="order-detail"></section>',
     "dashboard-buyer": '<section id="buyer-view" data-view="dashboard-buyer"></section>',
     "dashboard-seller": '<section id="seller-view" data-view="dashboard-seller"></section>',
     profile: '<section id="profile-view" data-view="profile"></section>'
@@ -38,7 +40,9 @@
       "product-statistics": "partials/product-statistics.html",
       "payment-qr": "partials/payment-qr.html",
       "payment-verification": "partials/payment-verification.html",
+      "payment-final": "partials/payment-final.html",
       "transaction-success": "partials/transaction-success.html",
+      "order-detail": "partials/order-detail.html",
       "dashboard-buyer": "partials/dashboard-buyer.html",
       "dashboard-seller": "partials/dashboard-seller.html",
       profile: "partials/profile.html"

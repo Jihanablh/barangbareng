@@ -69,7 +69,9 @@
     "product-statistics": components.renderProductStatistics,
     "payment-qr": components.renderPaymentQr,
     "payment-verification": components.renderPaymentVerification,
+    "payment-final": components.renderPaymentFinal,
     "transaction-success": components.renderTransactionSuccess,
+    "order-detail": components.renderOrderDetail,
     "dashboard-buyer": components.renderBuyer,
     "dashboard-seller": components.renderSeller,
     profile: components.renderProfile
