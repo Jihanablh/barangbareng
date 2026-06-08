@@ -1,28 +1,28 @@
 <nav id="site-navbar" class="fixed inset-x-0 top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-xl transition-all duration-300">
-  <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+  <div class="mx-auto flex h-20 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:gap-5 lg:px-8">
     <button class="flex items-center gap-3" data-nav="home" aria-label="BarangBareng beranda">
-      <span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-brand text-white shadow-blue">
+      <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-brand text-white shadow-blue">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 8h14l-1 12H6L5 8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </span>
-      <span class="gradient-text text-xl font-extrabold">BarangBareng</span>
+      <span class="gradient-text text-lg font-extrabold xl:text-xl">BarangBareng</span>
     </button>
-    <div class="hidden items-center gap-5 lg:flex">
+    <div class="hidden items-center gap-3 xl:flex">
       <button class="nav-link" data-nav="home">Beranda</button>
       <button class="nav-link" data-nav="browse">Jelajah</button>
       <button class="nav-link" data-nav="upload-product">Sewakan Barang</button>
     </div>
-    <div class="hidden min-w-0 flex-1 items-center justify-end gap-3 lg:flex">
-      <label class="flex min-w-[320px] max-w-[460px] flex-1 items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-4 py-2.5 shadow-sm">
+    <div class="hidden min-w-0 flex-1 items-center justify-end gap-2 lg:flex">
+      <label class="flex min-w-[240px] max-w-[380px] flex-1 items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-4 py-2.5 shadow-sm">
         <i data-lucide="search" class="h-4 w-4 text-brand-blue"></i>
         <input id="navbar-search" class="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none placeholder:text-slate-400" placeholder="Cari produk, kategori, kampus...">
       </label>
-      <button class="btn-primary rounded-2xl px-5 py-2.5" data-nav="browse">Cari</button>
-      <button class="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" aria-label="Notifikasi"><i data-lucide="bell" class="h-5 w-5"></i></button>
-      <button class="relative grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="wishlist" aria-label="Wishlist"><i data-lucide="heart" class="h-5 w-5"></i><span data-nav-badge="wishlist" class="hidden absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1 text-[11px] font-extrabold text-white transition-transform"></span></button>
-      <button class="relative grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="keranjang" aria-label="Keranjang"><i data-lucide="shopping-basket" class="h-5 w-5"></i><span data-nav-badge="cart" class="hidden absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue px-1 text-[11px] font-extrabold text-white transition-transform"></span></button>
-      <button class="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-brand-blue" data-nav="login">Masuk</button>
-      <button class="btn-secondary rounded-full px-5 py-2.5" data-nav="register">Daftar</button>
-      <button class="grid h-11 w-11 place-items-center rounded-2xl bg-blue-50 text-brand-blue" data-nav="dashboard-buyer" aria-label="Profil"><i data-lucide="user" class="h-5 w-5"></i></button>
+      <button class="btn-primary rounded-2xl px-4 py-2.5 text-sm" data-nav="browse">Cari</button>
+      <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" aria-label="Notifikasi"><i data-lucide="bell" class="h-5 w-5"></i></button>
+      <button class="relative grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="wishlist" aria-label="Wishlist"><i data-lucide="heart" class="h-5 w-5"></i><span data-nav-badge="wishlist" class="hidden absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-extrabold text-white transition-transform"></span></button>
+      <button class="relative grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="keranjang" aria-label="Keranjang"><i data-lucide="shopping-basket" class="h-5 w-5"></i><span data-nav-badge="cart" class="hidden absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue px-1 text-[10px] font-extrabold text-white transition-transform"></span></button>
+      <button class="px-3 py-2.5 text-sm font-semibold text-slate-600 hover:text-brand-blue" data-nav="login">Masuk</button>
+      <button class="btn-secondary rounded-full px-4 py-2.5 text-sm" data-nav="register">Daftar</button>
+      <button class="ml-1 grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-blue-50 text-brand-blue" data-nav="dashboard-buyer" aria-label="Profil"><i data-lucide="user" class="h-5 w-5"></i></button>
     </div>
     <button id="mobile-menu-btn" class="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-card lg:hidden" aria-label="Buka menu">
       <i data-lucide="menu" class="h-5 w-5"></i>
