@@ -82,7 +82,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="hidden w-[360px] shrink-0 items-center gap-2 xl:flex 2xl:w-[430px]">
+          <div className="hidden w-[380px] shrink-0 items-center gap-2 lg:flex 2xl:w-[460px]">
             <label className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-bb-border bg-white/90 px-3 py-2.5 shadow-sm">
               <Search className="h-4 w-4 text-bb-blue" />
               <input
