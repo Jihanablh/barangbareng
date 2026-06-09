@@ -192,15 +192,6 @@
               <p class="flex items-center gap-2">${icon("map-pin", "h-4 w-4 text-brand-blue")} ${product.location}</p>
               <p class="flex items-center gap-2">${icon("school", "h-4 w-4 text-brand-blue")} ${product.campus}</p>
             </div>
-            <div class="mt-4 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-              <p class="font-semibold">Cocok untuk ${usageHint(product)}.</p>
-              <div class="mt-3 grid gap-2 text-xs font-bold text-slate-500 sm:grid-cols-2">
-                <span>Tersedia Hari Ini</span>
-                <span>Min. sewa ${product.minDays} hari</span>
-                <span>Maks. sewa ${product.maxDays} hari</span>
-                <span>COD sekitar kampus</span>
-              </div>
-            </div>
             <div class="mt-5 flex flex-wrap gap-3">
               <button class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold transition ${liked ? "border-red-100 bg-red-50 text-red-600" : "border-slate-200 text-slate-700 hover:bg-slate-50"}" data-wishlist="${product.id}">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")} ${liked ? "Tersimpan" : "Simpan"}</button>
               <button class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50" data-share-product>${icon("share-2", "h-4 w-4")} Bagikan</button>
@@ -218,8 +209,10 @@
 
             <div class="mt-5 grid gap-3">
               <button class="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:scale-[1.01] hover:shadow-lg active:scale-[0.98]" data-book="${product.id}">Sewa Sekarang</button>
-              <button class="w-full rounded-2xl border px-5 py-3 text-sm font-bold transition ${inCart ? "border-teal-100 bg-teal-50 text-teal-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}" data-add-cart="${product.id}">${icon(inCart ? "check" : "plus", "h-4 w-4")} ${inCart ? "Sudah di Keranjang" : "Masukkan ke Keranjang"}</button>
-              <button class="w-full rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50" data-nav="chat">${icon("message-circle", "h-4 w-4")} Chat Pemilik</button>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <button class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-center text-sm font-bold transition ${inCart ? "border-teal-100 bg-teal-50 text-teal-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}" data-add-cart="${product.id}">${icon(inCart ? "check" : "plus", "h-4 w-4 shrink-0")} <span>${inCart ? "Sudah di Keranjang" : "Masukkan ke Keranjang"}</span></button>
+                <button class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700 transition hover:bg-slate-50" data-nav="chat">${icon("message-circle", "h-4 w-4 shrink-0")} <span>Chat Pemilik</span></button>
+              </div>
               <p class="rounded-2xl bg-teal-50 px-4 py-3 text-sm font-medium leading-6 text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p>
             </div>
           </article>
