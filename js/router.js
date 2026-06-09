@@ -5,6 +5,7 @@
     "product-detail": '<section id="detail-view" data-view="product-detail"></section>',
     keranjang: '<section id="cart-view" data-view="keranjang"></section>',
     wishlist: '<section id="wishlist-view" data-view="wishlist"></section>',
+    "reviews-create": '<section id="review-create-view" data-view="reviews-create"></section>',
     checkout: '<section id="checkout-view" data-view="checkout"></section>',
     login: '<section id="login-view" data-view="login"></section>',
     register: '<section id="register-view" data-view="register"></section>',
@@ -33,6 +34,7 @@
       "product-detail": "partials/product-detail.html",
       keranjang: "partials/keranjang.html",
       wishlist: "partials/wishlist.html",
+      "reviews-create": "partials/reviews-create.html",
       checkout: "partials/checkout.html",
       login: "partials/login.html",
       register: "partials/register.html",
@@ -55,7 +57,7 @@
       const path = this.views[viewName];
       if (!path) return;
       this.params = params;
-      if (params.productId) state.rememberProduct(Number(params.productId));
+      if (params.productId && Number.isFinite(Number(params.productId))) state.rememberProduct(Number(params.productId));
       const hashParam = params.productId ? `/${params.productId}` : "";
       const nextHash = `#/${viewName}${hashParam}`;
       if (window.location.hash !== nextHash) history.pushState({ viewName, params }, "", nextHash);

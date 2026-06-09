@@ -165,6 +165,7 @@
     const similar = similarProducts(product);
     const liked = state.isWishlisted(product.id);
     const inCart = state.isInCart(product.id);
+    const reviewStats = reviewSummary(product);
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <div class="mb-5 flex flex-col gap-3 text-sm font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
@@ -185,7 +186,7 @@
           <article class="min-w-0 lg:col-span-4">
             <div class="flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge status-available">${product.status === "low" ? "Hampir Habis" : "Tersedia"}</span><span class="badge bg-amber-50 text-amber-700">Top Rated</span></div>
             <h1 class="mt-4 text-2xl font-bold leading-tight text-slate-900">${product.name}</h1>
-            <p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Rating ${product.rating} | ${product.reviewCount} penilaian | ${product.rentedCount}x disewa</p>
+            <p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Rating ${reviewStats.average} | ${reviewStats.total} ulasan | ${product.rentedCount}x disewa</p>
             <div class="mt-4 grid gap-2 text-sm font-semibold text-slate-600">
               <p class="flex items-center gap-2">${icon("map-pin", "h-4 w-4 text-brand-blue")} ${product.location}</p>
               <p class="flex items-center gap-2">${icon("school", "h-4 w-4 text-brand-blue")} ${product.campus}</p>
@@ -284,13 +285,22 @@
   }
 
   function ownerProfile(product) {
+    const ownerReviews = state.reviewsForOwner(product.owner.initials);
+    const ownerAverage = average(ownerReviews.map(review => review.ownerRating), product.owner.rating);
+    const completed = product.owner.txCount;
+    const responseRate = 94 + product.id % 5;
+    const reputationBadges = [
+      ownerAverage >= 4.5 ? "Pemilik Terpercaya" : null,
+      completed >= 50 ? "Top Lender" : null,
+      responseRate >= 90 ? "Sangat Responsif" : null
+    ].filter(Boolean);
     const ownerStats = [
-      ["Penilaian", product.owner.rating.toFixed(1)],
+      ["Penilaian", ownerAverage.toFixed(1)],
       ["Produk", `${8 + product.id % 7}`],
-      ["Chat Dibalas", `${94 + product.id % 5}%`],
+      ["Chat Dibalas", `${responseRate}%`],
       ["Waktu Balas", "< 1 jam"],
       ["Bergabung", "Mar 2025"],
-      ["Transaksi", `${product.owner.txCount}`]
+      ["Transaksi Selesai", `${completed}`]
     ];
     return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
       <div class="grid gap-6 lg:grid-cols-[1.1fr_1.6fr] lg:items-center">
@@ -300,11 +310,14 @@
             <p class="text-sm font-bold text-brand-blue">Pemilik Barang</p>
             <h2 class="text-2xl font-extrabold text-slate-950">${product.owner.name}</h2>
             <p class="mt-1 text-sm font-semibold text-slate-500">Aktif 5 menit lalu</p>
-            <p class="mt-2 flex flex-wrap gap-2">${levelBadge(product.owner.level)}<span class="badge bg-teal-50 text-teal-700">Mahasiswa Terverifikasi</span></p>
+            <p class="mt-2 flex flex-wrap gap-2">${levelBadge(product.owner.level)}<span class="badge bg-teal-50 text-teal-700">Mahasiswa Terverifikasi</span>${reputationBadges.map(badge => `<span class="badge bg-amber-50 text-amber-700">${badge}</span>`).join("")}</p>
             <div class="mt-4 grid gap-2 sm:flex sm:flex-wrap"><button class="btn-primary rounded-2xl px-4 py-2.5 text-sm" data-nav="chat">${icon("message-circle", "h-4 w-4")} Chat Sekarang</button><button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-nav="profile">Lihat Profil</button></div>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">${ownerStats.map(stat => `<div class="rounded-2xl bg-slate-50 p-4"><p class="text-xs font-bold text-slate-500">${stat[0]}</p><b class="mt-1 block text-slate-950">${stat[1]}</b></div>`).join("")}</div>
+        <div>
+          <h3 class="mb-3 text-sm font-extrabold text-slate-950">Reputasi Pemilik</h3>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">${ownerStats.map(stat => `<div class="rounded-2xl bg-slate-50 p-4"><p class="text-xs font-bold text-slate-500">${stat[0]}</p><b class="mt-1 block text-slate-950">${stat[1]}</b></div>`).join("")}</div>
+        </div>
       </div>
     </section>`;
   }
@@ -353,15 +366,109 @@
       <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold"><span class="badge bg-teal-50 text-teal-700">Tersedia</span><span class="badge bg-rose-50 text-rose-600">Sudah dibooking</span><span class="badge bg-slate-100 text-slate-500">Tidak tersedia</span><span class="badge bg-blue-50 text-brand-blue">Dipilih</span></div>`;
   }
 
+  function average(values, fallback = 0) {
+    const nums = values.map(Number).filter(Number.isFinite);
+    if (!nums.length) return Number(fallback || 0);
+    return Number((nums.reduce((sum, value) => sum + value, 0) / nums.length).toFixed(1));
+  }
+
+  function reviewBucket(rating) {
+    if (rating >= 4.5) return 5;
+    if (rating >= 3.5) return 4;
+    if (rating >= 2.5) return 3;
+    if (rating >= 1.5) return 2;
+    return 1;
+  }
+
+  function reviewSummary(product) {
+    const reviews = state.reviewsForItem(product.id);
+    const total = reviews.length || product.reviewCount || 0;
+    const averageRating = reviews.length ? average(reviews.map(review => review.itemRating), product.rating) : Number(product.rating || 0);
+    const distribution = [5, 4, 3, 2, 1].map(star => ({
+      star,
+      count: reviews.length ? reviews.filter(review => reviewBucket(Number(review.itemRating)) === star).length : Math.max(0, star === 5 ? product.reviewCount - 16 : star === 4 ? 11 : star === 3 ? 4 : star === 2 ? 1 : 0)
+    }));
+    return { reviews, total, average: averageRating.toFixed(1), distribution };
+  }
+
   function ratingSection(product) {
-    const breakdown = [Math.max(1, product.reviewCount - 16), 11, 4, 1, 0];
+    const summary = reviewSummary(product);
+    const filtered = sortedReviews(filteredReviews(summary.reviews));
     return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-      <h2 class="text-xl font-extrabold text-slate-950">Penilaian Produk</h2>
-      <div class="mt-5 grid gap-6 lg:grid-cols-[280px_1fr]">
-        <aside class="rounded-3xl bg-slate-50 p-5"><p class="text-5xl font-extrabold text-brand-blue">${product.rating}</p><p class="mt-1 text-sm font-bold text-slate-500">dari 5 | ${product.reviewCount} penilaian</p><div class="mt-5 grid gap-3">${breakdown.map((count, index) => `<div class="grid grid-cols-[64px_1fr_34px] items-center gap-2 text-xs font-bold text-slate-500"><span>${5 - index} bintang</span><span class="h-2 rounded-full bg-slate-200"><span class="block h-full rounded-full bg-gradient-brand" style="width:${Math.min(100, count / breakdown[0] * 100)}%"></span></span><span>${count}</span></div>`).join("")}</div></aside>
-        <div class="min-w-0"><div class="flex flex-wrap gap-2">${["Semua", "Dengan Foto", "Terbaru", "Rating 5", "Rating 4", "Rating 3 ke bawah"].map((item, index) => `<button class="badge ${index === 0 ? "bg-brand-blue text-white" : "border border-slate-200 bg-white text-slate-600"}">${item}</button>`).join("")}</div><div class="mt-5 grid gap-3">${product.reviews.concat([{ name: "Nadia F.", initials: "NF", rating: 5, date: "2 hari lalu", text: "Barang bersih, pemilik ramah dan fast response. Sangat membantu untuk tugas kampus." }]).slice(0, 3).map(review => `<article class="rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-brand text-sm font-extrabold text-white">${review.initials}</span><div><b>${review.name}</b><p class="text-sm font-semibold text-slate-500">Rating ${review.rating} | ${review.date}</p><p class="mt-2 text-sm leading-6 text-slate-600">${review.text}</p></div></div></article>`).join("")}</div><button class="btn-secondary mt-5 rounded-2xl px-5 py-3">Lihat Semua Penilaian</button></div>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div><p class="font-bold text-brand-blue">Rating & Ulasan</p><h2 class="mt-1 text-xl font-extrabold text-slate-950">Pengalaman Penyewa Terverifikasi</h2></div>
+        <select id="review-sort" class="field w-full sm:w-52"><option value="latest" ${state.reviewSort === "latest" ? "selected" : ""}>Terbaru</option><option value="highest" ${state.reviewSort === "highest" ? "selected" : ""}>Rating Tertinggi</option><option value="lowest" ${state.reviewSort === "lowest" ? "selected" : ""}>Rating Terendah</option></select>
       </div>
+      ${summary.reviews.length ? `<div class="mt-5 grid gap-6 lg:grid-cols-[280px_1fr]">
+        <aside class="rounded-3xl bg-slate-50 p-5">
+          <p class="text-5xl font-extrabold text-brand-blue">${summary.average}</p>
+          <p class="mt-1 text-sm font-bold text-slate-500">dari 5 | ${summary.total} ulasan</p>
+          <div class="mt-5 grid gap-3">${summary.distribution.map(item => `<div class="grid grid-cols-[54px_1fr_34px] items-center gap-2 text-xs font-bold text-slate-500"><span>${item.star} bintang</span><span class="h-2 rounded-full bg-slate-200"><span class="block h-full rounded-full bg-gradient-brand" style="width:${Math.min(100, item.count / Math.max(1, summary.total) * 100)}%"></span></span><span>${item.count}</span></div>`).join("")}</div>
+        </aside>
+        <div class="min-w-0">
+          <div class="flex flex-wrap gap-2">${reviewFilters().map(item => `<button class="badge ${state.reviewFilter === item.key ? "bg-brand-blue text-white" : "border border-slate-200 bg-white text-slate-600"}" data-review-filter="${item.key}">${item.label}</button>`).join("")}</div>
+          <div class="mt-5 grid gap-3">${filtered.length ? filtered.slice(0, 5).map(reviewCard).join("") : reviewFilterEmpty()}</div>
+        </div>
+      </div>` : reviewEmptyState()}
     </section>`;
+  }
+
+  function reviewFilters() {
+    return [
+      { key: "all", label: "Semua" },
+      { key: "photo", label: "Dengan Foto" },
+      { key: "rating5", label: "Rating 5" },
+      { key: "rating4", label: "Rating 4" },
+      { key: "rating3", label: "Rating 3 ke bawah" },
+      { key: "rentAgain", label: "Akan menyewa lagi" }
+    ];
+  }
+
+  function filteredReviews(reviews) {
+    if (state.reviewFilter === "photo") return reviews.filter(review => review.images?.length);
+    if (state.reviewFilter === "rating5") return reviews.filter(review => reviewBucket(Number(review.itemRating)) === 5);
+    if (state.reviewFilter === "rating4") return reviews.filter(review => reviewBucket(Number(review.itemRating)) === 4);
+    if (state.reviewFilter === "rating3") return reviews.filter(review => reviewBucket(Number(review.itemRating)) <= 3);
+    if (state.reviewFilter === "rentAgain") return reviews.filter(review => review.willRentAgain);
+    return reviews;
+  }
+
+  function sortedReviews(reviews) {
+    return [...reviews].sort((a, b) => {
+      if (state.reviewSort === "highest") return Number(b.itemRating) - Number(a.itemRating);
+      if (state.reviewSort === "lowest") return Number(a.itemRating) - Number(b.itemRating);
+      return String(b.id).localeCompare(String(a.id));
+    });
+  }
+
+  function reviewCard(review) {
+    const liked = state.reviewLikes.includes(String(review.id));
+    return `<article class="rounded-3xl border border-slate-100 bg-white p-4">
+      <div class="flex gap-3">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-brand text-sm font-extrabold text-white">${review.reviewerInitials}</span>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2"><b>${review.reviewerName}</b><span class="badge bg-teal-50 text-teal-700">Terverifikasi</span><span class="text-xs font-bold text-slate-400">${review.createdAt}</span></div>
+          <p class="mt-2 text-sm font-bold text-amber-500">${stars(review.itemRating)} <span class="text-slate-600">${Number(review.itemRating).toFixed(1)} barang | ${Number(review.ownerRating).toFixed(1)} pemilik</span></p>
+          <h3 class="mt-3 font-extrabold text-slate-950">${review.title}</h3>
+          <p class="mt-2 text-sm leading-6 text-slate-600">${review.comment}</p>
+          <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">${review.isItemMatchDescription ? `<span class="badge bg-teal-50 text-teal-700">Barang sesuai deskripsi</span>` : ""}${review.willRentAgain ? `<span class="badge bg-blue-50 text-brand-blue">Akan menyewa lagi</span>` : ""}</div>
+          ${review.images?.length ? `<div class="mt-3 flex gap-2 overflow-x-auto pb-1">${review.images.map(src => `<img src="${src}" alt="Foto review" class="h-20 w-20 shrink-0 rounded-2xl object-cover" loading="lazy" onerror="this.src='${fallbackImage}'">`).join("")}</div>` : ""}
+          <button class="mt-3 inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-bold ${liked ? "bg-blue-50 text-brand-blue" : "text-slate-600"}" data-review-like="${review.id}">${icon("thumbs-up", "h-4 w-4")} ${review.likeCount || 0}</button>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function stars(rating) {
+    return Array.from({ length: 5 }, (_, index) => index < Math.round(Number(rating || 0)) ? "★" : "☆").join("");
+  }
+
+  function reviewEmptyState() {
+    return `<div class="rounded-3xl bg-slate-50 p-8 text-center">${icon("star", "mx-auto h-12 w-12 text-slate-300")}<h3 class="mt-4 text-xl font-extrabold text-slate-950">Belum ada ulasan untuk barang ini.</h3><p class="mt-2 text-slate-500">Jadilah penyewa pertama yang memberikan ulasan setelah transaksi selesai.</p><button class="btn-secondary mt-5 rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang Lain</button></div>`;
+  }
+
+  function reviewFilterEmpty() {
+    return `<div class="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">Belum ada ulasan yang sesuai dengan filter.</div>`;
   }
 
   function similarProducts(product) {
@@ -396,6 +503,18 @@
       ui.toast(added ? "Produk berhasil dimasukkan ke keranjang" : "Produk sudah ada di keranjang");
       renderDetail();
     });
+    document.querySelector("#review-sort")?.addEventListener("change", event => {
+      state.reviewSort = event.target.value;
+      renderDetail();
+    });
+    document.querySelectorAll("[data-review-filter]").forEach(button => button.addEventListener("click", () => {
+      state.reviewFilter = button.dataset.reviewFilter;
+      renderDetail();
+    }));
+    document.querySelectorAll("[data-review-like]").forEach(button => button.addEventListener("click", () => {
+      state.toggleReviewLike(button.dataset.reviewLike);
+      renderDetail();
+    }));
   }
 
   function productById(id) {
@@ -584,6 +703,99 @@
     }));
   }
 
+  function renderReviewCreate(params = {}) {
+    const mount = document.querySelector("#review-create-view");
+    if (!mount) return;
+    const transactionId = params.productId || state.orderCode || "ORD-20260609-0008";
+    const product = selectedProduct();
+    const eligibility = state.canReview(transactionId);
+    const draft = state.reviewDraft;
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
+      <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Beranda / Detail Transaksi / Beri Ulasan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Beri Ulasan</h1><p class="mt-2 text-slate-500">Bagikan pengalaman kamu agar pengguna lain bisa menyewa dengan lebih percaya diri.</p></div>
+        <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
+          <div class="flex flex-col gap-4 sm:flex-row"><img src="${product.image}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" onerror="this.src='${fallbackImage}'"><div><span class="badge bg-teal-50 text-teal-700">Status: Selesai</span><h2 class="mt-3 text-xl font-extrabold text-slate-950">${product.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">Disewa dari: ${product.owner.name}</p><p class="mt-1 text-sm text-slate-500">Tanggal sewa: ${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p><p class="mt-1 text-sm text-slate-500">Nomor transaksi: ${transactionId}</p></div></div>
+        </section>
+        ${eligibility.canReview ? `<form id="review-form" class="mt-6 grid gap-5">
+          ${ratingInputCard("Rating Barang", [["itemConditionRating", "Kondisi barang"], ["itemDescriptionMatchRating", "Kesesuaian dengan deskripsi"], ["itemOverallRating", "Kepuasan keseluruhan"]], draft)}
+          ${ratingInputCard("Rating Pemilik", [["ownerResponsivenessRating", "Responsivitas"], ["ownerPunctualityRating", "Ketepatan waktu"], ["ownerFriendlinessRating", "Keramahan"]], draft)}
+          <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-extrabold text-slate-950">Tulis Review</h2>
+            <label class="mt-4 block text-sm font-bold text-slate-700">Judul Review<input id="review-title" class="field mt-2" maxlength="100" value="${draft.title}" placeholder="Contoh: Barang sesuai deskripsi dan pemilik sangat responsif"></label>
+            <label class="mt-4 block text-sm font-bold text-slate-700">Isi Review<textarea id="review-comment" class="field mt-2 min-h-36" maxlength="500" placeholder="Ceritakan pengalaman kamu saat menyewa barang ini...">${draft.comment}</textarea></label>
+            <p class="mt-2 text-right text-xs font-bold text-slate-400"><span id="review-counter">${draft.comment.length}</span>/500</p>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <label class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-600"><input id="review-match" type="checkbox" ${draft.isItemMatchDescription ? "checked" : ""}> Barang sesuai deskripsi</label>
+              <label class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-600"><input id="review-rent-again" type="checkbox" ${draft.willRentAgain ? "checked" : ""}> Akan menyewa lagi</label>
+            </div>
+          </section>
+          <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 class="text-xl font-extrabold text-slate-950">Upload Foto</h2><p class="mt-1 text-sm text-slate-500">Maksimal 5 foto. Format JPG, PNG, atau WebP.</p></div><label class="btn-secondary w-fit cursor-pointer rounded-2xl px-5 py-3">Upload Foto<input id="review-upload" class="hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div>
+            <div id="review-preview" class="mt-4 flex flex-wrap gap-3">${state.reviewUploads.map((file, index) => reviewImagePreview(file, index)).join("")}</div>
+          </section>
+          <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="order-detail">Batal</button><button id="review-submit" class="rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3 font-bold text-white shadow-md transition hover:scale-[1.01]">Kirim Ulasan</button></div>
+        </form>` : `<section class="mt-6 rounded-[24px] border border-amber-100 bg-amber-50 p-6 text-amber-800 shadow-sm"><h2 class="text-xl font-extrabold">Belum bisa memberi ulasan</h2><p class="mt-2 font-semibold">${eligibility.reason}</p><button class="btn-secondary mt-5 rounded-2xl px-5 py-3" data-nav="order-detail">Kembali ke Detail Transaksi</button></section>`}
+      </div>
+    </main>`;
+    bindCommonEvents();
+    bindReviewForm(transactionId, product);
+  }
+
+  function ratingInputCard(title, fields, draft) {
+    return `<section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-extrabold text-slate-950">${title}</h2><div class="mt-5 grid gap-4">${fields.map(([key, label]) => `<div class="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p class="font-bold text-slate-800">${label}</p><p class="text-sm font-semibold text-slate-500">${ratingLabel(draft[key])}</p></div><div class="flex gap-1">${[1, 2, 3, 4, 5].map(value => `<button type="button" class="text-2xl transition hover:scale-110 ${value <= draft[key] ? "text-amber-400" : "text-slate-300"}" data-rating-field="${key}" data-rating-value="${value}">★</button>`).join("")}</div></div>`).join("")}</div></section>`;
+  }
+
+  function ratingLabel(value) {
+    return ["Buruk", "Kurang", "Cukup", "Baik", "Sangat Baik"][Math.max(1, Number(value || 1)) - 1];
+  }
+
+  function reviewImagePreview(file, index) {
+    return `<div class="relative"><img src="${file.preview}" alt="${file.name}" class="h-24 w-24 rounded-2xl object-cover"><button type="button" class="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-white text-red-500 shadow-card" data-remove-review-image="${index}">${icon("x", "h-4 w-4")}</button></div>`;
+  }
+
+  function bindReviewForm(transactionId, product) {
+    document.querySelectorAll("[data-rating-field]").forEach(button => button.addEventListener("click", () => {
+      state.reviewDraft[button.dataset.ratingField] = Number(button.dataset.ratingValue);
+      renderReviewCreate({ productId: transactionId });
+    }));
+    document.querySelector("#review-title")?.addEventListener("input", event => { state.reviewDraft.title = event.target.value; });
+    document.querySelector("#review-comment")?.addEventListener("input", event => {
+      state.reviewDraft.comment = event.target.value.slice(0, 500);
+      document.querySelector("#review-counter").textContent = state.reviewDraft.comment.length;
+    });
+    document.querySelector("#review-match")?.addEventListener("change", event => { state.reviewDraft.isItemMatchDescription = event.target.checked; });
+    document.querySelector("#review-rent-again")?.addEventListener("change", event => { state.reviewDraft.willRentAgain = event.target.checked; });
+    document.querySelector("#review-upload")?.addEventListener("change", event => {
+      const files = Array.from(event.target.files || []);
+      for (const file of files) {
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) { ui.toast("Format foto harus JPG, PNG, atau WebP"); continue; }
+        if (file.size > 2 * 1024 * 1024) { ui.toast("Ukuran foto maksimal 2 MB"); continue; }
+        if (state.reviewUploads.length >= 5) { ui.toast("Upload foto maksimal 5"); break; }
+        state.reviewUploads.push({ name: file.name, preview: URL.createObjectURL(file) });
+      }
+      renderReviewCreate({ productId: transactionId });
+    });
+    document.querySelectorAll("[data-remove-review-image]").forEach(button => button.addEventListener("click", () => {
+      state.reviewUploads.splice(Number(button.dataset.removeReviewImage), 1);
+      renderReviewCreate({ productId: transactionId });
+    }));
+    document.querySelector("#review-form")?.addEventListener("submit", event => {
+      event.preventDefault();
+      const button = document.querySelector("#review-submit");
+      button.disabled = true;
+      button.textContent = "Mengirim...";
+      const result = state.submitReview(transactionId, product);
+      if (!result.success) {
+        ui.toast(result.message || "Review gagal dikirim. Silakan coba lagi.");
+        button.disabled = false;
+        button.textContent = "Kirim Ulasan";
+        return;
+      }
+      ui.toast("Ulasan berhasil dikirim. Terima kasih sudah membantu pengguna lain.");
+      router.navigate("product-detail", { productId: product.id });
+    });
+  }
+
   function renderCheckout() {
     const mount = document.querySelector("#checkout-view");
     if (!mount) return;
@@ -595,10 +807,15 @@
   function renderBuyer() {
     const mount = document.querySelector("#buyer-view");
     if (!mount) return;
+    const item = selectedProduct();
+    const transactionId = state.orderCode || `ORD-20260609-${String(item.id).padStart(4, "0")}`;
+    const canReview = state.orderStatus === "COMPLETED" && !state.reviewedTransaction(transactionId);
+    const reviewed = state.reviewedTransaction(transactionId);
     mount.innerHTML = dashboardShell("Dashboard Penyewa", [
       ["Saldo Koin", `${state.coinBalance} Koin`], ["Pesanan Aktif", "2"], ["Wishlist", state.wishlist.length], ["Total Hemat", "Rp3,4jt"], ["Level Pengguna", "Silver"], ["Voucher Aktif", "3"]
-    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
+    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${item.image}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${state.orderStatus || "DP_PAID"}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
     bindCommonEvents();
+    document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
   }
 
   function renderSeller() {
@@ -705,5 +922,5 @@
     };
   }
 
-  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderCheckout, renderBuyer, renderSeller, renderProfile, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
+  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
 })();

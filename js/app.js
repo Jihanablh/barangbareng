@@ -60,6 +60,7 @@
     "product-detail": components.renderDetail,
     keranjang: components.renderCart,
     wishlist: components.renderWishlist,
+    "reviews-create": components.renderReviewCreate,
     checkout: components.renderCheckout,
     login: components.renderLogin,
     register: components.renderRegister,

@@ -8,7 +8,7 @@ Dokumen ini menjelaskan rancangan proses bisnis dan teknis flow checkout produk 
 - Payment Gateway: GoPay Merchant QRIS
 - Pola pembayaran: DP terlebih dahulu, lalu pelunasan sebelum barang diserahkan
 
-Dokumen ini tidak menggunakan istilah escrow. Istilah yang dipakai di UI dan backend adalah Pembayaran Aman, DP, pelunasan, dan serah terima.
+Dokumen ini memakai istilah Pembayaran Aman, DP, pelunasan, dan serah terima.
 
 ## 1. Overview Flow Checkout BarangBareng
 

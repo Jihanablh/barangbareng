@@ -201,14 +201,28 @@
     const item = product();
     const total = checkout.calculate(item, checkout.durationFromDates());
     const status = state.orderStatus || "DP_PAID";
+    const transactionId = state.orderCode || `ORD-20260609-${String(item.id).padStart(4, "0")}`;
+    const reviewed = state.reviewedTransaction?.(transactionId);
+    const reviewAction = status === "COMPLETED"
+      ? reviewed
+        ? `<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>`
+        : `<button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>`
+      : `<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-complete-order>Simulasikan Transaksi Selesai</button>`;
     document.querySelector("#order-detail-view").innerHTML = shell("Detail Transaksi", "Pantau pembayaran, persetujuan pemilik, dan proses serah terima barang.", `<section class="grid gap-6 lg:grid-cols-[1fr_340px]">
       <article class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm">
         <div class="flex flex-col gap-4 sm:flex-row"><img src="${item.image}" alt="${item.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32"><div><p class="badge bg-blue-50 text-brand-blue">${status}</p><h2 class="mt-3 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} | ${state.bookingDays} hari</p><p class="mt-2 text-sm text-slate-500">${item.location} | ${item.campus}</p></div></div>
         <div class="mt-6 grid gap-3 sm:grid-cols-2">${successMetric("Order", state.orderCode)}${successMetric("Total", rupiah(total.total))}${successMetric("DP Dibayar", status === "WAITING_DP_PAYMENT" ? "Belum dibayar" : rupiah(total.dp))}${successMetric("Sisa Pelunasan", rupiah(total.remaining))}</div>
       </article>
-      <aside class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Sisa pembayaran wajib dilunasi sebelum barang diserahkan.</p><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
+      <aside class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Review hanya bisa diberikan setelah transaksi selesai dan hanya satu kali per transaksi.</p><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>${reviewAction}<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
     </section>`, "max-w-7xl");
     bindBase();
+    document.querySelector("[data-complete-order]")?.addEventListener("click", () => {
+      state.orderStatus = "COMPLETED";
+      state.notifications = ["Transaksi selesai. Berikan ulasan untuk membantu pengguna lain.", ...state.notifications.filter(item => !item.includes("Transaksi selesai"))];
+      ui.toast("Transaksi ditandai selesai");
+      renderOrderDetail();
+    });
+    document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
   }
 
   function paymentShell(title, subtitle, invoiceType, amount, total, actionHtml) {
