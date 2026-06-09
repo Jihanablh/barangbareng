@@ -202,7 +202,11 @@
     const total = checkout.calculate(item, checkout.durationFromDates());
     const status = state.orderStatus || "DP_PAID";
     const transactionId = state.orderCode || `ORD-20260609-${String(item.id).padStart(4, "0")}`;
+    const isFullyPaid = state.paymentStatus === "FULLY_PAID" || ["READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED"].includes(status);
     const reviewed = state.reviewedTransaction?.(transactionId);
+    const paymentAction = isFullyPaid
+      ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Lihat QR Serah Terima</button>`
+      : `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>`;
     const reviewAction = status === "COMPLETED"
       ? reviewed
         ? `<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>`
@@ -213,7 +217,7 @@
         <div class="flex flex-col gap-4 sm:flex-row"><img src="${item.image}" alt="${item.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32"><div><p class="badge bg-blue-50 text-brand-blue">${status}</p><h2 class="mt-3 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} | ${state.bookingDays} hari</p><p class="mt-2 text-sm text-slate-500">${item.location} | ${item.campus}</p></div></div>
         <div class="mt-6 grid gap-3 sm:grid-cols-2">${successMetric("Order", state.orderCode)}${successMetric("Total", rupiah(total.total))}${successMetric("DP Dibayar", status === "WAITING_DP_PAYMENT" ? "Belum dibayar" : rupiah(total.dp))}${successMetric("Sisa Pelunasan", rupiah(total.remaining))}</div>
       </article>
-      <aside class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Review hanya bisa diberikan setelah transaksi selesai dan hanya satu kali per transaksi.</p><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>${reviewAction}<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
+      <aside class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Review hanya bisa diberikan setelah transaksi selesai dan hanya satu kali per transaksi.</p>${paymentAction}${reviewAction}<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
     </section>`, "max-w-7xl");
     bindBase();
     document.querySelector("[data-complete-order]")?.addEventListener("click", () => {
@@ -261,6 +265,7 @@
     });
     document.querySelectorAll("[data-payment-paid]").forEach(button => button.addEventListener("click", () => {
       if (button.dataset.paymentPaid === "final") {
+        state.paymentStatus = "FULLY_PAID";
         state.orderStatus = "READY_FOR_PICKUP";
         ui.toast("Pelunasan berhasil diterima");
         router.navigate("order-detail");
@@ -275,11 +280,43 @@
   }
 
   function renderQrHandover() {
-    document.querySelector("#qr-handover-view").innerHTML = shell("QR Serah Terima", "QR dipakai untuk mencatat barang diterima atau dikembalikan saat COD.", `<section class="card p-6 text-center"><div id="handover-page-qr" class="qr-container mx-auto w-[240px]"></div><p class="mt-4 font-bold text-brand-blue">Berlaku <span id="handover-page-timer">10:00</span></p><button class="btn-secondary mt-5 rounded-2xl px-5 py-3" data-refresh-handover-page>Refresh QR</button><button class="btn-primary ml-2 mt-5 rounded-2xl px-5 py-3" data-nav="dashboard-buyer">Dashboard Penyewa</button></section>`);
+    const isReady = ["READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus);
+    document.querySelector("#qr-handover-view").innerHTML = shell("QR Serah Terima", "QR dipakai untuk mencatat barang diterima atau dikembalikan saat COD.", `<section class="card p-6 text-center">
+      <div id="handover-page-qr" class="qr-container mx-auto w-[240px]"></div>
+      <p class="mt-4 font-bold text-brand-blue">Berlaku <span id="handover-page-timer">10:00</span></p>
+      <p class="mx-auto mt-3 max-w-xl text-sm font-semibold ${isReady ? "text-teal-600" : "text-amber-600"}">${isReady ? "QR aktif. Gunakan saat serah terima barang." : "QR aktif setelah pelunasan selesai."}</p>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-handover-page>Refresh QR</button>
+        <button class="btn-primary rounded-2xl px-5 py-3" data-start-scan ${isReady ? "" : "disabled"}>Scan QR Serah Terima</button>
+        <button class="btn-secondary rounded-2xl px-5 py-3" data-nav="dashboard-buyer">Dashboard Penyewa</button>
+      </div>
+      <div class="mt-6 rounded-3xl bg-slate-50 p-5 text-left">
+        <h2 class="text-lg font-extrabold text-slate-950">Status Scan</h2>
+        <p id="scan-result" class="mt-2 text-sm font-semibold text-slate-500">${isReady ? "Menunggu scan QR valid." : "Selesaikan pelunasan dulu sebelum serah terima."}</p>
+      </div>
+    </section>`);
     bindBase();
     qris.createQr("handover-page-qr", `BB-COD-${state.selectedProductId}-${Date.now()}`);
     qris.startTimer("handover-page-timer", 600);
     document.querySelector("[data-refresh-handover-page]")?.addEventListener("click", renderQrHandover);
+    document.querySelector("[data-start-scan]")?.addEventListener("click", async () => {
+      const result = document.querySelector("#scan-result");
+      if (!["READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus)) {
+        result.textContent = "QR belum bisa dipakai karena pelunasan belum selesai.";
+        ui.toast("Selesaikan pelunasan sebelum serah terima");
+        return;
+      }
+      try {
+        await navigator.mediaDevices?.getUserMedia?.({ video: true });
+      } catch {
+        result.textContent = "Kamera tidak aktif, memakai simulasi scan untuk presentasi.";
+      }
+      state.orderStatus = state.orderStatus === "RENTED" ? "RETURNED" : "RENTED";
+      const message = state.orderStatus === "RENTED" ? "Scan valid. Barang diterima penyewa." : "Scan valid. Barang dikembalikan ke pemilik.";
+      state.notifications = [message, ...state.notifications.filter(item => item !== message)];
+      result.textContent = message;
+      ui.toast(message);
+    });
   }
 
   document.addEventListener("click", event => {

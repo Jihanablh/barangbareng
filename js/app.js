@@ -34,6 +34,19 @@
         }
       });
     });
+    document.querySelector("[data-navbar-search]")?.addEventListener("click", () => {
+      state.filters.query = document.querySelector("#navbar-search")?.value || "";
+      router.navigate("browse");
+    });
+    document.querySelector("#navbar-search")?.addEventListener("keydown", event => {
+      if (event.key !== "Enter") return;
+      state.filters.query = event.target.value || "";
+      router.navigate("browse");
+    });
+    document.querySelector("[data-notification-center]")?.addEventListener("click", () => {
+      ui.toast(state.notifications?.[0] || "Belum ada notifikasi baru");
+      router.navigate("dashboard-buyer");
+    });
     const drawer = document.getElementById("mobile-drawer");
     const overlay = document.getElementById("overlay");
     document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {

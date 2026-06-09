@@ -820,12 +820,20 @@
       <div><b>${product.name}</b><p class="text-sm text-slate-500">Aktif - Tersedia - ${product.rentedCount} disewa - ${20 + product.id} wishlist</p></div>
       <div class="flex gap-2"><button class="btn-secondary rounded-xl px-3 py-2 text-sm" data-edit-product="${product.id}">Edit</button><button class="btn-secondary rounded-xl px-3 py-2 text-sm" data-product-statistics="${product.id}">Statistik</button></div>
     </div>`).join("");
-    const requests = ["Difa Surya", "Maya Putri", "Raka Pradipta"].map((name, index) => `<div class="mt-4 rounded-3xl bg-slate-50 p-4"><b>${name}</b><p class="text-sm text-slate-500">Silver - Rating 4.${9 - index} - ${12 + index * 4} transaksi</p><p class="mt-2 text-sm">COD: Perpustakaan, besok 14.00</p><button class="mt-3 rounded-xl bg-teal-500 px-3 py-2 text-sm font-bold text-white">Terima</button><button class="ml-2 rounded-xl bg-red-100 px-3 py-2 text-sm font-bold text-red-700">Tolak</button></div>`).join("");
+    const requests = ["Difa Surya", "Maya Putri", "Raka Pradipta"].map((name, index) => `<div class="mt-4 rounded-3xl bg-slate-50 p-4"><b>${name}</b><p class="text-sm text-slate-500">Silver - Rating 4.${9 - index} - ${12 + index * 4} transaksi</p><p class="mt-2 text-sm">COD: Perpustakaan, besok 14.00</p><div class="mt-3 grid grid-cols-2 gap-2"><button class="rounded-xl bg-teal-500 px-3 py-2 text-sm font-bold text-white transition hover:bg-teal-600 active:scale-[0.98]" data-accept-request="${name}">Terima</button><button class="rounded-xl bg-red-100 px-3 py-2 text-sm font-bold text-red-700 transition hover:bg-red-200 active:scale-[0.98]" data-reject-request="${name}">Tolak</button></div></div>`).join("");
     const chart = [45, 60, 52, 80, 70, 96].map((height, index) => `<div class="flex flex-1 flex-col items-center gap-2"><div class="w-full rounded-t-2xl bg-gradient-brand" style="height:${height}%"></div><span class="text-xs font-bold text-slate-400">B${index + 1}</span></div>`).join("");
     mount.innerHTML = dashboardShell("Dashboard Pemilik", [
       ["Pendapatan", "Rp1,8jt"], ["Barang Aktif", "12"], ["Sedang Disewa", "4"], ["Request Masuk", "3"], ["Rating", "4.9"], ["Produk Laris", "Jas Formal"]
     ], `<div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><section class="card p-6"><div class="flex items-center justify-between"><h2 class="text-xl font-bold">Listing Barang</h2><button class="btn-primary rounded-2xl px-4 py-2" data-nav="upload-product">Upload Barang</button></div>${listings}</section><section class="card p-6"><h2 class="text-xl font-bold">Request Masuk</h2>${requests}</section></div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Pendapatan</h2><div class="mt-5 flex h-48 items-end gap-3">${chart}</div><p class="mt-5 rounded-3xl bg-amber-50 p-4 text-sm font-semibold text-amber-700">Tips: foto real yang terang dan deskripsi kelengkapan meningkatkan peluang disewa.</p></section>`);
     bindCommonEvents();
+    document.querySelectorAll("[data-accept-request]").forEach(button => button.addEventListener("click", () => {
+      ui.toast(`Request ${button.dataset.acceptRequest} diterima`);
+      button.closest(".rounded-3xl")?.classList.add("ring-2", "ring-teal-200");
+    }));
+    document.querySelectorAll("[data-reject-request]").forEach(button => button.addEventListener("click", () => {
+      ui.toast(`Request ${button.dataset.rejectRequest} ditolak`);
+      button.closest(".rounded-3xl")?.classList.add("opacity-60");
+    }));
   }
   function renderProfile() {
     const mount = document.querySelector("#profile-view");

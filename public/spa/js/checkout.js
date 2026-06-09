@@ -123,11 +123,23 @@
     }));
     document.querySelector("#renter-note")?.addEventListener("input", event => { state.renterNote = event.target.value.slice(0, 300); });
     document.querySelector("[data-create-dp-payment]")?.addEventListener("click", () => {
+      const product = components.selectedProduct();
+      if (product.owner.name === state.currentUser.name || product.owner.initials === state.currentUser.initials) {
+        ui.toast("Kamu tidak bisa checkout barang milik sendiri");
+        return;
+      }
+      if (!state.bookingStart || !state.bookingEnd || new Date(state.bookingEnd) < new Date(state.bookingStart)) {
+        ui.toast("Tanggal sewa belum valid");
+        return;
+      }
+      const button = document.querySelector("[data-create-dp-payment]");
+      button.disabled = true;
+      button.textContent = "Membuat pembayaran...";
       state.orderStatus = "WAITING_DP_PAYMENT";
       state.paymentStatus = "PENDING";
       ui.toast("Checkout berhasil dibuat");
       setTimeout(() => ui.toast("QRIS pembayaran DP berhasil dibuat"), 350);
-      router.navigate("payment-qr");
+      setTimeout(() => router.navigate("payment-qr"), 500);
     });
     components.bindNavEvents();
     if (window.lucide) lucide.createIcons();
