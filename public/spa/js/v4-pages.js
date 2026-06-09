@@ -59,10 +59,10 @@
   function registerVerificationStep() {
     return `<div class="grid gap-5 lg:grid-cols-[1fr_.9fr]">
       <section class="grid gap-4">
-        <article class="rounded-3xl bg-slate-50 p-5"><div class="flex items-center justify-between"><h3 class="font-extrabold">Upload KTP atau Kartu Mahasiswa</h3><span class="badge bg-teal-50 text-teal-700">Dokumen terverifikasi</span></div><div class="mt-4 grid h-40 place-items-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm font-bold text-slate-400">Preview dokumen</div><p class="mt-3 text-sm font-semibold text-slate-500">OCR dummy: ${state.verification.ocrName} - ${state.verification.ocrCampus}</p></article>
-        <article class="rounded-3xl bg-slate-50 p-5"><div class="flex items-center justify-between"><h3 class="font-extrabold">Verifikasi Selfie</h3><span class="badge bg-teal-50 text-teal-700">Wajah terverifikasi</span></div><div class="mt-4 grid h-40 place-items-center rounded-[28px] bg-slate-900 text-center text-white"><div><p class="text-4xl font-extrabold">3..2..1</p><p class="mt-2 text-sm text-white/70">Frame kamera dummy</p></div></div></article>
+        <article class="rounded-3xl bg-slate-50 p-5"><div class="flex items-center justify-between"><h3 class="font-extrabold">Upload KTP atau Kartu Mahasiswa</h3><span class="badge bg-teal-50 text-teal-700">Dokumen terverifikasi</span></div><div class="mt-4 grid h-40 place-items-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm font-bold text-slate-400">Preview dokumen</div><p class="mt-3 text-sm font-semibold text-slate-500">Nama terbaca: ${state.verification.ocrName} - ${state.verification.ocrCampus}</p></article>
+        <article class="rounded-3xl bg-slate-50 p-5"><div class="flex items-center justify-between"><h3 class="font-extrabold">Verifikasi Selfie</h3><span class="badge bg-teal-50 text-teal-700">Wajah terverifikasi</span></div><div class="mt-4 grid h-40 place-items-center rounded-[28px] bg-slate-900 text-center text-white"><div><p class="text-4xl font-extrabold">3..2..1</p><p class="mt-2 text-sm text-white/70">Frame kamera aktif</p></div></div></article>
       </section>
-      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h3 class="font-extrabold">Verifikasi OTP 6 Digit</h3><p class="mt-2 text-sm font-semibold">OTP dummy: 123456.</p><div class="mt-4 grid grid-cols-6 gap-2">${"123456".split("").map(num => `<input class="field h-12 text-center font-extrabold" value="${num}" maxlength="1">`).join("")}</div><div class="mt-4 rounded-2xl bg-white p-4 text-sm font-bold text-teal-700">Nomor HP aktif dan terverifikasi.</div></aside>
+      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h3 class="font-extrabold">Verifikasi OTP 6 Digit</h3><p class="mt-2 text-sm font-semibold">Masukkan kode OTP yang dikirim ke nomor HP aktif.</p><div class="mt-4 grid grid-cols-6 gap-2">${"123456".split("").map(num => `<input class="field h-12 text-center font-extrabold" value="${num}" maxlength="1">`).join("")}</div><div class="mt-4 rounded-2xl bg-white p-4 text-sm font-bold text-teal-700">Nomor HP aktif dan terverifikasi.</div></aside>
     </div>`;
   }
 
@@ -138,11 +138,11 @@
 
   function renderProductStatistics() {
     const item = product();
-    const statCards = [["Total Dilihat", "1.284"], ["Total Wishlist", 20 + item.id], ["Total Booking", item.rentedCount], ["Booking Selesai", Math.max(1, item.rentedCount - 7)], ["Pendapatan", rupiah(item.price * Math.max(item.rentedCount, 1))], ["Conversion Rate", "8.6%"]];
-    document.querySelector("#product-statistics-view").innerHTML = shell("Statistik Barang", `Analitik performa untuk ${item.name}.`, `<section class="grid gap-6 lg:grid-cols-[320px_1fr]"><aside class="card p-5"><div class="h-52">${img(item)}</div><h2 class="mt-4 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-slate-500">${item.status === "low" ? "Hampir Habis" : "Tersedia"} - ${item.category}</p><p class="mt-3 text-2xl font-extrabold text-brand-blue">${item.type === "pinjam" ? "Gratis" : rupiah(item.price)} <span class="text-xs text-slate-500">/hari</span></p><div class="mt-4 grid gap-2 text-sm font-semibold text-slate-600"><span>Rating ${item.rating}</span><span>${item.reviewCount} ulasan</span><span>${item.rentedCount} disewa</span><span>${20 + item.id} wishlist</span><span>1.284 dilihat</span></div><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></aside><div><div class="grid gap-4 md:grid-cols-3">${statCards.map(stat => `<article class="card p-5"><p class="text-sm font-semibold text-slate-500">${stat[0]}</p><strong class="mt-2 block text-2xl text-slate-950">${stat[1]}</strong></article>`).join("")}</div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Performa 30 Hari</h2><div class="mt-5 flex h-56 items-end gap-2">${[42, 64, 36, 80, 70, 96, 58, 74, 88, 60, 92, 78].map((height, index) => `<div class="flex flex-1 flex-col items-center gap-2"><div class="w-full rounded-t-xl bg-gradient-brand" style="height:${height}%"></div><span class="text-[10px] font-bold text-slate-400">${index + 1}</span></div>`).join("")}</div></section><section class="mt-6 grid gap-6 md:grid-cols-2"><div class="card p-6"><h2 class="text-xl font-bold">Kalender Booking</h2><div class="mt-4 grid grid-cols-7 gap-2">${Array.from({ length: 28 }, (_, i) => `<span class="rounded-xl ${i % 6 === 0 ? "bg-amber-100 text-amber-700" : "bg-teal-50 text-teal-700"} py-2 text-center text-xs font-bold">${i + 1}</span>`).join("")}</div></div><div class="card p-6"><h2 class="text-xl font-bold">Ulasan Terbaru</h2>${item.reviews.map(review => `<p class="mt-3 rounded-3xl bg-slate-50 p-4 text-sm text-slate-600"><b>${review.name}</b> - ${review.text}</p>`).join("")}</div></section><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Rekomendasi Optimasi Listing</h2><p class="mt-3 rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">Tambahkan foto real detail kelengkapan, jelaskan titik COD, dan aktifkan badge yang paling relevan.</p><div class="mt-5 flex flex-wrap gap-3"><button class="btn-primary rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary rounded-2xl px-5 py-3" data-disable-listing>Nonaktifkan Listing</button><button class="btn-secondary rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></div></section></div></section>`, "max-w-7xl");
+    const statCards = [["Total Dilihat", "1.284"], ["Total Disimpan", 20 + item.id], ["Total Booking", item.rentedCount], ["Booking Selesai", Math.max(1, item.rentedCount - 7)], ["Pendapatan", rupiah(item.price * Math.max(item.rentedCount, 1))], ["Conversion Rate", "8.6%"]];
+    document.querySelector("#product-statistics-view").innerHTML = shell("Statistik Barang", `Analitik performa untuk ${item.name}.`, `<section class="grid gap-6 lg:grid-cols-[320px_1fr]"><aside class="card p-5"><div class="h-52">${img(item)}</div><h2 class="mt-4 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-slate-500">${item.status === "low" ? "Hampir Habis" : "Tersedia"} - ${item.category}</p><p class="mt-3 text-2xl font-extrabold text-brand-blue">${item.type === "pinjam" ? "Gratis" : rupiah(item.price)} <span class="text-xs text-slate-500">/hari</span></p><div class="mt-4 grid gap-2 text-sm font-semibold text-slate-600"><span>Rating ${item.rating}</span><span>${item.reviewCount} ulasan</span><span>${item.rentedCount} disewa</span><span>${20 + item.id} disimpan</span><span>1.284 dilihat</span></div><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></aside><div><div class="grid gap-4 md:grid-cols-3">${statCards.map(stat => `<article class="card p-5"><p class="text-sm font-semibold text-slate-500">${stat[0]}</p><strong class="mt-2 block text-2xl text-slate-950">${stat[1]}</strong></article>`).join("")}</div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Performa 30 Hari</h2><div class="mt-5 flex h-56 items-end gap-2">${[42, 64, 36, 80, 70, 96, 58, 74, 88, 60, 92, 78].map((height, index) => `<div class="flex flex-1 flex-col items-center gap-2"><div class="w-full rounded-t-xl bg-gradient-brand" style="height:${height}%"></div><span class="text-[10px] font-bold text-slate-400">${index + 1}</span></div>`).join("")}</div></section><section class="mt-6 grid gap-6 md:grid-cols-2"><div class="card p-6"><h2 class="text-xl font-bold">Kalender Booking</h2><div class="mt-4 grid grid-cols-7 gap-2">${Array.from({ length: 28 }, (_, i) => `<span class="rounded-xl ${i % 6 === 0 ? "bg-amber-100 text-amber-700" : "bg-teal-50 text-teal-700"} py-2 text-center text-xs font-bold">${i + 1}</span>`).join("")}</div></div><div class="card p-6"><h2 class="text-xl font-bold">Ulasan Terbaru</h2>${item.reviews.map(review => `<p class="mt-3 rounded-3xl bg-slate-50 p-4 text-sm text-slate-600"><b>${review.name}</b> - ${review.text}</p>`).join("")}</div></section><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Rekomendasi Optimasi Listing</h2><p class="mt-3 rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">Tambahkan foto real detail kelengkapan, jelaskan titik COD, dan aktifkan badge yang paling relevan.</p><div class="mt-5 flex flex-wrap gap-3"><button class="btn-primary rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary rounded-2xl px-5 py-3" data-disable-listing>Nonaktifkan Listing</button><button class="btn-secondary rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></div></section></div></section>`, "max-w-7xl");
     bindBase();
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
-    document.querySelector("[data-disable-listing]")?.addEventListener("click", () => ui.toast("Listing dinonaktifkan untuk simulasi"));
+    document.querySelector("[data-disable-listing]")?.addEventListener("click", () => ui.toast("Listing dinonaktifkan"));
   }
 
   function renderPaymentQr() {
@@ -157,7 +157,7 @@
   }
 
   function renderPaymentVerification() {
-    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Simulasi polling status pembayaran GoPay Merchant QRIS.", `<section class="rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Status akan diperbarui otomatis setelah sistem menerima konfirmasi.</p><button class="btn-primary mt-6 rounded-2xl px-5 py-3" data-payment-paid="dp">Simulasikan Webhook Berhasil</button></section>`);
+    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Sistem sedang memeriksa status pembayaran GoPay Merchant QRIS.", `<section class="rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Status akan diperbarui otomatis setelah sistem menerima konfirmasi.</p><button class="btn-primary mt-6 rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button></section>`);
     bindBase();
     bindPaymentActions("dp");
   }
@@ -202,28 +202,44 @@
     const total = checkout.calculate(item, checkout.durationFromDates());
     const status = state.orderStatus || "DP_PAID";
     const transactionId = state.orderCode || `ORD-20260609-${String(item.id).padStart(4, "0")}`;
-    const isFullyPaid = state.paymentStatus === "FULLY_PAID" || ["READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED"].includes(status);
+    const statusLabel = {
+      WAITING_DP_PAYMENT: "Menunggu pembayaran DP",
+      DP_PAID: "DP berhasil dibayar. Menunggu pemilik menyiapkan barang.",
+      PREPARING_ITEM: "Pemilik sedang menyiapkan barang.",
+      WAITING_FINAL_PAYMENT: "Menunggu pelunasan sebelum serah terima.",
+      FULLY_PAID: "Pembayaran lunas. Barang siap diserahkan.",
+      READY_FOR_PICKUP: "Barang siap diserahkan.",
+      RENTED: "Barang sedang disewa.",
+      RETURNED: "Barang sudah dikembalikan. Menunggu konfirmasi pemilik.",
+      COMPLETED: "Transaksi selesai."
+    };
     const reviewed = state.reviewedTransaction?.(transactionId);
-    const paymentAction = isFullyPaid
-      ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Lihat QR Serah Terima</button>`
-      : `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>`;
-    const reviewAction = status === "COMPLETED"
-      ? reviewed
-        ? `<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>`
-        : `<button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>`
-      : `<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-complete-order>Simulasikan Transaksi Selesai</button>`;
+    const primaryAction =
+      status === "WAITING_DP_PAYMENT" ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-qr">Bayar DP</button>` :
+      ["DP_PAID", "PREPARING_ITEM", "WAITING_FINAL_PAYMENT"].includes(status) ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>` :
+      ["FULLY_PAID", "READY_FOR_PICKUP"].includes(status) ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Scan / Tampilkan Kode Serah Terima</button>` :
+      status === "RENTED" ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-mark-returned>Barang Sudah Dikembalikan</button>` :
+      status === "RETURNED" ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-complete-order>Konfirmasi Barang Aman</button>` :
+      status === "COMPLETED" && !reviewed ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Penilaian</button>` :
+      status === "COMPLETED" && reviewed ? `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>` :
+      `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" disabled>Menunggu pemilik menyiapkan barang</button>`;
     document.querySelector("#order-detail-view").innerHTML = shell("Detail Transaksi", "Pantau pembayaran, persetujuan pemilik, dan proses serah terima barang.", `<section class="grid gap-6 lg:grid-cols-[1fr_340px]">
       <article class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm">
-        <div class="flex flex-col gap-4 sm:flex-row"><img src="${item.image}" alt="${item.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32"><div><p class="badge bg-blue-50 text-brand-blue">${status}</p><h2 class="mt-3 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} | ${state.bookingDays} hari</p><p class="mt-2 text-sm text-slate-500">${item.location} | ${item.campus}</p></div></div>
+        <div class="flex flex-col gap-4 sm:flex-row"><img src="${item.image}" alt="${item.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32"><div><p class="badge bg-blue-50 text-brand-blue">${status}</p><h2 class="mt-3 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} | ${state.bookingDays} hari</p><p class="mt-2 text-sm text-slate-500">${item.location} | ${item.campus}</p><p class="mt-3 rounded-2xl bg-teal-50 p-3 text-sm font-bold text-teal-700">${statusLabel[status] || "Status transaksi diperbarui."}</p></div></div>
         <div class="mt-6 grid gap-3 sm:grid-cols-2">${successMetric("Order", state.orderCode)}${successMetric("Total", rupiah(total.total))}${successMetric("DP Dibayar", status === "WAITING_DP_PAYMENT" ? "Belum dibayar" : rupiah(total.dp))}${successMetric("Sisa Pelunasan", rupiah(total.remaining))}</div>
       </article>
-      <aside class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Review hanya bisa diberikan setelah transaksi selesai dan hanya satu kali per transaksi.</p>${paymentAction}${reviewAction}<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
+      <aside class="h-fit rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm lg:sticky lg:top-28"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Tombol aksi mengikuti status transaksi saat ini.</p>${primaryAction}<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
     </section>`, "max-w-7xl");
     bindBase();
     document.querySelector("[data-complete-order]")?.addEventListener("click", () => {
       state.orderStatus = "COMPLETED";
       state.notifications = ["Transaksi selesai. Berikan ulasan untuk membantu pengguna lain.", ...state.notifications.filter(item => !item.includes("Transaksi selesai"))];
       ui.toast("Transaksi ditandai selesai");
+      renderOrderDetail();
+    });
+    document.querySelector("[data-mark-returned]")?.addEventListener("click", () => {
+      state.orderStatus = "RETURNED";
+      ui.toast("Pengembalian barang tercatat");
       renderOrderDetail();
     });
     document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
@@ -248,7 +264,7 @@
             ${actionHtml}
           </article>
         </section>
-        <aside class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-24"><h2 class="text-xl font-extrabold">Ringkasan Order</h2><div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">${checkout.summaryRow("Order", state.orderCode)}${checkout.summaryRow("Durasi", `${state.bookingDays} hari`)}${checkout.summaryRow("DP", rupiah(total.dp), "text-brand-blue")}${checkout.summaryRow("Sisa", rupiah(total.remaining), "text-teal-600")}</div><p class="mt-5 rounded-2xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p></aside>
+        <aside class="h-fit rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28"><h2 class="text-xl font-extrabold">Ringkasan Order</h2><div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">${checkout.summaryRow("Order", state.orderCode)}${checkout.summaryRow("Durasi", `${state.bookingDays} hari`)}${checkout.summaryRow("DP", rupiah(total.dp), "text-brand-blue")}${checkout.summaryRow("Sisa", rupiah(total.remaining), "text-teal-600")}</div><p class="mt-5 rounded-2xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p></aside>
       </div>
     </div></main>`;
   }
@@ -266,7 +282,7 @@
     document.querySelectorAll("[data-payment-paid]").forEach(button => button.addEventListener("click", () => {
       if (button.dataset.paymentPaid === "final") {
         state.paymentStatus = "FULLY_PAID";
-        state.orderStatus = "READY_FOR_PICKUP";
+        state.orderStatus = "FULLY_PAID";
         ui.toast("Pelunasan berhasil diterima");
         router.navigate("order-detail");
         return;
@@ -280,7 +296,7 @@
   }
 
   function renderQrHandover() {
-    const isReady = ["READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus);
+    const isReady = ["FULLY_PAID", "READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus);
     document.querySelector("#qr-handover-view").innerHTML = shell("QR Serah Terima", "QR dipakai untuk mencatat barang diterima atau dikembalikan saat COD.", `<section class="card p-6 text-center">
       <div id="handover-page-qr" class="qr-container mx-auto w-[240px]"></div>
       <p class="mt-4 font-bold text-brand-blue">Berlaku <span id="handover-page-timer">10:00</span></p>
@@ -301,7 +317,7 @@
     document.querySelector("[data-refresh-handover-page]")?.addEventListener("click", renderQrHandover);
     document.querySelector("[data-start-scan]")?.addEventListener("click", async () => {
       const result = document.querySelector("#scan-result");
-      if (!["READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus)) {
+      if (!["FULLY_PAID", "READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus)) {
         result.textContent = "QR belum bisa dipakai karena pelunasan belum selesai.";
         ui.toast("Selesaikan pelunasan sebelum serah terima");
         return;
@@ -309,7 +325,7 @@
       try {
         await navigator.mediaDevices?.getUserMedia?.({ video: true });
       } catch {
-        result.textContent = "Kamera tidak aktif, memakai simulasi scan untuk presentasi.";
+        result.textContent = "Kamera tidak aktif. Masukkan kode serah terima secara manual.";
       }
       state.orderStatus = state.orderStatus === "RENTED" ? "RETURNED" : "RENTED";
       const message = state.orderStatus === "RENTED" ? "Scan valid. Barang diterima penyewa." : "Scan valid. Barang dikembalikan ke pemilik.";

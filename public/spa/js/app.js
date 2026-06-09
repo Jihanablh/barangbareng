@@ -1,5 +1,5 @@
 (function () {
-  const assetVersion = "20260606-9";
+  const assetVersion = "20260609-1";
   const componentFallbacks = {
     "#toast-mount": "",
     "#footer-mount": `<footer class="bg-[#0F172A] text-white"><div class="mx-auto max-w-7xl px-4 py-10 text-sm text-slate-400 sm:px-6 lg:px-8"><strong class="text-lg text-white">BarangBareng</strong><p class="mt-2">Marketplace sewa dan pinjam barang mahasiswa.</p></div></footer>`,
@@ -25,6 +25,11 @@
 
   function bindGlobalNav() {
     components.bindNavEvents();
+    function submitNavbarSearch() {
+      const query = document.querySelector("#navbar-search")?.value.trim() || "";
+      state.filters.query = query;
+      router.navigate("browse", query ? { query } : {});
+    }
     document.querySelectorAll("[data-scroll-target]").forEach(button => {
       button.addEventListener("click", () => {
         if (router.currentView !== "home") {
@@ -35,13 +40,11 @@
       });
     });
     document.querySelector("[data-navbar-search]")?.addEventListener("click", () => {
-      state.filters.query = document.querySelector("#navbar-search")?.value || "";
-      router.navigate("browse");
+      submitNavbarSearch();
     });
     document.querySelector("#navbar-search")?.addEventListener("keydown", event => {
       if (event.key !== "Enter") return;
-      state.filters.query = event.target.value || "";
-      router.navigate("browse");
+      submitNavbarSearch();
     });
     document.querySelector("[data-notification-center]")?.addEventListener("click", () => {
       ui.toast(state.notifications?.[0] || "Belum ada notifikasi baru");
@@ -73,6 +76,7 @@
     "product-detail": components.renderDetail,
     keranjang: components.renderCart,
     wishlist: components.renderWishlist,
+    disimpan: components.renderWishlist,
     "reviews-create": components.renderReviewCreate,
     checkout: components.renderCheckout,
     login: components.renderLogin,

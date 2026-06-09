@@ -30,7 +30,7 @@
       <div class="relative ${list ? "h-40 rounded-2xl" : "h-52 rounded-t-3xl"} overflow-hidden bg-slate-100">
         ${imgTag(product, "h-full w-full object-cover")}
         <div class="absolute left-3 top-3 flex flex-wrap gap-2">${productBadges(product)}</div>
-        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart", liked ? "h-5 w-5 fill-current" : "h-5 w-5")}</button>
+        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-5 w-5 fill-current" : "h-5 w-5")}</button>
       </div>
       <div class="${list ? "p-0" : "p-5"}">
         <div class="mb-2 flex flex-wrap gap-2">${product.badges.map(badge => `<span class="badge bg-slate-100 text-slate-600">${badge}</span>`).join("")}</div>
@@ -543,7 +543,7 @@
         </div>
         ${items.length ? `<section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <div class="grid gap-4">${items.map(({ item, product }) => cartItemCard(item, product)).join("")}</div>
-          <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+          <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28">
             <h2 class="text-xl font-extrabold text-slate-950">Ringkasan Keranjang</h2>
             <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
               ${summaryLine("Total item dipilih", selected.length)}
@@ -584,7 +584,7 @@
         </div>
         <div class="grid gap-2 lg:w-44">
           <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-remove-cart="${product.id}">Hapus</button>
-          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-cart-to-wishlist="${product.id}">Pindahkan ke Wishlist</button>
+          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-cart-to-wishlist="${product.id}">Pindahkan ke Disimpan</button>
         </div>
       </div>
     </article>`;
@@ -606,7 +606,7 @@
     mount.innerHTML = `<main class="min-h-screen bg-slate-50">
       <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
         <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div><p class="text-sm font-bold text-brand-blue">Wishlist Saya</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Wishlist Saya</h1><p class="mt-2 text-slate-500">Barang yang kamu simpan untuk disewa nanti.</p></div>
+          <div><p class="text-sm font-bold text-brand-blue">Disimpan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Barang Disimpan</h1><p class="mt-2 text-slate-500">Barang yang kamu sukai dan bisa kamu sewa nanti.</p></div>
           <button class="btn-secondary w-fit rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang</button>
         </div>
         ${products.length ? `<section class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">${products.map(wishlistCard).join("")}</section>` : emptyWishlistState()}
@@ -628,7 +628,7 @@
         <div class="mt-4 grid gap-2">
           <button class="btn-primary rounded-2xl px-4 py-2.5 text-sm" data-book="${product.id}">Sewa Sekarang</button>
           <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-add-cart-from-list="${product.id}">Masukkan ke Keranjang</button>
-          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm text-red-500" data-remove-wishlist="${product.id}">Hapus dari Wishlist</button>
+          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm text-red-500" data-remove-wishlist="${product.id}">Hapus dari Disimpan</button>
         </div>
       </div>
     </article>`;
@@ -638,7 +638,7 @@
     return `<section class="rounded-[28px] border border-slate-100 bg-white p-10 text-center shadow-sm">
       ${icon("heart", "mx-auto h-16 w-16 text-slate-300")}
       <h2 class="mt-5 text-2xl font-extrabold text-slate-950">Belum ada barang yang kamu sukai</h2>
-      <p class="mx-auto mt-2 max-w-md text-slate-500">Klik icon hati di produk untuk menyimpannya ke wishlist.</p>
+      <p class="mx-auto mt-2 max-w-md text-slate-500">Klik icon hati pada produk untuk menyimpannya di sini.</p>
       <button class="btn-primary mt-6 rounded-2xl px-6 py-3" data-nav="browse">Jelajah Barang</button>
     </section>`;
   }
@@ -667,7 +667,7 @@
     }));
     document.querySelectorAll("[data-cart-to-wishlist]").forEach(button => button.addEventListener("click", () => {
       state.moveCartToWishlist(button.dataset.cartToWishlist);
-      ui.toast("Produk dipindahkan ke wishlist");
+      ui.toast("Produk dipindahkan ke halaman Disimpan");
       renderCart();
     }));
     document.querySelector("[data-cart-checkout]")?.addEventListener("click", () => {
@@ -687,7 +687,7 @@
   function bindWishlistEvents() {
     document.querySelectorAll("[data-remove-wishlist]").forEach(button => button.addEventListener("click", () => {
       if (state.isWishlisted(button.dataset.removeWishlist)) state.toggleWishlist(button.dataset.removeWishlist);
-      ui.toast("Produk dihapus dari wishlist");
+      ui.toast("Produk dihapus dari halaman Disimpan");
       renderWishlist();
     }));
     document.querySelectorAll("[data-add-cart-from-list]").forEach(button => button.addEventListener("click", () => {
@@ -806,7 +806,7 @@
     const canReview = state.orderStatus === "COMPLETED" && !state.reviewedTransaction(transactionId);
     const reviewed = state.reviewedTransaction(transactionId);
     mount.innerHTML = dashboardShell("Dashboard Penyewa", [
-      ["Saldo Koin", `${state.coinBalance} Koin`], ["Pesanan Aktif", "2"], ["Wishlist", state.wishlist.length], ["Total Hemat", "Rp3,4jt"], ["Level Pengguna", "Silver"], ["Voucher Aktif", "3"]
+      ["Saldo Koin", `${state.coinBalance} Koin`], ["Pesanan Aktif", "2"], ["Disimpan", state.wishlist.length], ["Total Hemat", "Rp3,4jt"], ["Level Pengguna", "Silver"], ["Voucher Aktif", "3"]
     ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${item.image}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${state.orderStatus || "DP_PAID"}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
     bindCommonEvents();
     document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
@@ -817,7 +817,7 @@
     if (!mount) return;
     const listings = BBData.products.slice(0, 5).map(product => `<div class="mt-4 grid gap-4 rounded-3xl bg-slate-50 p-4 md:grid-cols-[110px_1fr_auto] md:items-center">
       ${imgTag(product, "h-24 w-full rounded-2xl object-cover")}
-      <div><b>${product.name}</b><p class="text-sm text-slate-500">Aktif - Tersedia - ${product.rentedCount} disewa - ${20 + product.id} wishlist</p></div>
+      <div><b>${product.name}</b><p class="text-sm text-slate-500">Aktif - Tersedia - ${product.rentedCount} disewa - ${20 + product.id} disimpan</p></div>
       <div class="flex gap-2"><button class="btn-secondary rounded-xl px-3 py-2 text-sm" data-edit-product="${product.id}">Edit</button><button class="btn-secondary rounded-xl px-3 py-2 text-sm" data-product-statistics="${product.id}">Statistik</button></div>
     </div>`).join("");
     const requests = ["Difa Surya", "Maya Putri", "Raka Pradipta"].map((name, index) => `<div class="mt-4 rounded-3xl bg-slate-50 p-4"><b>${name}</b><p class="text-sm text-slate-500">Silver - Rating 4.${9 - index} - ${12 + index * 4} transaksi</p><p class="mt-2 text-sm">COD: Perpustakaan, besok 14.00</p><div class="mt-3 grid grid-cols-2 gap-2"><button class="rounded-xl bg-teal-500 px-3 py-2 text-sm font-bold text-white transition hover:bg-teal-600 active:scale-[0.98]" data-accept-request="${name}">Terima</button><button class="rounded-xl bg-red-100 px-3 py-2 text-sm font-bold text-red-700 transition hover:bg-red-200 active:scale-[0.98]" data-reject-request="${name}">Tolak</button></div></div>`).join("");
@@ -887,11 +887,11 @@
     document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
       const liked = state.toggleWishlist(Number(button.dataset.wishlist));
-      ui.toast(liked ? "Produk ditambahkan ke wishlist" : "Produk dihapus dari wishlist");
+      ui.toast(liked ? "Produk ditambahkan ke halaman Disimpan" : "Produk dihapus dari halaman Disimpan");
       viewInit[router.currentView]?.();
     }));
     document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => { state.filters.category = button.dataset.category; router.navigate("browse"); }));
-    document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => { state.filters.query = button.dataset.chip; router.navigate("browse"); }));
+    document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => { state.filters.query = button.dataset.chip; router.navigate("browse", { query: button.dataset.chip }); }));
     document.querySelectorAll("[data-reset-filter]").forEach(button => button.addEventListener("click", filters.reset));
     bindNavEvents();
     if (window.lucide) lucide.createIcons();

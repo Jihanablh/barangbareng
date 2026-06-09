@@ -44,7 +44,14 @@
   }
 
   function productText(product) {
-    return [product.name, product.category, product.subcategory, product.location, product.campus, product.badges.join(" "), product.owner.level].join(" ").toLowerCase();
+    return [product.name, product.category, product.subcategory, product.location, product.campus, product.badges.join(" "), product.owner.level, product.owner.name, product.owner.initials].join(" ").toLowerCase();
+  }
+
+  function syncBrowseUrl() {
+    if (router.currentView !== "browse") return;
+    const query = String(state.filters.query || "").trim();
+    const nextHash = query ? `#/browse?q=${encodeURIComponent(query)}` : "#/browse";
+    if (window.location.hash !== nextHash) history.replaceState({ viewName: "browse", params: query ? { query } : {} }, "", nextHash);
   }
 
   function areaMatch(product, area) {
@@ -97,6 +104,7 @@
 
   function requestBrowseUpdate(loading = true) {
     state.browsePage = 1;
+    syncBrowseUrl();
     if (!loading) return renderBrowse();
     state.browseLoading = true;
     renderBrowse();
@@ -115,7 +123,7 @@
       <div class="relative h-36 overflow-hidden bg-slate-100">
         <img src="${product.image}" alt="${product.name}" class="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
         <div class="absolute left-2 top-2 flex flex-wrap gap-1.5"><span class="badge ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="badge bg-blue-50 text-brand-blue">${extra}</span></div>
-        <button class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Wishlist">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
+        <button class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
       </div>
       <div class="p-3">
         <button class="block text-left" data-product="${product.id}"><h3 class="line-clamp-2 min-h-[2.45rem] text-sm font-extrabold leading-snug text-slate-950">${product.name}</h3></button>
@@ -168,6 +176,10 @@
     const productChips = ["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Setrika", "Tenda Camping", "Proyektor", "Tripod"];
     return `<section class="sticky z-30 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur-xl" style="top: var(--browse-sticky-top, 72px)">
       <div class="mx-auto max-w-[1480px] px-4 py-3 sm:px-6 lg:px-8">
+        <div class="mb-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_auto]">
+          <label class="field flex items-center gap-3 bg-white">${icon("search", "h-5 w-5 text-brand-blue")}<input id="market-query" class="w-full bg-transparent text-sm font-semibold outline-none" value="${state.filters.query || ""}" placeholder="Cari produk, kategori, kampus, lokasi..."></label>
+          <button class="btn-primary rounded-2xl px-6 py-3 text-sm" data-market-search>Cari Barang</button>
+        </div>
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div class="flex flex-wrap items-center gap-2"><span class="shrink-0 text-sm font-extrabold text-slate-500">Urutkan</span>${sortItems.map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-bold ${state.sortBy === item[0] ? "bg-gradient-brand text-white" : "border border-slate-200 bg-white text-slate-600"}" data-sort="${item[0]}">${item[1]}${item[0] === "price-low" ? " v" : ""}</button>`).join("")}<select class="field w-44 shrink-0 text-sm" data-price-sort><option value="price-low" ${state.sortBy === "price-low" ? "selected" : ""}>Harga Terendah</option><option value="price-high" ${state.sortBy === "price-high" ? "selected" : ""}>Harga Tertinggi</option></select></div>
           <div class="hidden items-center gap-2 text-sm font-bold text-slate-500 lg:flex"><span>${state.browsePage}/${Math.max(1, totalPages)}</span><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-prev>${icon("chevron-left", "h-4 w-4")}</button><button class="rounded-xl border border-slate-200 px-3 py-2" data-page-next>${icon("chevron-right", "h-4 w-4")}</button></div>
@@ -182,11 +194,12 @@
   }
 
   function emptyState() {
-    return `<div class="rounded-[32px] border border-slate-100 bg-white p-10 text-center shadow-sm">${icon("search-x", "mx-auto h-16 w-16 text-slate-300")}<h2 class="mt-5 text-2xl font-extrabold text-slate-950">Belum ada barang yang cocok</h2><p class="mt-2 text-slate-500">Coba ubah kata kunci atau hapus beberapa filter.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-secondary rounded-2xl px-6 py-3" data-reset-filter>Reset Filter</button><button class="btn-primary rounded-2xl px-6 py-3" data-popular-browse>Lihat Barang Populer</button></div></div>`;
+    return `<div class="rounded-[32px] border border-slate-100 bg-white p-10 text-center shadow-sm">${icon("search-x", "mx-auto h-16 w-16 text-slate-300")}<h2 class="mt-5 text-2xl font-extrabold text-slate-950">Tidak ada barang yang cocok dengan pencarian kamu.</h2><p class="mt-2 text-slate-500">Coba gunakan kata kunci lain atau hapus beberapa filter.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-secondary rounded-2xl px-6 py-3" data-reset-filter>Reset Filter</button><button class="btn-primary rounded-2xl px-6 py-3" data-popular-browse>Lihat Barang Populer</button></div></div>`;
   }
 
   function renderBrowse() {
     ensureBrowseState();
+    syncBrowseUrl();
     const mount = document.querySelector("#browse-view");
     if (!mount) return;
     const all = sortedProducts();
@@ -216,6 +229,9 @@
       state.filters.query = event.target.value;
       requestBrowseUpdate();
     }, 300));
+    document.querySelector("#market-query")?.addEventListener("keydown", event => {
+      if (event.key === "Enter") requestBrowseUpdate(false);
+    });
     document.querySelector("[data-market-search]")?.addEventListener("click", () => requestBrowseUpdate());
     document.querySelectorAll("[data-check-filter]").forEach(input => input.addEventListener("change", event => {
       const key = event.target.dataset.checkFilter;
@@ -251,7 +267,7 @@
     document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
       const liked = state.toggleWishlist(Number(button.dataset.wishlist));
-      ui.toast(liked ? "Produk ditambahkan ke wishlist" : "Produk dihapus dari wishlist");
+      ui.toast(liked ? "Produk ditambahkan ke halaman Disimpan" : "Produk dihapus dari halaman Disimpan");
       renderBrowse();
     }));
     document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => { state.filters.query = button.dataset.chip; requestBrowseUpdate(); }));

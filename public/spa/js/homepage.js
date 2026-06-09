@@ -195,11 +195,18 @@
 
   function bindHomepage() {
     components.bindNavEvents();
-    document.querySelector("#home-search-btn")?.addEventListener("click", () => {
-      state.filters.query = document.querySelector("#home-search")?.value || "";
+    function goBrowseWithSearch() {
+      const query = document.querySelector("#home-search")?.value.trim() || "";
+      state.filters.query = query;
       state.filters.category = document.querySelector("#home-category")?.value || "all";
       state.filters.campus = document.querySelector("#home-campus")?.value || "all";
-      router.navigate("browse");
+      router.navigate("browse", query ? { query } : {});
+    }
+    document.querySelector("#home-search-btn")?.addEventListener("click", () => {
+      goBrowseWithSearch();
+    });
+    document.querySelector("#home-search")?.addEventListener("keydown", event => {
+      if (event.key === "Enter") goBrowseWithSearch();
     });
     document.querySelectorAll("[data-home-category]").forEach(button => button.addEventListener("click", () => {
       state.filters.category = button.dataset.homeCategory.replace("Kamera, Konten & Media Sosial", "Kamera, Konten & Media").replace("Fashion Formal & Acara Kampus", "Fashion Formal & Acara");
@@ -214,6 +221,10 @@
       state.filters.quickFilter = "free";
       router.navigate("browse");
     });
+    document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => {
+      state.filters.query = button.dataset.chip;
+      router.navigate("browse", { query: button.dataset.chip });
+    }));
     document.querySelectorAll("[data-work-tab]").forEach(button => button.addEventListener("click", () => {
       document.querySelectorAll("[data-work-tab]").forEach(tab => tab.className = "badge bg-slate-100 text-slate-600");
       button.className = "badge bg-brand-blue text-white";

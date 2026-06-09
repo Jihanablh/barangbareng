@@ -92,7 +92,7 @@
             </article>
           </section>
 
-          <aside class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+          <aside class="h-fit rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28">
             <h2 class="text-xl font-extrabold text-slate-950">Ringkasan Pembayaran</h2>
             <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
               ${summaryRow("Harga sewa", `${product.type === "pinjam" ? "Gratis" : components.rupiah(product.price)} / hari`)}
