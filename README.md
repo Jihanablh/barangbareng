@@ -1,34 +1,23 @@
 # BarangBareng
 
-Prototype marketplace sewa dan pinjam barang mahasiswa.
+Marketplace sewa dan pinjam barang mahasiswa.
 
-App aktif sekarang berada langsung di root repository.
+Satu-satunya versi SPA aktif berada di:
 
-Jalankan lokal:
+```text
+public/spa/
+```
+
+Jalankan lokal lewat Next:
 
 ```bat
-run-local.bat
+npm run dev
 ```
 
-URL default:
+Lalu buka:
 
 ```text
-http://127.0.0.1:4186/index.html?v=20260606-9
+http://localhost:3000
 ```
 
-Struktur aktif:
-
-```text
-components/   navbar, footer, toast
-css/          styling modular
-js/           data, router, render page, interaksi
-partials/     partial route SPA
-index.html    entry point
-run-local.bat server lokal
-```
-
-Dokumentasi teknis:
-
-```text
-docs/checkout-gopay-qris-flow.md
-```
+Root Next langsung memuat `public/spa/index.html`, jadi tampilan lokal dan deploy memakai versi yang sama.

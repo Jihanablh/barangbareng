@@ -2,6 +2,7 @@
   const fallbackPages = {
     home: '<section id="home-view" data-view="home"></section>',
     browse: '<section id="browse-view" data-view="browse"></section>',
+    jelajah: '<section id="browse-view" data-view="jelajah"></section>',
     "product-detail": '<section id="detail-view" data-view="product-detail"></section>',
     keranjang: '<section id="cart-view" data-view="keranjang"></section>',
     wishlist: '<section id="wishlist-view" data-view="wishlist"></section>',
@@ -17,10 +18,14 @@
     "edit-product": '<section id="edit-product-view" data-view="edit-product"></section>',
     "product-statistics": '<section id="product-statistics-view" data-view="product-statistics"></section>',
     "payment-qr": '<section id="payment-qr-view" data-view="payment-qr"></section>',
+    "payment-dp": '<section id="payment-dp-view" data-view="payment-dp"></section>',
     "payment-verification": '<section id="payment-verification-view" data-view="payment-verification"></section>',
     "payment-final": '<section id="payment-final-view" data-view="payment-final"></section>',
+    "payment-final-alias": '<section id="payment-final-alias-view" data-view="payment-final-alias"></section>',
     "transaction-success": '<section id="transaction-success-view" data-view="transaction-success"></section>',
     "order-detail": '<section id="order-detail-view" data-view="order-detail"></section>',
+    orders: '<section id="orders-view" data-view="orders"></section>',
+    "serah-terima": '<section id="serah-terima-view" data-view="serah-terima"></section>',
     "dashboard-buyer": '<section id="buyer-view" data-view="dashboard-buyer"></section>',
     "dashboard-seller": '<section id="seller-view" data-view="dashboard-seller"></section>',
     profile: '<section id="profile-view" data-view="profile"></section>'
@@ -32,6 +37,7 @@
     views: {
       home: "partials/home.html",
       browse: "partials/browse.html",
+      jelajah: "partials/browse.html",
       "product-detail": "partials/product-detail.html",
       keranjang: "partials/keranjang.html",
       wishlist: "partials/wishlist.html",
@@ -47,10 +53,14 @@
       "edit-product": "partials/edit-product.html",
       "product-statistics": "partials/product-statistics.html",
       "payment-qr": "partials/payment-qr.html",
+      "payment-dp": "partials/payment-qr.html",
       "payment-verification": "partials/payment-verification.html",
       "payment-final": "partials/payment-final.html",
+      "payment-final-alias": "partials/payment-final.html",
       "transaction-success": "partials/transaction-success.html",
       "order-detail": "partials/order-detail.html",
+      orders: "partials/order-detail.html",
+      "serah-terima": "partials/qr-handover.html",
       "dashboard-buyer": "partials/dashboard-buyer.html",
       "dashboard-seller": "partials/dashboard-seller.html",
       profile: "partials/profile.html"
@@ -91,9 +101,26 @@
       const clean = window.location.hash.replace(/^#\/?/, "");
       if (!clean) return;
       const [pathPart, queryPart = ""] = clean.split("?");
-      const [viewName, id] = pathPart.split("/");
+      const parts = pathPart.split("/").filter(Boolean);
+      let [viewName, id] = parts;
+      if (parts[0] === "payment" && parts[1] === "dp") {
+        viewName = "payment-dp";
+        id = parts[2];
+      } else if (parts[0] === "payment" && parts[1] === "final") {
+        viewName = "payment-final-alias";
+        id = parts[2];
+      } else if (parts[0] === "orders") {
+        viewName = "orders";
+        id = parts[1];
+      } else if (parts[0] === "serah-terima") {
+        viewName = "serah-terima";
+        id = parts[1];
+      } else if (parts[0] === "reviews" && parts[1] === "create") {
+        viewName = "reviews-create";
+        id = parts[2];
+      }
       if (!this.views[viewName]) return;
-      const params = id ? { productId: id } : {};
+      const params = id ? { productId: id, orderId: id } : {};
       const query = new URLSearchParams(queryPart).get("q");
       if (query) {
         state.filters.query = query;

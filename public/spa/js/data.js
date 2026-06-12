@@ -108,10 +108,12 @@
 
   const products = seeds.map((seed, index) => ({
     id: index + 1,
+    slug: seed[0].toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
     name: seed[0],
     category: seed[1],
     subcategory: seed[2],
     price: seed[3],
+    pricePerDay: seed[3],
     buyPrice: seed[3] * 220,
     type: seed[4],
     minDays: 1,

@@ -45,7 +45,10 @@
       </div>
       <div class="${list ? "flex flex-col justify-center" : "px-5 pb-5"}">
         <p class="text-xl font-extrabold text-brand-blue">${price(product)}</p>
-        <button class="btn-primary btn-ripple mt-4 w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button>
+        <div class="mt-4 grid gap-2">
+          <button class="btn-primary btn-ripple w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button>
+          <button class="btn-secondary w-full rounded-2xl px-5 py-3 text-sm" data-card-cart="${product.id}">Masukkan ke Keranjang</button>
+        </div>
       </div>
     </article>`;
   }
@@ -785,8 +788,8 @@
         button.textContent = "Kirim Ulasan";
         return;
       }
-      ui.toast("Ulasan berhasil dikirim. Terima kasih sudah membantu pengguna lain.");
-      router.navigate("product-detail", { productId: product.id });
+      ui.toast("Ulasan terkirim. Terima kasih sudah membantu pengguna lain.");
+      router.navigate("order-detail");
     });
   }
 
@@ -805,9 +808,20 @@
     const transactionId = state.orderCode || `ORD-20260609-${String(item.id).padStart(4, "0")}`;
     const canReview = state.orderStatus === "COMPLETED" && !state.reviewedTransaction(transactionId);
     const reviewed = state.reviewedTransaction(transactionId);
+    const readableStatus = {
+      WAITING_DP_PAYMENT: "Menunggu Pembayaran DP",
+      DP_PAID: "DP Berhasil Dibayar",
+      PREPARING_ITEM: "Pemilik Menyiapkan Barang",
+      WAITING_FINAL_PAYMENT: "Menunggu Pelunasan",
+      FULLY_PAID: "Pembayaran Lunas",
+      READY_FOR_PICKUP: "Barang Siap Diambil",
+      RENTED: "Barang Sedang Disewa",
+      RETURNED: "Barang Sudah Dikembalikan",
+      COMPLETED: "Transaksi Selesai"
+    }[state.orderStatus] || "Menunggu Pembayaran DP";
     mount.innerHTML = dashboardShell("Dashboard Penyewa", [
       ["Saldo Koin", `${state.coinBalance} Koin`], ["Pesanan Aktif", "2"], ["Disimpan", state.wishlist.length], ["Total Hemat", "Rp3,4jt"], ["Level Pengguna", "Silver"], ["Voucher Aktif", "3"]
-    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${item.image}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${state.orderStatus || "DP_PAID"}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
+    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${item.image}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${readableStatus}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
     bindCommonEvents();
     document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
   }
@@ -884,6 +898,12 @@
   function bindCommonEvents() {
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
     document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
+    document.querySelectorAll("[data-card-cart]").forEach(button => button.addEventListener("click", event => {
+      event.stopPropagation();
+      const added = state.addCart(button.dataset.cardCart);
+      ui.toast(added ? "Produk berhasil dimasukkan ke keranjang" : "Produk sudah ada di keranjang");
+      viewInit[router.currentView]?.();
+    }));
     document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
       const liked = state.toggleWishlist(Number(button.dataset.wishlist));

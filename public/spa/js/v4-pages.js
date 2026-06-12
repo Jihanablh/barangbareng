@@ -24,7 +24,7 @@
   function renderLogin() {
     document.querySelector("#login-view").innerHTML = shell("Masuk Akun", "Lanjutkan transaksi sewa, top up, dan dashboard lewat halaman penuh.", `<section class="card grid gap-6 p-6 lg:grid-cols-[1fr_.8fr]">
       <form class="grid gap-4"><input class="field" placeholder="Email kampus atau no. HP"><input class="field" type="password" placeholder="Password"><button class="btn-primary rounded-2xl px-5 py-3" data-login-success>Masuk</button><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Belum punya akun? Daftar</button></form>
-      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h2 class="font-extrabold">Akun demo proposal</h2><p class="mt-2 text-sm font-semibold">Semua proses ditampilkan sebagai halaman SPA di tab yang sama.</p></aside>
+      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h2 class="font-extrabold">Akun BarangBareng</h2><p class="mt-2 text-sm font-semibold">Masuk untuk memantau transaksi, pembayaran, dan barang yang kamu simpan.</p></aside>
     </section>`);
     bindBase();
     document.querySelector("[data-login-success]")?.addEventListener("click", event => { event.preventDefault(); ui.toast("Masuk berhasil"); router.navigate("dashboard-buyer"); });
@@ -145,11 +145,48 @@
     document.querySelector("[data-disable-listing]")?.addEventListener("click", () => ui.toast("Listing dinonaktifkan"));
   }
 
+  const statusInfo = {
+    WAITING_DP_PAYMENT: { label: "Menunggu Pembayaran DP", text: "Selesaikan DP agar pesanan kamu diproses.", tone: "bg-amber-50 text-amber-700" },
+    DP_PAID: { label: "DP Berhasil Dibayar", text: "Pemilik sedang memeriksa dan menyiapkan barang.", tone: "bg-teal-50 text-teal-700" },
+    PREPARING_ITEM: { label: "Pemilik Menyiapkan Barang", text: "Barang akan segera siap untuk jadwal sewa kamu.", tone: "bg-blue-50 text-brand-blue" },
+    WAITING_FINAL_PAYMENT: { label: "Menunggu Pelunasan", text: "Selesaikan pembayaran sebelum serah terima barang.", tone: "bg-amber-50 text-amber-700" },
+    FULLY_PAID: { label: "Pembayaran Lunas", text: "Barang siap untuk proses serah terima.", tone: "bg-teal-50 text-teal-700" },
+    READY_FOR_PICKUP: { label: "Barang Siap Diambil", text: "Tunjukkan atau scan kode serah terima saat bertemu pemilik.", tone: "bg-blue-50 text-brand-blue" },
+    RENTED: { label: "Barang Sedang Disewa", text: "Gunakan barang sesuai kesepakatan dan kembalikan tepat waktu.", tone: "bg-blue-50 text-brand-blue" },
+    RETURNED: { label: "Barang Sudah Dikembalikan", text: "Menunggu pemilik mengonfirmasi kondisi barang.", tone: "bg-slate-100 text-slate-700" },
+    COMPLETED: { label: "Transaksi Selesai", text: "Terima kasih sudah menggunakan BarangBareng.", tone: "bg-teal-50 text-teal-700" },
+    REVIEWED: { label: "Ulasan Terkirim", text: "Terima kasih sudah membantu pengguna lain memilih barang.", tone: "bg-teal-50 text-teal-700" },
+    CANCELLED: { label: "Transaksi Dibatalkan", text: "Transaksi ini sudah dibatalkan.", tone: "bg-red-50 text-red-700" },
+    PAYMENT_EXPIRED: { label: "Waktu Pembayaran Habis", text: "Silakan buat pembayaran baru untuk melanjutkan.", tone: "bg-red-50 text-red-700" }
+  };
+
+  const timelineSteps = [
+    ["WAITING_DP_PAYMENT", "Checkout Dibuat"],
+    ["DP_PAID", "DP Dibayar"],
+    ["PREPARING_ITEM", "Pemilik Menyiapkan Barang"],
+    ["WAITING_FINAL_PAYMENT", "Pelunasan"],
+    ["READY_FOR_PICKUP", "Barang Siap Diambil"],
+    ["RENTED", "Sedang Disewa"],
+    ["COMPLETED", "Selesai"]
+  ];
+
+  function paymentMount(type) {
+    return document.querySelector(type === "final" ? "#payment-final-view, #payment-final-alias-view" : "#payment-qr-view, #payment-dp-view");
+  }
+
   function renderPaymentQr() {
     const item = product();
     checkout.ensureCheckoutState(item);
     const total = checkout.calculate(item, checkout.durationFromDates());
-    document.querySelector("#payment-qr-view").innerHTML = paymentShell("Pembayaran DP", "Selesaikan pembayaran DP agar pesanan kamu dapat diproses oleh pemilik barang.", "DP", total.dp, total, `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button>`);
+    paymentMount("dp").innerHTML = paymentShell({
+      title: "Pembayaran DP",
+      subtitle: "Scan QRIS untuk mengamankan pesanan kamu.",
+      type: "dp",
+      amount: total.dp,
+      total,
+      statusText: state.paymentStatus === "EXPIRED" ? "Waktu Pembayaran Habis" : "Menunggu Pembayaran",
+      actionText: "Cek Status Pembayaran"
+    });
     bindBase();
     qris.createQr("payment-page-qr", `GOPAY-MERCHANT-DP-${state.orderCode}-${total.dp}`);
     qris.startTimer("payment-page-timer", 900);
@@ -157,7 +194,7 @@
   }
 
   function renderPaymentVerification() {
-    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Sistem sedang memeriksa status pembayaran GoPay Merchant QRIS.", `<section class="rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Status akan diperbarui otomatis setelah sistem menerima konfirmasi.</p><button class="btn-primary mt-6 rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button></section>`);
+    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Menunggu pembayaran kamu diproses.", `<section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Pembayaran kamu akan tercatat otomatis setelah berhasil diproses.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="order-detail">Kembali ke Detail Transaksi</button></div></section>`);
     bindBase();
     bindPaymentActions("dp");
   }
@@ -167,13 +204,13 @@
     const total = checkout.calculate(item, checkout.durationFromDates());
     document.querySelector("#transaction-success-view").innerHTML = `<main class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
       <div class="mx-auto max-w-4xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-        <section class="rounded-[24px] border border-slate-100 bg-white p-8 text-center shadow-sm">
+        <section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm">
           <span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-teal-50 text-teal-600">${icon("check-circle-2", "h-12 w-12")}</span>
-          <h1 class="mt-5 text-3xl font-extrabold text-slate-950">Pembayaran DP berhasil diterima</h1>
-          <p class="mx-auto mt-3 max-w-2xl text-slate-500">Pesanan kamu sedang diproses. Silakan pantau status transaksi di halaman detail transaksi.</p>
+          <h1 class="mt-5 text-3xl font-extrabold text-slate-950">DP Berhasil Dibayar</h1>
+          <p class="mx-auto mt-3 max-w-2xl text-slate-500">Pesanan kamu sudah tercatat. Pemilik akan menyiapkan barang sesuai jadwal.</p>
           <div class="mx-auto mt-8 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
             ${successMetric("Nomor Transaksi", state.orderCode)}
-            ${successMetric("Status", state.orderStatus || "DP_PAID")}
+            ${successMetric("Status", statusInfo[state.orderStatus || "DP_PAID"].label)}
             ${successMetric("Total Sewa", rupiah(total.total))}
             ${successMetric("DP yang Dibayar", rupiah(total.dp))}
             ${successMetric("Sisa Pelunasan", rupiah(total.remaining))}
@@ -190,7 +227,15 @@
     const item = product();
     checkout.ensureCheckoutState(item);
     const total = checkout.calculate(item, checkout.durationFromDates());
-    document.querySelector("#payment-final-view").innerHTML = paymentShell("Pembayaran Pelunasan", "Selesaikan pelunasan agar barang bisa diserahkan kepada kamu.", "Pelunasan", total.remaining, total, `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-payment-paid="final">Cek Status Pembayaran</button>`);
+    paymentMount("final").innerHTML = paymentShell({
+      title: "Pelunasan Pembayaran",
+      subtitle: "Selesaikan sisa pembayaran sebelum barang diserahkan.",
+      type: "final",
+      amount: total.remaining,
+      total,
+      statusText: "Menunggu Pelunasan",
+      actionText: "Cek Status Pelunasan"
+    });
     bindBase();
     qris.createQr("payment-page-qr", `GOPAY-MERCHANT-FINAL-${state.orderCode}-${total.remaining}`);
     qris.startTimer("payment-page-timer", 900);
@@ -198,43 +243,187 @@
   }
 
   function renderOrderDetail() {
+    const mount = document.querySelector("#order-detail-view, #orders-view");
     const item = product();
+    checkout.ensureCheckoutState(item);
     const total = checkout.calculate(item, checkout.durationFromDates());
-    const status = state.orderStatus || "DP_PAID";
+    const status = state.orderStatus || "WAITING_DP_PAYMENT";
     const transactionId = state.orderCode || `ORD-20260609-${String(item.id).padStart(4, "0")}`;
-    const statusLabel = {
-      WAITING_DP_PAYMENT: "Menunggu pembayaran DP",
-      DP_PAID: "DP berhasil dibayar. Menunggu pemilik menyiapkan barang.",
-      PREPARING_ITEM: "Pemilik sedang menyiapkan barang.",
-      WAITING_FINAL_PAYMENT: "Menunggu pelunasan sebelum serah terima.",
-      FULLY_PAID: "Pembayaran lunas. Barang siap diserahkan.",
-      READY_FOR_PICKUP: "Barang siap diserahkan.",
-      RENTED: "Barang sedang disewa.",
-      RETURNED: "Barang sudah dikembalikan. Menunggu konfirmasi pemilik.",
-      COMPLETED: "Transaksi selesai."
-    };
+    const current = statusInfo[status] || statusInfo.WAITING_DP_PAYMENT;
     const reviewed = state.reviewedTransaction?.(transactionId);
-    const primaryAction =
-      status === "WAITING_DP_PAYMENT" ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-qr">Bayar DP</button>` :
-      ["DP_PAID", "PREPARING_ITEM", "WAITING_FINAL_PAYMENT"].includes(status) ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>` :
-      ["FULLY_PAID", "READY_FOR_PICKUP"].includes(status) ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Scan / Tampilkan Kode Serah Terima</button>` :
-      status === "RENTED" ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-mark-returned>Barang Sudah Dikembalikan</button>` :
-      status === "RETURNED" ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-complete-order>Konfirmasi Barang Aman</button>` :
-      status === "COMPLETED" && !reviewed ? `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Penilaian</button>` :
-      status === "COMPLETED" && reviewed ? `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>` :
-      `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" disabled>Menunggu pemilik menyiapkan barang</button>`;
-    document.querySelector("#order-detail-view").innerHTML = shell("Detail Transaksi", "Pantau pembayaran, persetujuan pemilik, dan proses serah terima barang.", `<section class="grid gap-6 lg:grid-cols-[1fr_340px]">
-      <article class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm">
-        <div class="flex flex-col gap-4 sm:flex-row"><img src="${item.image}" alt="${item.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32"><div><p class="badge bg-blue-50 text-brand-blue">${status}</p><h2 class="mt-3 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} | ${state.bookingDays} hari</p><p class="mt-2 text-sm text-slate-500">${item.location} | ${item.campus}</p><p class="mt-3 rounded-2xl bg-teal-50 p-3 text-sm font-bold text-teal-700">${statusLabel[status] || "Status transaksi diperbarui."}</p></div></div>
-        <div class="mt-6 grid gap-3 sm:grid-cols-2">${successMetric("Order", state.orderCode)}${successMetric("Total", rupiah(total.total))}${successMetric("DP Dibayar", status === "WAITING_DP_PAYMENT" ? "Belum dibayar" : rupiah(total.dp))}${successMetric("Sisa Pelunasan", rupiah(total.remaining))}</div>
-      </article>
-      <aside class="h-fit rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm lg:sticky lg:top-28"><h3 class="font-extrabold">Aksi Transaksi</h3><p class="mt-2 text-sm leading-6 text-slate-500">Tombol aksi mengikuti status transaksi saat ini.</p>${primaryAction}<button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button></aside>
+    mount.innerHTML = shell("Detail Transaksi", "Pantau status sewa barang kamu dari pembayaran sampai selesai.", `<section class="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div class="grid gap-6">
+        <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div><p class="text-sm font-bold text-slate-500">Nomor pesanan</p><h2 class="mt-1 text-xl font-extrabold text-slate-950">${transactionId}</h2></div>
+            <span class="badge ${current.tone}">${current.label}</span>
+          </div>
+          <p class="mt-4 rounded-2xl bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-600">${current.text}</p>
+          ${timeline(status)}
+        </article>
+
+        <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <h2 class="text-xl font-extrabold text-slate-950">Informasi Barang</h2>
+          <div class="mt-5 flex flex-col gap-4 sm:flex-row">
+            <img src="${item.image}" alt="${item.name}" class="h-36 w-full rounded-3xl object-cover sm:w-40">
+            <div class="min-w-0 flex-1">
+              <h3 class="text-xl font-extrabold text-slate-950">${item.name}</h3>
+              <p class="mt-2 text-sm font-semibold text-slate-500">${item.owner.name} · ${item.campus}</p>
+              <p class="mt-2 text-sm text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} · ${state.bookingDays} hari</p>
+              <p class="mt-3 rounded-2xl bg-blue-50 p-3 text-sm font-bold text-brand-blue">${state.codLocation || item.location}</p>
+            </div>
+          </div>
+        </article>
+
+        ${status === "COMPLETED" ? completedCard(item, total, transactionId, reviewed) : ""}
+      </div>
+      <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28">
+        <h3 class="text-xl font-extrabold">Ringkasan Pembayaran</h3>
+        <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
+          ${checkout.summaryRow("Total sewa", rupiah(total.total))}
+          ${checkout.summaryRow("Status DP", status === "WAITING_DP_PAYMENT" ? "Belum dibayar" : "Dibayar", status === "WAITING_DP_PAYMENT" ? "text-amber-600" : "text-teal-600")}
+          ${checkout.summaryRow("DP 30%", rupiah(total.dp), "text-brand-blue")}
+          ${checkout.summaryRow("Status pelunasan", ["FULLY_PAID", "READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED", "REVIEWED"].includes(status) ? "Lunas" : "Belum lunas", ["FULLY_PAID", "READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED", "REVIEWED"].includes(status) ? "text-teal-600" : "text-amber-600")}
+          ${checkout.summaryRow("Sisa pelunasan", rupiah(total.remaining), "text-teal-600")}
+        </div>
+        <div class="my-5 border-t border-dashed border-slate-200"></div>
+        <h3 class="font-extrabold">Aksi Berikutnya</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-500">${current.text}</p>
+        ${orderActions(status, item, transactionId, reviewed)}
+      </aside>
     </section>`, "max-w-7xl");
     bindBase();
+    bindOrderActions();
+  }
+
+  function paymentShell({ title, subtitle, type, amount, total, statusText, actionText }) {
+    const item = product();
+    const isFinal = type === "final";
+    const invoice = isFinal ? state.finalInvoiceNumber : state.invoiceNumber;
+    return `<main class="min-h-screen bg-slate-50"><div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+      <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Checkout &gt; ${title}</p><h1 class="mt-2 text-2xl font-extrabold text-slate-950 lg:text-3xl">${title}</h1><p class="mt-2 text-slate-500">${subtitle}</p></div>
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+        <section class="grid gap-5">
+          <article class="rounded-[28px] border border-slate-100 bg-white p-6 text-center shadow-sm">
+            <span class="badge bg-amber-50 text-amber-700">${statusText}</span>
+            <h2 class="mt-5 text-xl font-extrabold text-slate-950">QRIS GoPay Merchant</h2>
+            <p class="mt-2 text-sm text-slate-500">${isFinal ? "Pelunasan dilakukan sebelum barang diserahkan kepada penyewa." : "Scan QRIS untuk membayar DP pesanan kamu."}</p>
+            <div class="mx-auto mt-6 max-w-sm rounded-[28px] bg-slate-50 p-5">
+              <p class="text-sm font-bold text-slate-500">${isFinal ? "Sisa pelunasan" : "DP yang harus dibayar"}</p>
+              <p class="mt-2 text-3xl font-extrabold text-brand-blue">${rupiah(amount)}</p>
+              <p class="mt-4 text-sm font-bold text-amber-600">Selesaikan pembayaran dalam</p>
+              <p id="payment-page-timer" class="mt-1 text-2xl font-extrabold text-amber-600">15:00</p>
+              <div id="payment-page-qr" data-size="220" class="qr-container mx-auto mt-5 w-[240px] max-w-full"></div>
+            </div>
+            <div class="mt-6 rounded-2xl bg-blue-50 p-4 text-left text-sm font-semibold leading-6 text-blue-800">
+              <b>Cara membayar:</b>
+              <ol class="mt-2 list-decimal space-y-1 pl-5">
+                <li>Buka aplikasi e-wallet atau mobile banking.</li>
+                <li>Pilih menu Scan QRIS.</li>
+                <li>Scan kode QR di halaman ini.</li>
+                <li>Pastikan nominal pembayaran sesuai.</li>
+                <li>Setelah membayar, klik ${actionText}.</li>
+              </ol>
+            </div>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2"><button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-payment-qr>Buat QRIS Baru</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="order-detail">Kembali ke Detail Transaksi</button></div>
+            <button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-payment-paid="${type}">${actionText}</button>
+          </article>
+        </section>
+        <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28">
+          <h2 class="text-xl font-extrabold">Detail Invoice</h2>
+          <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
+            ${checkout.summaryRow("Nomor invoice", invoice)}
+            ${checkout.summaryRow("Nama barang", item.name)}
+            ${checkout.summaryRow("Total sewa", rupiah(total.total))}
+            ${checkout.summaryRow("DP dibayar", isFinal ? rupiah(total.dp) : rupiah(amount), isFinal ? "text-teal-600" : "text-brand-blue")}
+            ${checkout.summaryRow("Sisa pelunasan", rupiah(total.remaining), "text-teal-600")}
+            ${checkout.summaryRow("Deadline", isFinal ? `${state.bookingStart}, 12.00 WIB` : "15 menit")}
+            ${checkout.summaryRow("Status transaksi", statusInfo[state.orderStatus || "WAITING_DP_PAYMENT"].label)}
+          </div>
+          <div class="mt-5 rounded-2xl bg-teal-50 p-4 text-sm font-semibold leading-6 text-teal-800"><b class="block">Pembayaran Aman</b>Pembayaran kamu akan tercatat otomatis setelah berhasil diproses.</div>
+        </aside>
+      </div>
+    </div></main>`;
+  }
+
+  function successMetric(label, value) {
+    return `<div class="rounded-2xl bg-slate-50 p-4"><p class="text-xs font-bold text-slate-500">${label}</p><b class="mt-1 block text-slate-950">${value}</b></div>`;
+  }
+
+  function statusProgress(status) {
+    const map = {
+      WAITING_DP_PAYMENT: 0,
+      DP_PAID: 1,
+      PREPARING_ITEM: 2,
+      WAITING_FINAL_PAYMENT: 3,
+      FULLY_PAID: 3,
+      READY_FOR_PICKUP: 4,
+      RENTED: 5,
+      RETURNED: 5,
+      COMPLETED: 6,
+      REVIEWED: 6
+    };
+    return map[status] ?? 0;
+  }
+
+  function timeline(status) {
+    const current = statusProgress(status);
+    return `<div class="mt-6 overflow-x-auto pb-2">
+      <div class="grid min-w-[760px] grid-cols-7 gap-3">
+        ${timelineSteps.map((step, index) => {
+          const done = index < current;
+          const active = index === current;
+          const tone = done ? "bg-teal-50 text-teal-700 ring-teal-100" : active ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-slate-50 text-slate-400 ring-slate-100";
+          const iconName = done ? "check" : active ? "clock-3" : "circle";
+          return `<div class="rounded-2xl p-3 text-center text-xs font-bold ring-1 ${tone}">
+            <span class="mx-auto mb-2 grid h-8 w-8 place-items-center rounded-full bg-white">${icon(iconName, "h-4 w-4")}</span>
+            ${step[1]}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+  }
+
+  function completedCard(item, total, transactionId, reviewed) {
+    return `<article class="rounded-[28px] border border-teal-100 bg-teal-50 p-6 shadow-sm">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div><h2 class="text-2xl font-extrabold text-teal-800">Transaksi Selesai</h2><p class="mt-2 text-sm font-semibold leading-6 text-teal-700">Barang sudah dikembalikan dan transaksi berhasil diselesaikan.</p></div>
+        <span class="badge bg-white text-teal-700">${reviewed ? "Ulasan Terkirim" : "Menunggu Penilaian"}</span>
+      </div>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        ${successMetric("Barang", item.name)}
+        ${successMetric("Tanggal sewa", state.bookingStart)}
+        ${successMetric("Tanggal kembali", state.bookingEnd)}
+        ${successMetric("Total pembayaran", rupiah(total.total))}
+      </div>
+      <button class="${reviewed ? "btn-secondary" : "btn-primary"} mt-5 rounded-2xl px-5 py-3" ${reviewed ? `data-product="${item.id}"` : `data-review-transaction="${transactionId}"`}>${reviewed ? "Lihat Ulasan" : "Beri Penilaian"}</button>
+    </article>`;
+  }
+
+  function orderActions(status, item, transactionId, reviewed) {
+    if (status === "WAITING_DP_PAYMENT") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-qr">Bayar DP Sekarang</button>`;
+    if (status === "DP_PAID") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Detail Barang</button><button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-next-status="PREPARING_ITEM">Lanjut Pantau Persiapan</button>`;
+    if (status === "PREPARING_ITEM") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-next-status="WAITING_FINAL_PAYMENT">Barang Siap Diproses</button>`;
+    if (status === "WAITING_FINAL_PAYMENT") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>`;
+    if (status === "FULLY_PAID") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Lihat Kode Serah Terima</button>`;
+    if (status === "READY_FOR_PICKUP") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Tampilkan Kode Serah Terima</button>`;
+    if (status === "RENTED") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-mark-returned>Lihat Detail Pengembalian</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button>`;
+    if (status === "RETURNED") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" disabled>Menunggu Konfirmasi Pemilik</button><button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-complete-order>Konfirmasi Transaksi Selesai</button>`;
+    if (status === "COMPLETED" && !reviewed) return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Penilaian</button>`;
+    if (status === "COMPLETED" && reviewed) return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>`;
+    return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button>`;
+  }
+
+  function bindOrderActions() {
+    document.querySelectorAll("[data-next-status]").forEach(button => button.addEventListener("click", () => {
+      state.orderStatus = button.dataset.nextStatus;
+      ui.toast(statusInfo[state.orderStatus]?.label || "Status transaksi diperbarui");
+      renderOrderDetail();
+    }));
     document.querySelector("[data-complete-order]")?.addEventListener("click", () => {
       state.orderStatus = "COMPLETED";
-      state.notifications = ["Transaksi selesai. Berikan ulasan untuk membantu pengguna lain.", ...state.notifications.filter(item => !item.includes("Transaksi selesai"))];
-      ui.toast("Transaksi ditandai selesai");
+      state.notifications = ["Transaksi selesai. Kamu bisa memberi penilaian sekarang.", ...state.notifications.filter(item => !item.includes("Transaksi selesai"))];
+      ui.toast("Transaksi selesai");
       renderOrderDetail();
     });
     document.querySelector("[data-mark-returned]")?.addEventListener("click", () => {
@@ -245,34 +434,6 @@
     document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
   }
 
-  function paymentShell(title, subtitle, invoiceType, amount, total, actionHtml) {
-    const item = product();
-    return `<main class="min-h-screen bg-slate-50"><div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-      <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Beranda &gt; Checkout &gt; ${title}</p><h1 class="mt-2 text-2xl font-extrabold text-slate-950 lg:text-3xl">${title}</h1><p class="mt-2 text-slate-500">${subtitle}</p></div>
-      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-        <section class="grid gap-5">
-          <article class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
-            <div class="grid gap-4 sm:grid-cols-2">${successMetric("Invoice Number", invoiceType === "DP" ? state.invoiceNumber : `INV-FINAL-20260609-${String(item.id).padStart(4, "0")}`)}${successMetric("Nama Barang", item.name)}${successMetric("Total Tagihan", rupiah(total.total))}${successMetric(`Nominal ${invoiceType}`, rupiah(amount))}</div>
-            <span class="badge mt-5 bg-amber-50 text-amber-700">Menunggu Pembayaran</span>
-          </article>
-          <article class="rounded-[24px] border border-slate-100 bg-white p-6 text-center shadow-sm">
-            <h2 class="text-xl font-extrabold text-slate-950">Scan QRIS GoPay Merchant</h2>
-            <p class="mt-2 text-sm text-slate-500">Scan QRIS untuk membayar ${invoiceType === "DP" ? "DP" : "pelunasan"}.</p>
-            <div id="payment-page-qr" data-size="220" class="qr-container mx-auto mt-5 w-[260px]"></div>
-            <p class="mt-4 font-bold text-amber-600">Berlaku dalam <span id="payment-page-timer">15:00</span></p>
-            <div class="mt-5 grid gap-3 sm:grid-cols-2"><button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-payment-qr>Refresh QR</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="payment-verification">Cek Status</button></div>
-            ${actionHtml}
-          </article>
-        </section>
-        <aside class="h-fit rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28"><h2 class="text-xl font-extrabold">Ringkasan Order</h2><div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">${checkout.summaryRow("Order", state.orderCode)}${checkout.summaryRow("Durasi", `${state.bookingDays} hari`)}${checkout.summaryRow("DP", rupiah(total.dp), "text-brand-blue")}${checkout.summaryRow("Sisa", rupiah(total.remaining), "text-teal-600")}</div><p class="mt-5 rounded-2xl bg-teal-50 p-4 text-sm font-semibold text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p></aside>
-      </div>
-    </div></main>`;
-  }
-
-  function successMetric(label, value) {
-    return `<div class="rounded-2xl bg-slate-50 p-4"><p class="text-xs font-bold text-slate-500">${label}</p><b class="mt-1 block text-slate-950">${value}</b></div>`;
-  }
-
   function bindPaymentActions(type) {
     document.querySelector("[data-refresh-payment-qr]")?.addEventListener("click", () => {
       qris.createQr("payment-page-qr", `GOPAY-MERCHANT-${type.toUpperCase()}-${state.orderCode}-${Date.now()}`);
@@ -281,9 +442,9 @@
     });
     document.querySelectorAll("[data-payment-paid]").forEach(button => button.addEventListener("click", () => {
       if (button.dataset.paymentPaid === "final") {
-        state.paymentStatus = "FULLY_PAID";
+        state.paymentStatus = "PAID";
         state.orderStatus = "FULLY_PAID";
-        ui.toast("Pelunasan berhasil diterima");
+        ui.toast("Pembayaran lunas");
         router.navigate("order-detail");
         return;
       }
@@ -296,21 +457,37 @@
   }
 
   function renderQrHandover() {
+    if (state.orderStatus === "FULLY_PAID") state.orderStatus = "READY_FOR_PICKUP";
     const isReady = ["FULLY_PAID", "READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus);
-    document.querySelector("#qr-handover-view").innerHTML = shell("QR Serah Terima", "QR dipakai untuk mencatat barang diterima atau dikembalikan saat COD.", `<section class="card p-6 text-center">
-      <div id="handover-page-qr" class="qr-container mx-auto w-[240px]"></div>
-      <p class="mt-4 font-bold text-brand-blue">Berlaku <span id="handover-page-timer">10:00</span></p>
-      <p class="mx-auto mt-3 max-w-xl text-sm font-semibold ${isReady ? "text-teal-600" : "text-amber-600"}">${isReady ? "QR aktif. Gunakan saat serah terima barang." : "QR aktif setelah pelunasan selesai."}</p>
-      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-handover-page>Refresh QR</button>
-        <button class="btn-primary rounded-2xl px-5 py-3" data-start-scan ${isReady ? "" : "disabled"}>Scan QR Serah Terima</button>
-        <button class="btn-secondary rounded-2xl px-5 py-3" data-nav="dashboard-buyer">Dashboard Penyewa</button>
-      </div>
-      <div class="mt-6 rounded-3xl bg-slate-50 p-5 text-left">
-        <h2 class="text-lg font-extrabold text-slate-950">Status Scan</h2>
-        <p id="scan-result" class="mt-2 text-sm font-semibold text-slate-500">${isReady ? "Menunggu scan QR valid." : "Selesaikan pelunasan dulu sebelum serah terima."}</p>
-      </div>
-    </section>`);
+    const item = product();
+    const code = state.handoverCode || "482913";
+    state.handoverCode = code;
+    document.querySelector("#qr-handover-view, #serah-terima-view").innerHTML = shell("Serah Terima Barang", "Tunjukkan kode ini kepada pemilik saat serah terima barang.", `<section class="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <article class="rounded-[28px] border border-slate-100 bg-white p-6 text-center shadow-sm">
+        <span class="badge ${isReady ? "bg-blue-50 text-brand-blue" : "bg-amber-50 text-amber-700"}">${isReady ? "Kode Serah Terima Aktif" : "Menunggu Pembayaran Lunas"}</span>
+        <div id="handover-page-qr" class="qr-container mx-auto mt-6 w-[240px] max-w-full"></div>
+        <p class="mt-4 text-sm font-bold text-slate-500">Kode manual</p>
+        <p class="mt-2 tracking-[0.45em] text-3xl font-extrabold text-slate-950">${code}</p>
+        <p class="mt-4 font-bold text-brand-blue">Berlaku <span id="handover-page-timer">10:00</span></p>
+        <p class="mx-auto mt-4 max-w-xl text-sm font-semibold leading-6 ${isReady ? "text-slate-600" : "text-amber-600"}">${isReady ? "Kode hanya berlaku untuk transaksi ini dan tidak boleh dibagikan kepada orang lain." : "Selesaikan pelunasan dulu sebelum serah terima."}</p>
+        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+          <button class="btn-primary rounded-2xl px-5 py-3" data-start-scan ${isReady ? "" : "disabled"}>Saya Sudah Bertemu Pemilik</button>
+          <button class="btn-secondary rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button>
+          <button class="btn-secondary rounded-2xl px-5 py-3 sm:col-span-2" data-nav="order-detail">Kembali ke Detail Transaksi</button>
+        </div>
+        <p id="scan-result" class="mt-5 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">${isReady ? "Menunggu konfirmasi serah terima." : "Pelunasan belum selesai."}</p>
+      </article>
+      <aside class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+        <h2 class="text-xl font-extrabold text-slate-950">Detail Serah Terima</h2>
+        <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
+          ${checkout.summaryRow("Barang", item.name)}
+          ${checkout.summaryRow("Penyewa", state.currentUser.name)}
+          ${checkout.summaryRow("Pemilik", item.owner.name)}
+          ${checkout.summaryRow("Lokasi COD", state.codLocation || item.location)}
+          ${checkout.summaryRow("Jadwal", `${state.bookingStart}, 12.00 WIB`)}
+        </div>
+      </aside>
+    </section>`, "max-w-6xl");
     bindBase();
     qris.createQr("handover-page-qr", `BB-COD-${state.selectedProductId}-${Date.now()}`);
     qris.startTimer("handover-page-timer", 600);

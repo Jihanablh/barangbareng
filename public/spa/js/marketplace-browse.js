@@ -58,10 +58,10 @@
   }
 
   function syncBrowseUrl() {
-    if (router.currentView !== "browse") return;
+    if (!["browse", "jelajah"].includes(router.currentView)) return;
     const query = String(state.filters.query || "").trim();
-    const nextHash = query ? `#/browse?q=${encodeURIComponent(query)}` : "#/browse";
-    if (window.location.hash !== nextHash) history.replaceState({ viewName: "browse", params: query ? { query } : {} }, "", nextHash);
+    const nextHash = query ? `#/jelajah?q=${encodeURIComponent(query)}` : "#/jelajah";
+    if (window.location.hash !== nextHash) history.replaceState({ viewName: "jelajah", params: query ? { query } : {} }, "", nextHash);
   }
 
   function areaMatch(product, area) {
@@ -127,6 +127,7 @@
 
   function productCard(product) {
     const liked = state.isWishlisted(product.id);
+    const inCart = state.isInCart(product.id);
     const status = product.status === "low" ? "Hampir Habis" : "Tersedia";
     const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.rentedCount > 40 ? "Terdekat" : product.badges[0] || "Event Ready";
     return `<article class="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -145,7 +146,13 @@
           <span class="badge ${product.owner.level === "gold" ? "bg-amber-100 text-amber-700" : product.owner.level === "silver" ? "bg-slate-100 text-slate-700" : "bg-lime-100 text-lime-700"}">${product.owner.level[0].toUpperCase() + product.owner.level.slice(1)} Owner</span>
           <span class="text-xs font-bold text-slate-400">${product.owner.initials}</span>
         </div>
-        <button class="btn-ripple mt-3 w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02]" data-book="${product.id}">Sewa Sekarang</button>
+        <div class="mt-3 grid gap-2">
+          <button class="btn-ripple w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02]" data-book="${product.id}">Sewa Sekarang</button>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50" data-product="${product.id}">Detail</button>
+            <button class="rounded-xl border px-3 py-2 text-xs font-bold transition ${inCart ? "border-teal-100 bg-teal-50 text-teal-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}" data-card-cart="${product.id}">${inCart ? "Di Keranjang" : "Keranjang"}</button>
+          </div>
+        </div>
       </div>
     </article>`;
   }
@@ -274,6 +281,12 @@
   function bindSharedEvents() {
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
     document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
+    document.querySelectorAll("[data-card-cart]").forEach(button => button.addEventListener("click", event => {
+      event.stopPropagation();
+      const added = state.addCart(button.dataset.cardCart);
+      ui.toast(added ? "Produk berhasil dimasukkan ke keranjang" : "Produk sudah ada di keranjang");
+      renderBrowse();
+    }));
     document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
       const liked = state.toggleWishlist(Number(button.dataset.wishlist));

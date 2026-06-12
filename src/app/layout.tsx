@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "BarangBareng - Sewa Bareng, Hemat Bareng",
   description:
-    "Platform sewa dan pinjam barang mahasiswa Indonesia dengan pembayaran aman, e-KYC, QR COD, dan simulasi booking.",
+    "Platform sewa dan pinjam barang mahasiswa Indonesia dengan pembayaran aman, verifikasi pengguna, dan QR serah terima.",
   keywords: [
     "sewa barang",
     "pinjam barang",

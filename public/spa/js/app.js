@@ -1,9 +1,9 @@
 (function () {
-  const assetVersion = "20260609-1";
+  const assetVersion = "20260612-2";
   const componentFallbacks = {
     "#toast-mount": "",
     "#footer-mount": `<footer class="bg-[#0F172A] text-white"><div class="mx-auto max-w-7xl px-4 py-10 text-sm text-slate-400 sm:px-6 lg:px-8"><strong class="text-lg text-white">BarangBareng</strong><p class="mt-2">Marketplace sewa dan pinjam barang mahasiswa.</p></div></footer>`,
-    "#navbar-mount": `<nav id="site-navbar" class="fixed inset-x-0 top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-xl"><div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"><button class="gradient-text text-xl font-extrabold" data-nav="home">BarangBareng</button><div class="hidden items-center gap-6 lg:flex"><button class="nav-link" data-nav="home">Beranda</button><button class="nav-link" data-nav="browse">Jelajah</button><button class="nav-link" data-nav="upload-product">Sewakan Barang</button></div><button id="mobile-menu-btn" class="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-card lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button></div></nav><aside id="mobile-drawer" class="drawer fixed inset-y-0 left-0 z-[70] w-[320px] bg-white p-5 shadow-lg lg:hidden"><button id="drawer-close" class="mb-4 rounded-full bg-slate-100 px-4 py-2 font-bold">Tutup</button><div class="grid gap-2"><button class="drawer-link" data-nav="home">Beranda</button><button class="drawer-link" data-nav="browse">Jelajah</button><button class="drawer-link" data-nav="upload-product">Mulai Sewakan</button></div></aside>`
+    "#navbar-mount": `<nav id="site-navbar" class="fixed inset-x-0 top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-xl"><div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"><button class="gradient-text text-xl font-extrabold" data-nav="home">BarangBareng</button><div class="hidden items-center gap-6 lg:flex"><button class="nav-link" data-nav="home">Beranda</button><button class="nav-link" data-nav="jelajah">Jelajah</button><button class="nav-link" data-nav="upload-product">Sewakan Barang</button></div><button id="mobile-menu-btn" class="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-card lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button></div></nav><aside id="mobile-drawer" class="drawer fixed inset-y-0 left-0 z-[70] w-[320px] bg-white p-5 shadow-lg lg:hidden"><button id="drawer-close" class="mb-4 rounded-full bg-slate-100 px-4 py-2 font-bold">Tutup</button><div class="grid gap-2"><button class="drawer-link" data-nav="home">Beranda</button><button class="drawer-link" data-nav="jelajah">Jelajah</button><button class="drawer-link" data-nav="upload-product">Mulai Sewakan</button></div></aside>`
   };
 
   window.loadHtml = async function loadHtml(path, fallback = "") {
@@ -28,7 +28,7 @@
     function submitNavbarSearch() {
       const query = document.querySelector("#navbar-search")?.value.trim() || "";
       state.filters.query = query;
-      router.navigate("browse", query ? { query } : {});
+      router.navigate("jelajah", query ? { query } : {});
     }
     document.querySelectorAll("[data-scroll-target]").forEach(button => {
       button.addEventListener("click", () => {
@@ -73,6 +73,7 @@
     },
     home: components.renderHome,
     browse: components.renderBrowse,
+    jelajah: components.renderBrowse,
     "product-detail": components.renderDetail,
     keranjang: components.renderCart,
     wishlist: components.renderWishlist,
@@ -88,10 +89,14 @@
     "edit-product": components.renderEditProduct,
     "product-statistics": components.renderProductStatistics,
     "payment-qr": components.renderPaymentQr,
+    "payment-dp": components.renderPaymentQr,
     "payment-verification": components.renderPaymentVerification,
     "payment-final": components.renderPaymentFinal,
+    "payment-final-alias": components.renderPaymentFinal,
     "transaction-success": components.renderTransactionSuccess,
     "order-detail": components.renderOrderDetail,
+    orders: components.renderOrderDetail,
+    "serah-terima": components.renderQrHandover,
     "dashboard-buyer": components.renderBuyer,
     "dashboard-seller": components.renderSeller,
     profile: components.renderProfile
