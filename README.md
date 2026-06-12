@@ -20,4 +20,4 @@ Lalu buka:
 http://localhost:3000
 ```
 
-Root Next langsung memuat `public/spa/index.html`, jadi tampilan lokal dan deploy memakai versi yang sama.
+Root Next langsung mengarahkan browser ke `public/spa/index.html`, jadi tampilan lokal dan deploy memakai halaman yang sama tanpa wrapper iframe.
