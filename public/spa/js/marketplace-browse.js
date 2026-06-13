@@ -1,7 +1,7 @@
 (function () {
   const icon = (name, cls = "h-5 w-5") => components.icon(name, cls);
   const rupiah = value => components.rupiah(value);
-  const PAGE_SIZE = 16;
+  const PAGE_SIZE = 20;
 
   const campusOptions = BBData.campuses;
   const areaOptions = ["Kuningan", "Depok", "Kemanggisan", "Grogol", "Rawamangun", "Lenteng Agung", "Jakarta Selatan", "Jakarta Timur", "Jakarta Barat", "Bekasi", "Tangerang"];
@@ -134,28 +134,28 @@
     const status = product.status === "low" ? "Hampir Habis" : "Tersedia";
     const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.rentedCount > 40 ? "Terdekat" : product.badges[0] || "Event Ready";
     const goldSeller = product.owner.level === "gold" ? `<span class="badge bg-amber-50 text-amber-700">Gold Seller</span>` : "";
-    return `<article class="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-      <div class="relative h-36 overflow-hidden bg-slate-100">
-        <img src="${product.image}" alt="${product.name}" class="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
-        <div class="absolute left-2 top-2 flex flex-wrap gap-1.5"><span class="badge ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="badge bg-blue-50 text-brand-blue">${extra}</span></div>
-        <button class="absolute right-2 top-2 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
+    return `<article class="group min-w-0 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div class="relative overflow-hidden bg-slate-100">
+        <img src="${product.image}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
+        <div class="absolute left-1.5 top-1.5 flex max-w-[calc(100%-3.25rem)] flex-wrap gap-1 sm:left-2 sm:top-2"><span class="rounded-full px-2 py-1 text-[0.62rem] font-extrabold leading-none ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="hidden rounded-full bg-blue-50 px-2 py-1 text-[0.62rem] font-extrabold leading-none text-brand-blue sm:inline-flex">${extra}</span></div>
+        <button class="absolute right-1.5 top-1.5 grid h-9 w-9 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card sm:right-2 sm:top-2 ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
       </div>
-      <div class="p-3">
-        <button class="block text-left" data-product="${product.id}"><h3 class="line-clamp-2 min-h-[2.45rem] text-sm font-extrabold leading-snug text-slate-950">${product.name}</h3></button>
-        <p class="mt-1.5 line-clamp-1 text-[0.78rem] font-semibold text-slate-600">Rating ${product.rating} | ${product.reviewCount} ulasan | ${product.rentedCount}x disewa</p>
-        <p class="mt-2 text-base font-extrabold text-brand-blue">${product.type === "pinjam" ? `Gratis <span class="text-[0.7rem] text-slate-500">- biaya layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-[0.7rem] text-slate-500">/hari</span>`}</p>
-        <p class="mt-1.5 line-clamp-1 text-[0.78rem] font-semibold text-slate-500">${product.location}</p>
-        <p class="line-clamp-1 text-[0.78rem] text-slate-500">${product.campus}</p>
-        <div class="mt-2.5 flex items-center justify-between gap-2">
-          <span class="badge ${product.owner.level === "gold" ? "bg-amber-100 text-amber-700" : product.owner.level === "silver" ? "bg-slate-100 text-slate-700" : "bg-lime-100 text-lime-700"}">${product.owner.level[0].toUpperCase() + product.owner.level.slice(1)} Owner</span>
-          <span class="text-xs font-bold text-slate-400">${product.owner.initials}</span>
+      <div class="p-2.5 sm:p-3">
+        <button class="block min-w-0 text-left" data-product="${product.id}"><h3 class="line-clamp-2 min-h-[2.25rem] break-words text-xs font-extrabold leading-snug text-slate-950 sm:text-sm">${product.name}</h3></button>
+        <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-600 sm:text-[0.78rem]">Rating ${product.rating} | ${product.reviewCount} ulasan</p>
+        <p class="mt-1.5 text-sm font-extrabold leading-tight text-brand-blue sm:text-base">${product.type === "pinjam" ? `Gratis <span class="block text-[0.62rem] text-slate-500 sm:inline sm:text-[0.7rem]">layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-[0.65rem] text-slate-500 sm:text-[0.7rem]">/hari</span>`}</p>
+        <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-500 sm:text-[0.78rem]">${product.location}</p>
+        <p class="line-clamp-1 text-[0.68rem] text-slate-500 sm:text-[0.78rem]">${product.campus}</p>
+        <div class="mt-2 flex items-center justify-between gap-1.5">
+          <span class="truncate rounded-full px-2 py-1 text-[0.62rem] font-extrabold ${product.owner.level === "gold" ? "bg-amber-100 text-amber-700" : product.owner.level === "silver" ? "bg-slate-100 text-slate-700" : "bg-lime-100 text-lime-700"}">${product.owner.level[0].toUpperCase() + product.owner.level.slice(1)}</span>
+          <span class="shrink-0 text-[0.65rem] font-bold text-slate-400">${product.owner.initials}</span>
         </div>
         ${goldSeller ? `<div class="mt-2">${goldSeller}</div>` : ""}
-        <div class="mt-3 grid gap-2">
-          <button class="btn-ripple w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02]" data-book="${product.id}">Sewa Sekarang</button>
+        <div class="mt-2.5 grid gap-1.5 sm:gap-2">
+          <button class="btn-ripple w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 px-2.5 py-2 text-xs font-bold text-white shadow-md transition hover:scale-[1.02] sm:px-3 sm:py-2.5 sm:text-sm" data-book="${product.id}">Sewa</button>
           <div class="grid grid-cols-2 gap-2">
-            <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50" data-product="${product.id}">Detail</button>
-            <button class="rounded-xl border px-3 py-2 text-xs font-bold transition ${inCart ? "border-teal-100 bg-teal-50 text-teal-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}" data-card-cart="${product.id}">${inCart ? "Di Keranjang" : "Keranjang"}</button>
+            <button class="rounded-xl border border-slate-200 bg-white px-2 py-2 text-[0.68rem] font-bold text-slate-700 transition hover:bg-slate-50 sm:px-3 sm:text-xs" data-product="${product.id}">Detail</button>
+            <button class="rounded-xl border px-2 py-2 text-[0.68rem] font-bold transition sm:px-3 sm:text-xs ${inCart ? "border-teal-100 bg-teal-50 text-teal-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}" data-card-cart="${product.id}">${inCart ? "Ada" : "Cart"}</button>
           </div>
         </div>
       </div>
@@ -171,7 +171,7 @@
   }
 
   function filterPanel(mobile = false) {
-    return `<aside class="${mobile ? "fixed bottom-2 z-[90] hidden max-h-[86vh] overflow-y-auto rounded-t-[28px] border border-slate-100 bg-white p-5 shadow-xl" : "sticky hidden h-fit w-72 shrink-0 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:block"}" style="${mobile ? "" : "top: var(--browse-panel-top, 184px)"}" id="${mobile ? "mobile-filter-sheet" : "desktop-filter"}">
+    return `<aside class="${mobile ? "fixed bottom-2 z-[90] hidden max-h-[86vh] overflow-y-auto rounded-t-[28px] border border-slate-100 bg-white p-5 shadow-xl" : "sticky hidden h-fit w-[260px] shrink-0 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:block"}" style="${mobile ? "" : "top: var(--browse-panel-top, 184px)"}" id="${mobile ? "mobile-filter-sheet" : "desktop-filter"}">
       <div class="mb-3 flex items-center justify-between"><h2 class="flex items-center gap-2 text-lg font-extrabold text-slate-950">${icon("sliders-horizontal")} FILTER</h2>${mobile ? `<button class="grid h-10 w-10 place-items-center rounded-full bg-slate-100" data-close-filter>${icon("x")}</button>` : ""}</div>
       ${checkboxGroup("Kampus", "campuses", [...campusOptions, "Lainnya"], "building-2")}
       ${checkboxGroup("Area Sekitar Kampus", "areas", areaOptions, "map-pin")}
@@ -208,7 +208,7 @@
   }
 
   function skeletonGrid() {
-    return `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">${Array.from({ length: 10 }, () => `<article class="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm"><div class="skeleton h-36 w-full"></div><div class="skeleton mt-3 h-4 w-4/5"></div><div class="skeleton mt-2 h-3 w-2/3"></div><div class="skeleton mt-4 h-9 w-full"></div></article>`).join("")}</div>`;
+    return `<div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-5 2xl:grid-cols-5">${Array.from({ length: 10 }, () => `<article class="rounded-2xl border border-slate-100 bg-white p-2.5 shadow-sm sm:p-3"><div class="skeleton aspect-[4/3] w-full"></div><div class="skeleton mt-3 h-4 w-4/5"></div><div class="skeleton mt-2 h-3 w-2/3"></div><div class="skeleton mt-4 h-9 w-full"></div></article>`).join("")}</div>`;
   }
 
   function emptyState() {
@@ -237,13 +237,13 @@
     const visible = all.slice((state.browsePage - 1) * PAGE_SIZE, state.browsePage * PAGE_SIZE);
     mount.innerHTML = `<div class="min-h-screen bg-[#F8FAFC] pb-16" style="padding-top: var(--browse-page-top, 72px)">
       ${sortBar(totalPages)}
-      <div class="mx-auto flex max-w-[1480px] gap-5 px-4 py-6 sm:px-6 lg:px-8">
+      <div class="mx-auto flex max-w-[1480px] gap-4 px-3 py-5 sm:px-6 lg:gap-5 lg:px-8">
         ${filterPanel(false)}
         ${filterPanel(true)}
         <main class="min-w-0 flex-1">
           <div class="mb-4 flex justify-end lg:hidden"><button class="btn-secondary shrink-0 rounded-2xl px-4 py-3" data-open-filter>${icon("sliders-horizontal", "h-4 w-4")} Filter</button></div>
           ${resultHeader(all.length)}
-          <section class="scroll-mt-48" aria-label="Product grid">${state.browseLoading ? skeletonGrid() : visible.length ? `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">${visible.map(productCard).join("")}</div>` : emptyState()}</section>
+          <section class="scroll-mt-48" aria-label="Product grid">${state.browseLoading ? skeletonGrid() : visible.length ? `<div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-5 2xl:grid-cols-5">${visible.map(productCard).join("")}</div>` : emptyState()}</section>
           <div class="mt-8 flex items-center justify-center gap-3 lg:hidden"><button class="btn-secondary rounded-2xl px-4 py-3" data-page-prev>Sebelumnya</button><span class="font-bold text-slate-500">${state.browsePage}/${totalPages}</span><button class="btn-primary rounded-2xl px-4 py-3" data-page-next>Berikutnya</button></div>
           <div class="mt-8 flex justify-center"><button class="btn-secondary rounded-2xl px-6 py-3" data-load-more>Muat Lebih Banyak</button></div>
         </main>

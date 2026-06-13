@@ -148,7 +148,7 @@
           <button class="btn-secondary mt-5 w-full rounded-2xl px-4 py-3" data-reset-filter>Reset Filter</button>
         </aside>
         <section><div class="mb-4 flex items-center justify-between"><h1 class="text-2xl font-extrabold text-slate-950">${list.length} barang ditemukan</h1><button class="btn-secondary rounded-2xl px-4 py-3 lg:hidden">Filter</button></div>
-        ${list.length ? `<div class="${state.viewMode === "list" ? "grid gap-4" : "grid gap-5 md:grid-cols-2 xl:grid-cols-3"}">${list.map(product => productCard(product, state.viewMode === "list")).join("")}</div>` : emptyState()}</section>
+        ${list.length ? `<div class="${state.viewMode === "list" ? "grid gap-4" : "grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-5 2xl:grid-cols-5"}">${list.map(product => productCard(product, state.viewMode === "list")).join("")}</div>` : emptyState()}</section>
       </div>
     </div>`;
     bindBrowseEvents();
