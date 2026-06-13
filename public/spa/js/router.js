@@ -28,7 +28,8 @@
     "serah-terima": '<section id="serah-terima-view" data-view="serah-terima"></section>',
     "dashboard-buyer": '<section id="buyer-view" data-view="dashboard-buyer"></section>',
     "dashboard-seller": '<section id="seller-view" data-view="dashboard-seller"></section>',
-    profile: '<section id="profile-view" data-view="profile"></section>'
+    profile: '<section id="profile-view" data-view="profile"></section>',
+    "pengaturan-akun": '<section id="account-settings-view" data-view="pengaturan-akun"></section>'
   };
 
   window.router = {
@@ -63,7 +64,8 @@
       "serah-terima": "partials/qr-handover.html",
       "dashboard-buyer": "partials/dashboard-buyer.html",
       "dashboard-seller": "partials/dashboard-seller.html",
-      profile: "partials/profile.html"
+      profile: "partials/profile.html",
+      "pengaturan-akun": "partials/pengaturan-akun.html"
     },
     async navigate(viewName, params = {}) {
       const path = this.views[viewName];

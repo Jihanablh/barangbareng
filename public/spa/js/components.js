@@ -1266,6 +1266,150 @@
   renderBuyer = renderBuyerDashboard;
   // DASHBOARD PENYEWA UPDATE END
 
+  // ACCOUNT SETTINGS PAGE START
+  const accountPrefsKey = "barangBarengAccountPreferences";
+
+  function accountPreferences() {
+    try {
+      return {
+        transaction: true,
+        promo: false,
+        review: true,
+        category: "Elektronik & Produktivitas",
+        ...(JSON.parse(localStorage.getItem(accountPrefsKey) || "{}"))
+      };
+    } catch {
+      return { transaction: true, promo: false, review: true, category: "Elektronik & Produktivitas" };
+    }
+  }
+
+  function saveAccountPreferences(prefs) {
+    try {
+      localStorage.setItem(accountPrefsKey, JSON.stringify(prefs));
+    } catch {
+      return false;
+    }
+    return true;
+  }
+
+  function renderAccountSettings(errors = {}) {
+    const mount = document.querySelector("#account-settings-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) {
+      mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24"><div class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8"><section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm"><h1 class="text-2xl font-extrabold text-slate-950">Pengaturan Akun</h1><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Masuk terlebih dahulu untuk mengelola profil, keamanan, dan preferensi akun kamu.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="login">Masuk</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Daftar</button></div></section></div></main>`;
+      bindCommonEvents();
+      return;
+    }
+    const prefs = accountPreferences();
+    const goldBenefit = user.level === "Gold" ? `<div class="mt-5 rounded-3xl bg-amber-50 p-5 text-amber-800"><span class="badge bg-white text-amber-700">Gold Benefit</span><div class="mt-4 grid gap-3 sm:grid-cols-2">${["Diskon biaya admin 30%", "Prioritas pencarian", "Boost listing", "Badge Gold Seller"].map(item => `<p class="rounded-2xl bg-white p-4 text-sm font-bold">${item}</p>`).join("")}</div></div>` : "";
+    const categories = ["Elektronik & Produktivitas", "Kamera, Konten & Media Sosial", "Kamar Kos & Daily Living", "Masak & Makan Anak Kos", "Fashion Formal & Acara Kampus", "Event & Organisasi", "Pinjam Gratis"];
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
+      <div class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <nav class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
+          <button class="hover:text-brand-blue" data-nav="home">Beranda</button><span>&gt;</span><button class="hover:text-brand-blue" data-nav="profile">Akun</button><span>&gt;</span><span class="text-slate-900">Pengaturan Akun</span>
+        </nav>
+        <header class="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div><h1 class="text-2xl font-extrabold text-slate-950 lg:text-3xl">Pengaturan Akun</h1><p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">Kelola informasi profil, keamanan akun, dan preferensi BarangBareng kamu.</p></div>
+          <button class="btn-secondary w-full rounded-2xl px-5 py-3 text-sm sm:w-fit" data-nav="dashboard-buyer">${icon("arrow-left", "h-4 w-4")} Kembali ke Dashboard</button>
+        </header>
+
+        <section class="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+          <aside class="grid h-fit gap-6 lg:sticky lg:top-28">
+            <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+              <div class="flex items-start gap-4"><span class="grid h-16 w-16 shrink-0 place-items-center rounded-3xl bg-gradient-brand text-xl font-extrabold text-white">${bbUserAccount.initials(user.fullName)}</span><div class="min-w-0"><h2 class="truncate text-xl font-extrabold text-slate-950">${user.fullName}</h2><p class="truncate text-sm font-semibold text-slate-500">${user.email}</p><p class="mt-1 text-sm font-semibold text-slate-500">${user.campus}</p></div></div>
+              <div class="mt-5 flex flex-wrap gap-2">${bbUserAccount.levelBadge(user)}<span class="badge bg-teal-50 text-teal-700">Aktif</span><span class="badge bg-blue-50 text-brand-blue">Terverifikasi</span></div>
+              <div class="mt-5 grid grid-cols-2 gap-3 text-sm font-bold text-slate-600"><div class="rounded-2xl bg-slate-50 p-4"><span class="block text-xs text-slate-400">Transaksi</span>${user.successfulTransactions} berhasil</div><div class="rounded-2xl bg-slate-50 p-4"><span class="block text-xs text-slate-400">Rating</span>${Number(user.rating).toFixed(1)} / 5</div></div>
+            </article>
+
+            <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+              <h2 class="text-xl font-extrabold text-slate-950">Level Pengguna</h2>
+              <p class="mt-3">${bbUserAccount.levelBadge(user)}</p>
+              <div class="mt-5 h-3 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${Math.max(4, Number(user.progressPercent || 0))}%"></div></div>
+              <p class="mt-2 text-sm font-semibold leading-6 text-slate-500">${user.progressText}</p>
+              ${goldBenefit}
+            </article>
+          </aside>
+
+          <div class="grid gap-6">
+            <form class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm" data-account-settings-form novalidate>
+              <h2 class="text-xl font-extrabold text-slate-950">Form Pengaturan Profil</h2>
+              <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <label class="text-sm font-bold text-slate-700">Nama lengkap<input class="field mt-2" name="fullName" autocomplete="name" value="${user.fullName}">${bbUserAccount.fieldError(errors, "fullName")}</label>
+                <label class="text-sm font-bold text-slate-700">Email<input class="field mt-2 bg-slate-50 text-slate-500" name="email" type="email" value="${user.email}" readonly></label>
+                <label class="text-sm font-bold text-slate-700">Nomor telepon<input class="field mt-2" name="phone" autocomplete="tel" value="${user.phone}">${bbUserAccount.fieldError(errors, "phone")}</label>
+                <label class="text-sm font-bold text-slate-700">Asal kampus<input class="field mt-2" name="campus" value="${user.campus}">${bbUserAccount.fieldError(errors, "campus")}</label>
+                <label class="text-sm font-bold text-slate-700 md:col-span-2">Bio singkat<textarea class="field mt-2 min-h-24" name="bio" maxlength="160" placeholder="Contoh: Mahasiswa aktif yang sering sewa perlengkapan kampus.">${prefs.bio || ""}</textarea></label>
+                <label class="text-sm font-bold text-slate-700 md:col-span-2">Lokasi domisili umum<input class="field mt-2" name="domicile" value="${prefs.domicile || ""}" placeholder="Contoh: Kuningan, Jakarta Selatan"></label>
+              </div>
+              <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="profile">Batal</button><button class="btn-primary rounded-2xl px-5 py-3">Simpan Perubahan</button></div>
+            </form>
+
+            <section class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+              <h2 class="text-xl font-extrabold text-slate-950">Keamanan Akun</h2>
+              <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
+                <div><p class="text-sm font-bold text-slate-500">Email login</p><p class="mt-1 font-extrabold text-slate-950">${user.email}</p><p class="mt-2 text-sm font-semibold leading-6 text-slate-500">Password aktif. Perubahan password akan tersedia setelah integrasi backend.</p></div>
+                <button class="btn-secondary rounded-2xl px-5 py-3 text-sm" disabled>Ubah Password</button>
+              </div>
+            </section>
+
+            <section class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+              <h2 class="text-xl font-extrabold text-slate-950">Preferensi Akun</h2>
+              <div class="mt-5 grid gap-3">
+                ${accountPreferenceToggle("transaction", "Notifikasi transaksi", "Info pembayaran, status sewa, dan serah terima.", prefs.transaction)}
+                ${accountPreferenceToggle("promo", "Notifikasi promo", "Rekomendasi promo dan kategori populer.", prefs.promo)}
+                ${accountPreferenceToggle("review", "Notifikasi review", "Pengingat untuk memberi penilaian setelah transaksi selesai.", prefs.review)}
+              </div>
+              <label class="mt-5 block text-sm font-bold text-slate-700">Preferensi kategori barang<select class="field mt-2" data-account-category>${categories.map(category => `<option value="${category}" ${prefs.category === category ? "selected" : ""}>${category}</option>`).join("")}</select></label>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>`;
+    bindCommonEvents();
+    bindAccountSettingsEvents(prefs);
+  }
+
+  function accountPreferenceToggle(key, title, description, checked) {
+    return `<label class="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-slate-50 p-4">
+      <span><b class="block text-sm text-slate-900">${title}</b><span class="mt-1 block text-xs font-semibold leading-5 text-slate-500">${description}</span></span>
+      <input class="h-5 w-5 shrink-0 accent-blue-600" type="checkbox" data-account-pref="${key}" ${checked ? "checked" : ""}>
+    </label>`;
+  }
+
+  function bindAccountSettingsEvents(currentPrefs) {
+    const prefs = { ...currentPrefs };
+    document.querySelectorAll("[data-account-pref]").forEach(input => input.addEventListener("change", event => {
+      prefs[event.target.dataset.accountPref] = event.target.checked;
+      saveAccountPreferences(prefs);
+      ui.toast("Preferensi akun diperbarui");
+    }));
+    document.querySelector("[data-account-category]")?.addEventListener("change", event => {
+      prefs.category = event.target.value;
+      saveAccountPreferences(prefs);
+      ui.toast("Preferensi kategori diperbarui");
+    });
+    document.querySelector("[data-account-settings-form]")?.addEventListener("submit", event => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      prefs.bio = String(form.get("bio") || "").trim();
+      prefs.domicile = String(form.get("domicile") || "").trim();
+      saveAccountPreferences(prefs);
+      const result = bbUserAccount.updateProfile({
+        fullName: String(form.get("fullName") || ""),
+        phone: String(form.get("phone") || ""),
+        campus: String(form.get("campus") || "")
+      });
+      if (!result.success) {
+        renderAccountSettings(result.errors || {});
+        return;
+      }
+      ui.toast("Data profil berhasil diperbarui.");
+      renderAccountSettings();
+    });
+  }
+  // ACCOUNT SETTINGS PAGE END
+
   // USER ACCOUNT FEATURE START
   function renderProfileAccount() {
     const mount = document.querySelector("#profile-view");
@@ -1280,7 +1424,7 @@
     mount.innerHTML = `<div class="mx-auto max-w-5xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><section class="card p-8">
       <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-col gap-5 md:flex-row md:items-center"><span class="grid h-24 w-24 place-items-center rounded-[2rem] bg-gradient-brand text-3xl font-extrabold text-white">${bbUserAccount.initials(user.fullName)}</span><div><h1 class="text-3xl font-extrabold text-slate-950">${user.fullName}</h1><p class="text-slate-500">${user.email} - ${user.campus}</p><p class="mt-2">${bbUserAccount.levelBadge(user)} Mahasiswa Terverifikasi - ${user.successfulTransactions} transaksi - Rating ${Number(user.rating).toFixed(1)}</p></div></div>
-        <button class="btn-secondary rounded-2xl px-5 py-3" data-bb-profile-settings>Pengaturan Akun</button>
+        <button class="btn-secondary rounded-2xl px-5 py-3" data-nav="pengaturan-akun">Pengaturan Akun</button>
       </div>
       <div class="mt-7 h-4 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${Math.max(4, user.progressPercent)}%"></div></div>
       <p class="mt-2 text-sm font-semibold text-slate-500">${user.progressText}</p>
@@ -1288,12 +1432,9 @@
       ${goldBenefit}
     </section></div>`;
     bindCommonEvents();
-    document.querySelector("[data-bb-profile-settings]")?.addEventListener("click", () => {
-      bbUserAccount.openSettings?.();
-    });
   }
   renderProfile = renderProfileAccount;
   // USER ACCOUNT FEATURE END
 
-  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
+  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, renderAccountSettings, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
 })();
