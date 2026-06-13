@@ -279,11 +279,13 @@
   }
 
   function usageHint(product) {
-    if (product.category.includes("Kamera")) return "tugas fotografi, dokumentasi event, dan konten";
-    if (product.category.includes("Fashion")) return "sidang, wisuda, interview, dan acara kampus";
+    if (product.category.includes("Dokumentasi")) return "tugas fotografi, dokumentasi event, dan konten kampus";
+    if (product.category.includes("Sidang")) return "sidang, wisuda, interview, dan acara formal kampus";
     if (product.category.includes("Outdoor")) return "camping, kegiatan alam, dan acara komunitas";
-    if (product.category.includes("Masak")) return "kebutuhan kos, masak hemat, dan acara kecil";
-    return "kuliah, kegiatan kampus, kos, dan kebutuhan harian";
+    if (product.category.includes("Anak Kos")) return "kebutuhan kos, masak hemat, pindahan, dan hidup anak rantau";
+    if (product.category.includes("Event")) return "seminar, workshop, bazar, lomba, dan gathering kampus";
+    if (product.category.includes("Organisasi")) return "rapat, kepanitiaan, check-in event, dan koordinasi organisasi";
+    return "tugas kuliah, presentasi kelas, praktikum, dan kebutuhan akademik";
   }
 
   function ownerProfile(product) {
@@ -474,7 +476,17 @@
   }
 
   function similarProducts(product) {
-    return BBData.products.filter(item => item.id !== product.id && (item.category === product.category || item.campus === product.campus)).sort((a, b) => b.rating - a.rating).slice(0, 8);
+    const sourceTags = new Set(product.tags || []);
+    return BBData.products
+      .filter(item => item.id !== product.id && (item.category === product.category || (item.tags || []).some(tag => sourceTags.has(tag))))
+      .sort((a, b) => {
+        const categoryScore = Number(b.category === product.category) - Number(a.category === product.category);
+        if (categoryScore) return categoryScore;
+        const tagScore = (b.tags || []).filter(tag => sourceTags.has(tag)).length - (a.tags || []).filter(tag => sourceTags.has(tag)).length;
+        if (tagScore) return tagScore;
+        return b.rating - a.rating;
+      })
+      .slice(0, 8);
   }
 
   function similarSection(products) {

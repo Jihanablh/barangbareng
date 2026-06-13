@@ -29,12 +29,28 @@
     const sorted = window.sortListingsByUserPriority ? window.sortListingsByUserPriority(list, window.bbUserAccount?.getUsers?.()) : [...list];
     // USER ACCOUNT FEATURE END
     const sort = state.sortBy;
+    const query = String(state.filters.query || "").trim().toLowerCase();
+    if (query && sort === "relevant") sorted.sort((a, b) => relevanceScore(b, query) - relevanceScore(a, query));
     if (sort === "price-low") sorted.sort((a, b) => a.price - b.price);
     if (sort === "price-high") sorted.sort((a, b) => b.price - a.price);
     if (sort === "rating") sorted.sort((a, b) => b.rating - a.rating);
     if (sort === "rented") sorted.sort((a, b) => b.rentedCount - a.rentedCount);
     if (sort === "newest") sorted.sort((a, b) => b.id - a.id);
     return sorted;
+  }
+
+  function relevanceScore(product, query) {
+    const tags = (product.tags || []).join(" ").toLowerCase();
+    const badges = (product.badges || []).join(" ").toLowerCase();
+    return [
+      product.name?.toLowerCase().includes(query) ? 70 : 0,
+      product.category?.toLowerCase().includes(query) ? 60 : 0,
+      tags.includes(query) ? 55 : 0,
+      product.subcategory?.toLowerCase().includes(query) ? 40 : 0,
+      badges.includes(query) ? 30 : 0,
+      product.description?.toLowerCase().includes(query) ? 10 : 0,
+      product.rating || 0
+    ].reduce((sum, value) => sum + value, 0);
   }
 
   window.filters = {

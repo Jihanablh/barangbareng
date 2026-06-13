@@ -132,6 +132,10 @@
   function sortedProducts() {
     const list = BBData.products.filter(matches);
     const sort = state.sortBy;
+    const query = String(state.filters.query || "").trim().toLowerCase();
+    if (query && sort === "relevant") {
+      return list.sort((a, b) => relevanceScore(b, query) - relevanceScore(a, query));
+    }
     if (sort === "price-low") return list.sort((a, b) => a.price - b.price);
     if (sort === "price-high") return list.sort((a, b) => b.price - a.price);
     if (sort === "rating") return list.sort((a, b) => b.rating - a.rating);
@@ -142,6 +146,20 @@
     if (window.sortListingsByUserPriority) return window.sortListingsByUserPriority(list, window.bbUserAccount?.getUsers?.());
     // USER ACCOUNT FEATURE END
     return list.sort((a, b) => b.rating + b.rentedCount / 100 - (a.rating + a.rentedCount / 100));
+  }
+
+  function relevanceScore(product, query) {
+    const tags = (product.tags || []).join(" ").toLowerCase();
+    const badges = (product.badges || []).join(" ").toLowerCase();
+    return [
+      product.name?.toLowerCase().includes(query) ? 70 : 0,
+      product.category?.toLowerCase().includes(query) ? 60 : 0,
+      tags.includes(query) ? 55 : 0,
+      product.subcategory?.toLowerCase().includes(query) ? 40 : 0,
+      badges.includes(query) ? 30 : 0,
+      product.description?.toLowerCase().includes(query) ? 10 : 0,
+      product.rating || 0
+    ].reduce((sum, value) => sum + value, 0);
   }
 
   function requestBrowseUpdate(loading = true) {
@@ -170,6 +188,7 @@
       </div>
       <div class="p-2.5 sm:p-3">
         <h3 class="line-clamp-2 min-h-[2.25rem] break-words text-xs font-extrabold leading-snug text-slate-950 sm:text-sm">${product.name}</h3>
+        <p class="mt-1 line-clamp-1 text-[0.66rem] font-extrabold text-brand-blue sm:text-[0.75rem]">${product.category}</p>
         <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-600 sm:text-[0.78rem]">Rating ${product.rating} | ${product.reviewCount} ulasan</p>
         <p class="mt-1.5 text-sm font-extrabold leading-tight text-brand-blue sm:text-base">${product.type === "pinjam" ? `Gratis <span class="block text-[0.62rem] text-slate-500 sm:inline sm:text-[0.7rem]">layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-[0.65rem] text-slate-500 sm:text-[0.7rem]">/hari</span>`}</p>
         <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-500 sm:text-[0.78rem]">${product.location}</p>
