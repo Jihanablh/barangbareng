@@ -1,5 +1,5 @@
 (function () {
-  const assetVersion = "20260612-3";
+  const assetVersion = "20260613-1";
   const componentFallbacks = {
     "#toast-mount": "",
     "#footer-mount": `<footer class="bg-[#0F172A] text-white"><div class="mx-auto max-w-7xl px-4 py-10 text-sm text-slate-400 sm:px-6 lg:px-8"><strong class="text-lg text-white">BarangBareng</strong><p class="mt-2">Marketplace sewa dan pinjam barang mahasiswa.</p></div></footer>`,
@@ -109,8 +109,10 @@
     if (document.querySelector("#home-view")) components.renderHome();
     window.staticHomeHtml = document.querySelector("#app-main")?.innerHTML || "";
     bindGlobalNav();
+    window.bbUserAccount?.renderAuthUi?.();
     router.currentView = "home";
     components.bindNavEvents();
+    window.bbUserAccount?.renderAuthUi?.();
     if (window.location.hash && window.location.hash !== "#/home") router.hydrateFromHash();
     animations.refresh();
   }

@@ -109,6 +109,9 @@
     if (sort === "rented") return list.sort((a, b) => b.rentedCount - a.rentedCount);
     if (sort === "newest") return list.sort((a, b) => b.id - a.id);
     if (sort === "nearby") return list.sort((a, b) => (a.campus === state.currentUser.campus ? -1 : 1) - (b.campus === state.currentUser.campus ? -1 : 1));
+    // USER ACCOUNT FEATURE START
+    if (window.sortListingsByUserPriority) return window.sortListingsByUserPriority(list, window.bbUserAccount?.getUsers?.());
+    // USER ACCOUNT FEATURE END
     return list.sort((a, b) => b.rating + b.rentedCount / 100 - (a.rating + a.rentedCount / 100));
   }
 
@@ -130,6 +133,7 @@
     const inCart = state.isInCart(product.id);
     const status = product.status === "low" ? "Hampir Habis" : "Tersedia";
     const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.rentedCount > 40 ? "Terdekat" : product.badges[0] || "Event Ready";
+    const goldSeller = product.owner.level === "gold" ? `<span class="badge bg-amber-50 text-amber-700">Gold Seller</span>` : "";
     return `<article class="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div class="relative h-36 overflow-hidden bg-slate-100">
         <img src="${product.image}" alt="${product.name}" class="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
@@ -146,6 +150,7 @@
           <span class="badge ${product.owner.level === "gold" ? "bg-amber-100 text-amber-700" : product.owner.level === "silver" ? "bg-slate-100 text-slate-700" : "bg-lime-100 text-lime-700"}">${product.owner.level[0].toUpperCase() + product.owner.level.slice(1)} Owner</span>
           <span class="text-xs font-bold text-slate-400">${product.owner.initials}</span>
         </div>
+        ${goldSeller ? `<div class="mt-2">${goldSeller}</div>` : ""}
         <div class="mt-3 grid gap-2">
           <button class="btn-ripple w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02]" data-book="${product.id}">Sewa Sekarang</button>
           <div class="grid grid-cols-2 gap-2">

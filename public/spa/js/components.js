@@ -26,6 +26,7 @@
 
   function productCard(product, list = false) {
     const liked = state.isWishlisted(product.id);
+    const goldSeller = product.owner.level === "gold" ? `<span class="badge bg-amber-50 text-amber-700">Gold Seller</span>` : "";
     return `<article class="product-card card overflow-hidden ${list ? "grid gap-4 p-4 md:grid-cols-[190px_1fr_180px]" : ""}">
       <div class="relative ${list ? "h-40 rounded-2xl" : "h-52 rounded-t-3xl"} overflow-hidden bg-slate-100">
         ${imgTag(product, "h-full w-full object-cover")}
@@ -40,7 +41,7 @@
         <p class="mt-2 flex items-center gap-2 text-sm text-slate-500">${icon("map-pin", "h-4 w-4 text-brand-blue")} ${product.campus} · ${product.location}</p>
         <div class="mt-4 flex items-center gap-3">
           <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-brand text-xs font-extrabold text-white">${product.owner.initials}</span>
-          <div><p class="text-sm font-bold">${product.owner.name}</p><p class="text-xs text-slate-500">${levelBadge(product.owner.level)} Terverifikasi</p></div>
+          <div><p class="text-sm font-bold">${product.owner.name}</p><p class="text-xs text-slate-500">${levelBadge(product.owner.level)} Terverifikasi</p>${goldSeller ? `<p class="mt-1">${goldSeller}</p>` : ""}</div>
         </div>
       </div>
       <div class="${list ? "flex flex-col justify-center" : "px-5 pb-5"}">
@@ -943,6 +944,35 @@
       timer = setTimeout(() => fn(...args), delay);
     };
   }
+
+  // USER ACCOUNT FEATURE START
+  function renderProfileAccount() {
+    const mount = document.querySelector("#profile-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) {
+      mount.innerHTML = `<div class="mx-auto max-w-5xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><section class="card p-8 text-center"><h1 class="text-3xl font-extrabold text-slate-950">Profil Pengguna</h1><p class="mx-auto mt-3 max-w-xl text-slate-500">Masuk terlebih dahulu untuk melihat profil, level, dan progress akun kamu.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="login">Masuk</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Daftar</button></div></section></div>`;
+      bindCommonEvents();
+      return;
+    }
+    const goldBenefit = user.level === "Gold" ? `<section class="mt-6 rounded-3xl bg-amber-50 p-5 text-amber-800"><span class="badge bg-white text-amber-700">Gold Benefit</span><h2 class="mt-3 text-xl font-extrabold">Keuntungan Gold</h2><div class="mt-4 grid gap-3 md:grid-cols-2">${["Diskon biaya admin sebesar 30%.", "Prioritas dalam sistem pencarian.", "Boost listing.", "Barang milik pengguna Gold lebih sering muncul."].map(text => `<p class="rounded-2xl bg-white p-4 text-sm font-bold">${text}</p>`).join("")}</div></section>` : "";
+    mount.innerHTML = `<div class="mx-auto max-w-5xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><section class="card p-8">
+      <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-5 md:flex-row md:items-center"><span class="grid h-24 w-24 place-items-center rounded-[2rem] bg-gradient-brand text-3xl font-extrabold text-white">${bbUserAccount.initials(user.fullName)}</span><div><h1 class="text-3xl font-extrabold text-slate-950">${user.fullName}</h1><p class="text-slate-500">${user.email} - ${user.campus}</p><p class="mt-2">${bbUserAccount.levelBadge(user)} Mahasiswa Terverifikasi - ${user.successfulTransactions} transaksi - Rating ${Number(user.rating).toFixed(1)}</p></div></div>
+        <button class="btn-secondary rounded-2xl px-5 py-3" data-bb-profile-settings>Pengaturan Akun</button>
+      </div>
+      <div class="mt-7 h-4 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${Math.max(4, user.progressPercent)}%"></div></div>
+      <p class="mt-2 text-sm font-semibold text-slate-500">${user.progressText}</p>
+      <div class="mt-6 grid gap-4 md:grid-cols-4">${[["Level", user.level], ["Transaksi", user.successfulTransactions], ["Rating", Number(user.rating).toFixed(1)], ["Listing Priority", user.listingPriority]].map(item => `<div class="rounded-3xl bg-teal-50 p-4 font-bold text-teal-700"><span class="block text-xs text-teal-600">${item[0]}</span>${item[1]}</div>`).join("")}</div>
+      ${goldBenefit}
+    </section></div>`;
+    bindCommonEvents();
+    document.querySelector("[data-bb-profile-settings]")?.addEventListener("click", () => {
+      bbUserAccount.openSettings?.();
+    });
+  }
+  renderProfile = renderProfileAccount;
+  // USER ACCOUNT FEATURE END
 
   window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
 })();

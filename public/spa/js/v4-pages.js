@@ -21,57 +21,55 @@
     if (window.lucide) lucide.createIcons();
   }
 
-  function renderLogin() {
+  function renderLogin(error = "") {
     document.querySelector("#login-view").innerHTML = shell("Masuk Akun", "Lanjutkan transaksi sewa, top up, dan dashboard lewat halaman penuh.", `<section class="card grid gap-6 p-6 lg:grid-cols-[1fr_.8fr]">
-      <form class="grid gap-4"><input class="field" placeholder="Email kampus atau no. HP"><input class="field" type="password" placeholder="Password"><button class="btn-primary rounded-2xl px-5 py-3" data-login-success>Masuk</button><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Belum punya akun? Daftar</button></form>
-      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h2 class="font-extrabold">Akun BarangBareng</h2><p class="mt-2 text-sm font-semibold">Masuk untuk memantau transaksi, pembayaran, dan barang yang kamu simpan.</p></aside>
+      <!-- USER ACCOUNT FEATURE START -->
+      <form class="grid gap-4" data-bb-login-form>
+        <label class="text-sm font-bold text-slate-700">Email<input class="field mt-2" name="email" type="email" autocomplete="email" placeholder="naura@barangbareng.com"></label>
+        <label class="text-sm font-bold text-slate-700">Password<input class="field mt-2" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>
+        ${error ? `<p class="rounded-2xl bg-red-50 p-3 text-sm font-bold text-red-700">${error}</p>` : ""}
+        <button class="btn-primary rounded-2xl px-5 py-3">Masuk</button>
+        <button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Belum punya akun? Daftar</button>
+      </form>
+      <!-- USER ACCOUNT FEATURE END -->
+      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h2 class="font-extrabold">Akun BarangBareng</h2><p class="mt-2 text-sm font-semibold">Masuk untuk memantau transaksi, pembayaran, dan barang yang kamu simpan.</p><div class="mt-4 rounded-2xl bg-white p-4 text-sm font-bold text-slate-700"><p>Email uji coba: naura@barangbareng.com</p><p>Password: Naura12345</p></div></aside>
     </section>`);
     bindBase();
-    document.querySelector("[data-login-success]")?.addEventListener("click", event => { event.preventDefault(); ui.toast("Masuk berhasil"); router.navigate("dashboard-buyer"); });
+    document.querySelector("[data-bb-login-form]")?.addEventListener("submit", event => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const result = bbUserAccount.login(form.get("email"), form.get("password"));
+      if (!result.success) return renderLogin(result.message);
+      bbUserAccount.renderAuthUi();
+      ui.toast("Masuk berhasil");
+      router.navigate("dashboard-buyer");
+    });
   }
 
-  function renderRegister() {
-    const step = state.registerStep;
-    const stepBar = `<div class="grid grid-cols-4 gap-2">${["Akun", "Verifikasi", "Top Up", "Selesai"].map((label, index) => `<button class="rounded-2xl p-3 text-sm font-bold ${step === index + 1 ? "bg-brand-blue text-white" : step > index + 1 ? "bg-teal-100 text-teal-700" : "bg-slate-100 text-slate-500"}" data-register-step="${index + 1}">${index + 1}. ${label}</button>`).join("")}</div>`;
-    const content = step === 1 ? registerAccountStep() : step === 2 ? registerVerificationStep() : step === 3 ? registerTopupStep() : registerWelcomeStep();
-    document.querySelector("#register-view").innerHTML = shell("Daftar Mahasiswa", "Registrasi empat langkah lengkap di halaman yang sama.", `<section class="card p-6">${stepBar}<div class="mt-6">${content}</div><div class="mt-6 flex justify-between"><button class="btn-secondary rounded-2xl px-5 py-3" data-register-prev>Kembali</button><button class="btn-primary rounded-2xl px-5 py-3" data-register-next>${step === 4 ? "Selesai" : "Lanjut"}</button></div></section>`);
+  function renderRegister(errors = {}, values = {}) {
+    const campuses = ["", ...BBData.campuses, "Universitas Negeri Yogyakarta", "Universitas Gadjah Mada", "Universitas Brawijaya"];
+    document.querySelector("#register-view").innerHTML = shell("Daftar Mahasiswa", "Buat akun BarangBareng untuk mulai menyewa dan menyewakan barang.", `<section class="card p-6">
+      <!-- USER ACCOUNT FEATURE START -->
+      <form class="grid gap-4 md:grid-cols-2" data-bb-register-form novalidate>
+        <label class="text-sm font-bold text-slate-700">Nama lengkap<input class="field mt-2" name="fullName" value="${values.fullName || ""}" autocomplete="name">${bbUserAccount.fieldError(errors, "fullName")}</label>
+        <label class="text-sm font-bold text-slate-700">Email<input class="field mt-2" name="email" type="email" value="${values.email || ""}" autocomplete="email">${bbUserAccount.fieldError(errors, "email")}</label>
+        <label class="text-sm font-bold text-slate-700">Nomor telepon<input class="field mt-2" name="phone" value="${values.phone || ""}" autocomplete="tel">${bbUserAccount.fieldError(errors, "phone")}</label>
+        <label class="text-sm font-bold text-slate-700">Asal kampus<select class="field mt-2" name="campus">${campuses.map(campus => `<option value="${campus}" ${campus === values.campus ? "selected" : ""}>${campus || "Pilih kampus"}</option>`).join("")}</select>${bbUserAccount.fieldError(errors, "campus")}</label>
+        <label class="text-sm font-bold text-slate-700">Password<input class="field mt-2" name="password" type="password" autocomplete="new-password">${bbUserAccount.fieldError(errors, "password")}</label>
+        <label class="text-sm font-bold text-slate-700">Konfirmasi password<input class="field mt-2" name="confirmPassword" type="password" autocomplete="new-password">${bbUserAccount.fieldError(errors, "confirmPassword")}</label>
+        <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="login">Sudah punya akun? Masuk</button><button class="btn-primary rounded-2xl px-5 py-3">Daftar Sekarang</button></div>
+      </form>
+      <!-- USER ACCOUNT FEATURE END -->
+    </section>`);
     bindBase();
-    document.querySelectorAll("[data-register-step]").forEach(button => button.addEventListener("click", () => { state.registerStep = Number(button.dataset.registerStep); renderRegister(); }));
-    document.querySelector("[data-register-prev]")?.addEventListener("click", () => { state.registerStep = Math.max(1, state.registerStep - 1); renderRegister(); });
-    document.querySelector("[data-register-next]")?.addEventListener("click", () => { if (state.registerStep === 4) return router.navigate("browse"); state.registerStep += 1; renderRegister(); });
-    document.querySelector("[data-register-paid]")?.addEventListener("click", () => ui.toast("Top up pertama terdeteksi"));
-    if (step === 3) qris.createQr("register-qr", `BB-FIRST-TOPUP-${state.topupAmount}`);
-  }
-
-  function registerAccountStep() {
-    return `<div class="grid gap-4 md:grid-cols-2">
-      <input class="field" placeholder="Nama lengkap">
-      <input class="field" placeholder="Email">
-      <input class="field" placeholder="Nomor HP">
-      <input class="field" type="password" placeholder="Password">
-      <input class="field" type="password" placeholder="Konfirmasi password">
-      <select class="field"><option>Penyewa</option><option>Pemilik Barang</option><option>Keduanya</option></select>
-      <label class="flex gap-3 rounded-3xl bg-slate-50 p-4 text-sm font-semibold text-slate-600 md:col-span-2"><input type="checkbox" checked> Saya menyetujui syarat dan ketentuan BarangBareng.</label>
-      <label class="flex gap-3 rounded-3xl bg-slate-50 p-4 text-sm font-semibold text-slate-600 md:col-span-2"><input type="checkbox" checked> Saya menyetujui kebijakan privasi.</label>
-    </div>`;
-  }
-
-  function registerVerificationStep() {
-    return `<div class="grid gap-5 lg:grid-cols-[1fr_.9fr]">
-      <section class="grid gap-4">
-        <article class="rounded-3xl bg-slate-50 p-5"><div class="flex items-center justify-between"><h3 class="font-extrabold">Upload KTP atau Kartu Mahasiswa</h3><span class="badge bg-teal-50 text-teal-700">Dokumen terverifikasi</span></div><div class="mt-4 grid h-40 place-items-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm font-bold text-slate-400">Preview dokumen</div><p class="mt-3 text-sm font-semibold text-slate-500">Nama terbaca: ${state.verification.ocrName} - ${state.verification.ocrCampus}</p></article>
-        <article class="rounded-3xl bg-slate-50 p-5"><div class="flex items-center justify-between"><h3 class="font-extrabold">Verifikasi Selfie</h3><span class="badge bg-teal-50 text-teal-700">Wajah terverifikasi</span></div><div class="mt-4 grid h-40 place-items-center rounded-[28px] bg-slate-900 text-center text-white"><div><p class="text-4xl font-extrabold">3..2..1</p><p class="mt-2 text-sm text-white/70">Frame kamera aktif</p></div></div></article>
-      </section>
-      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h3 class="font-extrabold">Verifikasi OTP 6 Digit</h3><p class="mt-2 text-sm font-semibold">Masukkan kode OTP yang dikirim ke nomor HP aktif.</p><div class="mt-4 grid grid-cols-6 gap-2">${"123456".split("").map(num => `<input class="field h-12 text-center font-extrabold" value="${num}" maxlength="1">`).join("")}</div><div class="mt-4 rounded-2xl bg-white p-4 text-sm font-bold text-teal-700">Nomor HP aktif dan terverifikasi.</div></aside>
-    </div>`;
-  }
-
-  function registerTopupStep() {
-    return `<div class="grid gap-6 lg:grid-cols-[1fr_300px]"><div><p class="font-semibold text-slate-600">1 Koin = Rp1.000. Top up pertama wajib QRIS BarangBareng, minimum 20 Koin.</p><div class="mt-4 grid grid-cols-2 gap-3">${[20000, 50000, 100000, 200000].map(value => `<button class="rounded-2xl ${state.topupAmount === value ? "bg-brand-blue text-white" : "bg-slate-100 text-slate-700"} p-4 font-bold" data-topup-amount="${value}">${rupiah(value)}</button>`).join("")}</div><input class="field mt-3" placeholder="Custom nominal"><button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-register-paid>Saya Sudah Bayar</button></div><div><div id="register-qr" class="qr-container"></div><p class="mt-3 text-center text-sm font-bold text-amber-600">QRIS BarangBareng</p></div></div>`;
-  }
-
-  function registerWelcomeStep() {
-    return `<div class="text-center"><i data-lucide="party-popper" class="mx-auto h-16 w-16 text-teal-500"></i><h2 class="mt-4 text-2xl font-extrabold">Akun berhasil dibuat</h2><div class="mx-auto mt-5 grid max-w-2xl gap-3 text-left md:grid-cols-2">${["Dokumen terverifikasi", "Selfie terverifikasi", "Nomor HP aktif", "Koin berhasil ditambahkan"].map(text => `<div class="rounded-3xl bg-teal-50 p-4 font-bold text-teal-700">${text}</div>`).join("")}</div><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="upload-product">Sewakan Barang Pertama</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="profile">Lengkapi Profil</button></div></div>`;
+    document.querySelector("[data-bb-register-form]")?.addEventListener("submit", event => {
+      event.preventDefault();
+      const form = Object.fromEntries(new FormData(event.currentTarget).entries());
+      const result = bbUserAccount.register(form);
+      if (!result.success) return renderRegister(result.errors, form);
+      ui.toast("Akun berhasil dibuat. Silakan masuk.");
+      router.navigate("login");
+    });
   }
 
   function renderTopupPage() {

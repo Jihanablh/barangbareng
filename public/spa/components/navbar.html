@@ -20,8 +20,13 @@
       <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-notification-center aria-label="Notifikasi"><i data-lucide="bell" class="h-5 w-5"></i></button>
       <button class="relative grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="disimpan" aria-label="Disimpan"><i data-lucide="heart" class="h-5 w-5"></i><span data-nav-badge="wishlist" class="hidden absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[9px] font-extrabold text-white transition-transform"></span></button>
       <button class="relative grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-card" data-nav="keranjang" aria-label="Keranjang"><i data-lucide="shopping-basket" class="h-5 w-5"></i><span data-nav-badge="cart" class="hidden absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue px-1 text-[9px] font-extrabold text-white transition-transform"></span></button>
-      <button class="shrink-0 px-2 py-2.5 text-sm font-semibold text-slate-600 hover:text-brand-blue xl:px-3" data-nav="login">Masuk</button>
-      <button class="btn-secondary shrink-0 rounded-full px-4 py-2.5 text-sm" data-nav="register">Daftar</button>
+      <!-- USER ACCOUNT FEATURE START -->
+      <div class="relative flex shrink-0 items-center gap-2" data-bb-auth-desktop>
+        <button class="shrink-0 px-2 py-2.5 text-sm font-semibold text-slate-600 hover:text-brand-blue xl:px-3" data-nav="login" data-bb-auth-guest>Masuk</button>
+        <button class="btn-secondary shrink-0 rounded-full px-4 py-2.5 text-sm" data-nav="register" data-bb-auth-guest>Daftar</button>
+        <div class="hidden" data-bb-auth-user></div>
+      </div>
+      <!-- USER ACCOUNT FEATURE END -->
     </div>
     <button class="ml-auto grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-card lg:hidden" data-nav="jelajah" aria-label="Cari barang">
       <i data-lucide="search" class="h-5 w-5 text-brand-blue"></i>
@@ -48,8 +53,11 @@
     <button class="drawer-link" data-scroll-target="pinjam-gratis">Pinjam Gratis</button>
     <button class="drawer-link flex items-center justify-between" data-nav="disimpan">Disimpan <span data-nav-badge="wishlist" class="hidden rounded-full bg-red-500 px-2 py-0.5 text-xs font-extrabold text-white transition-transform"></span></button>
     <button class="drawer-link flex items-center justify-between" data-nav="keranjang">Keranjang <span data-nav-badge="cart" class="hidden rounded-full bg-brand-blue px-2 py-0.5 text-xs font-extrabold text-white transition-transform"></span></button>
-    <button class="drawer-link" data-nav="login">Masuk</button>
-    <button class="drawer-link" data-nav="register">Daftar</button>
+    <!-- USER ACCOUNT FEATURE START -->
+    <button class="drawer-link" data-nav="login" data-bb-auth-guest>Masuk</button>
+    <button class="drawer-link" data-nav="register" data-bb-auth-guest>Daftar</button>
+    <div class="relative hidden" data-bb-auth-user></div>
+    <!-- USER ACCOUNT FEATURE END -->
   </div>
   <button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-nav="upload-product">Mulai Sewakan</button>
 </aside>

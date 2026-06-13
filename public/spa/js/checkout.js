@@ -29,7 +29,11 @@
 
   function calculate(product, days) {
     const subtotal = product.type === "pinjam" ? 0 : product.price * days;
-    const service = product.type === "pinjam" ? 5000 : Math.max(2500, Math.round(subtotal * 0.025));
+    const baseService = product.type === "pinjam" ? 5000 : Math.max(2500, Math.round(subtotal * 0.025));
+    // USER ACCOUNT FEATURE START
+    const user = window.bbUserAccount?.getSessionUser?.();
+    const service = window.calculateAdminFee ? window.calculateAdminFee(baseService, user?.level || state.currentUser?.level) : baseService;
+    // USER ACCOUNT FEATURE END
     const transaction = 2500;
     const total = subtotal + service + transaction;
     const dp = Math.ceil(total * DP_PERCENTAGE / 100);

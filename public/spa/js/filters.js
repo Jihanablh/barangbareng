@@ -23,7 +23,9 @@
   }
 
   function sortProducts(list) {
-    const sorted = [...list];
+    // USER ACCOUNT FEATURE START
+    const sorted = window.sortListingsByUserPriority ? window.sortListingsByUserPriority(list, window.bbUserAccount?.getUsers?.()) : [...list];
+    // USER ACCOUNT FEATURE END
     const sort = state.sortBy;
     if (sort === "price-low") sorted.sort((a, b) => a.price - b.price);
     if (sort === "price-high") sorted.sort((a, b) => b.price - a.price);
