@@ -21,54 +21,107 @@
     if (window.lucide) lucide.createIcons();
   }
 
-  function renderLogin(error = "") {
-    document.querySelector("#login-view").innerHTML = shell("Masuk Akun", "Lanjutkan transaksi sewa, top up, dan dashboard lewat halaman penuh.", `<section class="card grid gap-6 p-6 lg:grid-cols-[1fr_.8fr]">
+  function renderLogin(errors = {}, values = {}) {
+    const error = typeof errors === "string" ? { general: errors } : errors;
+    document.querySelector("#login-view").innerHTML = shell("Masuk Akun", "Masuk untuk lanjut menyewa, mengelola pesanan, dan memantau verifikasi mahasiswa.", `<section class="grid gap-6 lg:grid-cols-[1fr_.82fr]">
       <!-- USER ACCOUNT FEATURE START -->
-      <form class="grid gap-4" data-bb-login-form>
-        <label class="text-sm font-bold text-slate-700">Email<input class="field mt-2" name="email" type="email" autocomplete="email" placeholder="naura@barangbareng.com"></label>
-        <label class="text-sm font-bold text-slate-700">Password<input class="field mt-2" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>
-        ${error ? `<p class="rounded-2xl bg-red-50 p-3 text-sm font-bold text-red-700">${error}</p>` : ""}
+      <form class="card grid gap-4 p-6" data-bb-login-form novalidate>
+        <div class="rounded-3xl bg-gradient-to-r from-blue-50 to-teal-50 p-5">
+          <p class="text-sm font-extrabold text-brand-blue">Sign In BarangBareng</p>
+          <h2 class="mt-2 text-2xl font-extrabold text-slate-950">Lanjutkan akun kampusmu</h2>
+          <p class="mt-2 text-sm font-semibold leading-6 text-slate-500">Akun yang belum terverifikasi akan diarahkan ke e-KYC mahasiswa.</p>
+        </div>
+        <label class="text-sm font-bold text-slate-700">Email atau nomor telepon
+          <input class="field mt-2" name="identifier" value="${values.identifier || ""}" autocomplete="username" placeholder="email@kampus.ac.id atau 08...">
+          ${bbUserAccount.fieldError(error, "identifier")}
+        </label>
+        <label class="text-sm font-bold text-slate-700">Password
+          <span class="mt-2 flex rounded-2xl border border-slate-200 bg-white focus-within:ring-2 focus-within:ring-blue-100">
+            <input class="min-h-[52px] flex-1 rounded-2xl px-4 outline-none" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password" data-bb-password-input>
+            <button type="button" class="px-4 text-sm font-extrabold text-brand-blue" data-bb-password-toggle aria-label="Tampilkan atau sembunyikan password">Lihat</button>
+          </span>
+          ${bbUserAccount.fieldError(error, "password")}
+        </label>
+        <div class="flex flex-col gap-3 text-sm font-bold text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300"> Ingat saya</label>
+          <button type="button" class="text-left font-extrabold text-brand-blue" data-nav="lupa-password">Lupa password?</button>
+        </div>
+        ${error.general ? `<p class="rounded-2xl bg-red-50 p-3 text-sm font-bold text-red-700">${error.general}</p>` : ""}
         <button class="btn-primary rounded-2xl px-5 py-3">Masuk</button>
         <button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Belum punya akun? Daftar</button>
       </form>
+      <aside class="card h-fit p-6">
+        <h2 class="text-2xl font-extrabold text-slate-950">Akses aman untuk mahasiswa</h2>
+        <div class="mt-5 grid gap-3 text-sm font-bold text-slate-600">
+          <p class="rounded-2xl bg-slate-50 p-4">Masuk memakai email kampus atau nomor telepon terdaftar.</p>
+          <p class="rounded-2xl bg-slate-50 p-4">Status verifikasi menentukan akses sewa, upload barang, dan transaksi.</p>
+          <p class="rounded-2xl bg-blue-50 p-4 text-brand-blue">Lanjutkan e-KYC jika status akun belum terverifikasi.</p>
+        </div>
+      </aside>
       <!-- USER ACCOUNT FEATURE END -->
-      <aside class="rounded-3xl bg-blue-50 p-5 text-blue-800"><h2 class="font-extrabold">Akun BarangBareng</h2><p class="mt-2 text-sm font-semibold">Masuk untuk memantau transaksi, pembayaran, dan barang yang kamu simpan.</p><div class="mt-4 rounded-2xl bg-white p-4 text-sm font-bold text-slate-700"><p>Email uji coba: naura@barangbareng.com</p><p>Password: Naura12345</p></div></aside>
     </section>`);
     bindBase();
+    document.querySelector("[data-bb-password-toggle]")?.addEventListener("click", event => {
+      const input = document.querySelector("[data-bb-password-input]");
+      if (!input) return;
+      input.type = input.type === "password" ? "text" : "password";
+      event.currentTarget.textContent = input.type === "password" ? "Lihat" : "Sembunyi";
+    });
     document.querySelector("[data-bb-login-form]")?.addEventListener("submit", event => {
       event.preventDefault();
       const form = new FormData(event.currentTarget);
-      const result = bbUserAccount.login(form.get("email"), form.get("password"));
-      if (!result.success) return renderLogin(result.message);
+      const payload = { identifier: form.get("identifier"), remember: Boolean(form.get("remember")) };
+      const result = bbUserAccount.loginUser(payload.identifier, form.get("password"), payload.remember);
+      if (!result.success) return renderLogin(result.errors || { general: result.message }, payload);
       bbUserAccount.renderAuthUi();
       ui.toast("Masuk berhasil");
-      router.navigate("dashboard-buyer");
+      router.navigate(bbUserAccount.canAccessRentalFeature(result.user) ? "dashboard-buyer" : "ekyc");
     });
   }
 
   function renderRegister(errors = {}, values = {}) {
-    const campuses = ["", ...BBData.campuses, "Universitas Negeri Yogyakarta", "Universitas Gadjah Mada", "Universitas Brawijaya"];
-    document.querySelector("#register-view").innerHTML = shell("Daftar Mahasiswa", "Buat akun BarangBareng untuk mulai menyewa dan menyewakan barang.", `<section class="card p-6">
+    const campusNames = Object.keys(bbUserAccount.campusEmailDomains);
+    const campuses = ["", ...campusNames];
+    document.querySelector("#register-view").innerHTML = shell("Bergabung dengan BarangBareng", "Buat akun mahasiswa dan lanjutkan verifikasi identitas agar fitur sewa aktif.", `<section class="grid gap-6 lg:grid-cols-[.82fr_1fr]">
+      <aside class="card h-fit overflow-hidden p-0">
+        <div class="bg-gradient-to-br from-blue-600 to-teal-500 p-7 text-white">
+          <p class="text-sm font-extrabold uppercase tracking-wide text-white/80">Sign Up Mahasiswa</p>
+          <h2 class="mt-3 text-3xl font-extrabold">Sewa barang kampus lebih aman.</h2>
+          <p class="mt-3 text-sm font-semibold leading-6 text-white/85">Gunakan email kampus, lengkapi e-KYC, lalu akses checkout, upload barang, dan transaksi penuh.</p>
+        </div>
+        <div class="grid gap-3 p-6 text-sm font-bold text-slate-600">
+          <p class="rounded-2xl bg-slate-50 p-4">Validasi email kampus sesuai universitas.</p>
+          <p class="rounded-2xl bg-slate-50 p-4">Status akun tersimpan dan tidak hilang setelah refresh.</p>
+          <p class="rounded-2xl bg-slate-50 p-4">Profil, level, dan badge mengikuti akun yang sedang login.</p>
+        </div>
+      </aside>
+      <section class="card p-6">
       <!-- USER ACCOUNT FEATURE START -->
       <form class="grid gap-4 md:grid-cols-2" data-bb-register-form novalidate>
         <label class="text-sm font-bold text-slate-700">Nama lengkap<input class="field mt-2" name="fullName" value="${values.fullName || ""}" autocomplete="name">${bbUserAccount.fieldError(errors, "fullName")}</label>
-        <label class="text-sm font-bold text-slate-700">Email<input class="field mt-2" name="email" type="email" value="${values.email || ""}" autocomplete="email">${bbUserAccount.fieldError(errors, "email")}</label>
+        <label class="text-sm font-bold text-slate-700">NIM<input class="field mt-2" name="nim" value="${values.nim || ""}" inputmode="numeric" autocomplete="off">${bbUserAccount.fieldError(errors, "nim")}</label>
+        <label class="text-sm font-bold text-slate-700">Email kampus<input class="field mt-2" name="email" type="email" value="${values.email || ""}" autocomplete="email" placeholder="nama@domainkampus.ac.id">${bbUserAccount.fieldError(errors, "email")}</label>
         <label class="text-sm font-bold text-slate-700">Nomor telepon<input class="field mt-2" name="phone" value="${values.phone || ""}" autocomplete="tel">${bbUserAccount.fieldError(errors, "phone")}</label>
         <label class="text-sm font-bold text-slate-700">Asal kampus<select class="field mt-2" name="campus">${campuses.map(campus => `<option value="${campus}" ${campus === values.campus ? "selected" : ""}>${campus || "Pilih kampus"}</option>`).join("")}</select>${bbUserAccount.fieldError(errors, "campus")}</label>
         <label class="text-sm font-bold text-slate-700">Password<input class="field mt-2" name="password" type="password" autocomplete="new-password">${bbUserAccount.fieldError(errors, "password")}</label>
         <label class="text-sm font-bold text-slate-700">Konfirmasi password<input class="field mt-2" name="confirmPassword" type="password" autocomplete="new-password">${bbUserAccount.fieldError(errors, "confirmPassword")}</label>
+        <label class="md:col-span-2 flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-600"><input type="checkbox" name="terms" class="mt-1 h-4 w-4 rounded border-slate-300" ${values.terms ? "checked" : ""}> Saya menyetujui ketentuan layanan dan data verifikasi dipakai untuk keamanan transaksi.</label>
+        <div class="-mt-2 md:col-span-2">${bbUserAccount.fieldError(errors, "terms")}</div>
         <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="login">Sudah punya akun? Masuk</button><button class="btn-primary rounded-2xl px-5 py-3">Daftar Sekarang</button></div>
       </form>
       <!-- USER ACCOUNT FEATURE END -->
+      </section>
     </section>`);
     bindBase();
     document.querySelector("[data-bb-register-form]")?.addEventListener("submit", event => {
       event.preventDefault();
       const form = Object.fromEntries(new FormData(event.currentTarget).entries());
-      const result = bbUserAccount.register(form);
+      form.terms = event.currentTarget.querySelector('[name="terms"]')?.checked;
+      const result = bbUserAccount.registerStudent(form);
       if (!result.success) return renderRegister(result.errors, form);
-      ui.toast("Akun berhasil dibuat. Silakan masuk.");
-      router.navigate("login");
+      bbUserAccount.renderAuthUi();
+      ui.toast("Registrasi berhasil. Lanjutkan verifikasi identitas.");
+      router.navigate("ekyc");
     });
   }
 
@@ -112,6 +165,11 @@
   }
 
   function renderUploadProduct() {
+    if (!window.bbUserAccount?.canAccessRentalFeature?.()) {
+      document.querySelector("#upload-product-view").innerHTML = shell("Verifikasi diperlukan", "Lengkapi e-KYC mahasiswa untuk mulai menyewakan barang.", `<section class="card p-8 text-center">${icon("shield-check", "mx-auto h-14 w-14 text-brand-blue")}<h2 class="mt-4 text-2xl font-extrabold text-slate-950">Akun perlu diverifikasi</h2><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Upload barang hanya tersedia untuk akun mahasiswa yang sudah lolos verifikasi identitas.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="ekyc">Lengkapi e-KYC</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="dashboard-buyer">Kembali Dashboard</button></div></section>`);
+      bindBase();
+      return;
+    }
     document.querySelector("#upload-product-view").innerHTML = shell("Upload Barang", "Tambahkan listing baru lewat halaman penuh.", productForm({}, "Simpan Draft Listing", "data-save-upload"), "max-w-6xl");
     bindBase();
     document.querySelector("[data-save-upload]")?.addEventListener("click", event => { event.preventDefault(); ui.toast("Draft listing tersimpan"); router.navigate("dashboard-seller"); });

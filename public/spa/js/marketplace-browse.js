@@ -285,7 +285,16 @@
 
   function bindSharedEvents() {
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
-    document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
+    document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => {
+      if (!window.bbUserAccount?.canAccessRentalFeature?.()) {
+        ui.toast("Lengkapi verifikasi identitas untuk menggunakan fitur ini.");
+        router.navigate("ekyc");
+        return;
+      }
+      state.rememberProduct(Number(button.dataset.book));
+      state.checkoutStep = 1;
+      router.navigate("checkout");
+    }));
     document.querySelectorAll("[data-card-cart]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
       const added = state.addCart(button.dataset.cardCart);

@@ -675,6 +675,7 @@
       renderCart();
     }));
     document.querySelector("[data-cart-checkout]")?.addEventListener("click", () => {
+      if (!requireVerifiedAccess()) return;
       const selected = state.cart.filter(item => item.selected);
       if (!selected.length) return ui.toast("Pilih minimal satu barang untuk checkout");
       const invalid = selected.find(item => !item.startDate || !item.endDate || cartDuration(item) < 1);
@@ -797,6 +798,11 @@
   function renderCheckout() {
     const mount = document.querySelector("#checkout-view");
     if (!mount) return;
+    if (!window.bbUserAccount?.canAccessRentalFeature?.()) {
+      mount.innerHTML = `<div class="mx-auto max-w-4xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><section class="card p-8 text-center">${icon("shield-alert", "mx-auto h-14 w-14 text-brand-blue")}<h1 class="mt-4 text-2xl font-extrabold text-slate-950">Verifikasi diperlukan</h1><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Lengkapi verifikasi identitas untuk menggunakan fitur checkout dan sewa barang.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="ekyc">Lengkapi e-KYC</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="jelajah">Kembali Jelajah</button></div></section></div>`;
+      bindCommonEvents();
+      return;
+    }
     mount.innerHTML = checkout.render();
     bindCommonEvents();
     checkout.bind();
@@ -898,7 +904,7 @@
 
   function bindCommonEvents() {
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
-    document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
+    document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { if (!requireVerifiedAccess()) return; state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
     document.querySelectorAll("[data-card-cart]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
       const added = state.addCart(button.dataset.cardCart);
@@ -1266,6 +1272,230 @@
   renderBuyer = renderBuyerDashboard;
   // DASHBOARD PENYEWA UPDATE END
 
+  // STUDENT EKYC FEATURE START
+  const ekycSteps = [
+    ["ekyc-data-diri", "Data Diri"],
+    ["ekyc-upload-identitas", "Upload Identitas"],
+    ["ekyc-selfie", "Selfie"],
+    ["ekyc-review", "Review"],
+    ["ekyc-success", "Selesai"]
+  ];
+
+  function requireVerifiedAccess() {
+    if (window.bbUserAccount?.canAccessRentalFeature?.()) return true;
+    ui.toast("Lengkapi verifikasi identitas untuk menggunakan fitur ini.");
+    router.navigate("ekyc");
+    return false;
+  }
+
+  function renderAuthRequired(mount, title = "Masuk diperlukan") {
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-28"><div class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8"><section class="card p-8 text-center"><h1 class="text-2xl font-extrabold text-slate-950">${title}</h1><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Masuk atau daftar terlebih dahulu untuk melanjutkan verifikasi akun mahasiswa.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="login">Masuk</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="register">Daftar</button></div></section></div></main>`;
+    bindCommonEvents();
+  }
+
+  function ekycProgress(activeView) {
+    const activeIndex = Math.max(0, ekycSteps.findIndex(step => step[0] === activeView));
+    return `<ol class="flex gap-3 overflow-x-auto pb-2" aria-label="Tahapan e-KYC">${ekycSteps.map((step, index) => `<li class="flex min-w-fit items-center gap-2 rounded-full border px-4 py-2 text-xs font-extrabold ${index <= activeIndex ? "border-blue-200 bg-blue-50 text-brand-blue" : "border-slate-200 bg-white text-slate-500"}"><span class="grid h-6 w-6 place-items-center rounded-full ${index <= activeIndex ? "bg-gradient-brand text-white" : "bg-slate-100 text-slate-500"}">${index + 1}</span>${step[1]}</li>`).join("")}</ol>`;
+  }
+
+  function ekycShell(activeView, title, subtitle, body) {
+    return `<main class="min-h-screen bg-slate-50 pt-28">
+      <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div class="mb-5">${ekycProgress(activeView)}</div>
+        <section class="card overflow-hidden">
+          <div class="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-teal-50 p-6">
+            <p class="text-sm font-extrabold text-brand-blue">e-KYC Mahasiswa</p>
+            <h1 class="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">${title}</h1>
+            <p class="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-500">${subtitle}</p>
+          </div>
+          <div class="p-5 md:p-6">${body}</div>
+        </section>
+      </div>
+    </main>`;
+  }
+
+  function renderForgotPassword() {
+    const mount = document.querySelector("#forgot-password-view");
+    if (!mount) return;
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-28"><div class="mx-auto max-w-3xl px-4 pb-16 sm:px-6 lg:px-8"><section class="card p-6"><p class="font-extrabold text-brand-blue">Bantuan Akun</p><h1 class="mt-2 text-2xl font-extrabold text-slate-950">Lupa password</h1><p class="mt-2 text-sm font-semibold leading-6 text-slate-500">Masukkan email kampus kamu. Permintaan pemulihan akan dicatat sebagai notifikasi halaman.</p><form class="mt-5 grid gap-4" data-forgot-password-form><label class="text-sm font-bold text-slate-700">Email kampus<input class="field mt-2" name="email" type="email" autocomplete="email" placeholder="nama@kampus.ac.id"></label><div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="login">Kembali Masuk</button><button class="btn-primary rounded-2xl px-5 py-3">Kirim Instruksi</button></div></form></section></div></main>`;
+    bindCommonEvents();
+    document.querySelector("[data-forgot-password-form]")?.addEventListener("submit", event => {
+      event.preventDefault();
+      ui.toast("Instruksi pemulihan password sudah dicatat.");
+      router.navigate("login");
+    });
+  }
+
+  function renderEkycStart() {
+    const mount = document.querySelector("#ekyc-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) return renderAuthRequired(mount, "Verifikasi akun mahasiswa");
+    const meta = bbUserAccount.verificationMeta(user.verificationStatus);
+    const nextRoute = user.verificationStatus === "verified" ? "dashboard-buyer" : "ekyc-data-diri";
+    mount.innerHTML = ekycShell("ekyc-data-diri", "Verifikasi Mahasiswa", "Lengkapi data identitas agar akun bisa digunakan untuk checkout, upload barang, dan konfirmasi transaksi.", `<div class="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div class="grid gap-4">
+        ${ekycSteps.slice(0, 4).map((step, index) => `<article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-50 font-extrabold text-brand-blue">${index + 1}</span><div><h2 class="font-extrabold text-slate-950">${step[1]}</h2><p class="mt-1 text-sm font-semibold leading-6 text-slate-500">${["Isi data mahasiswa aktif sesuai dokumen kampus.", "Upload KTP dan KTM dalam format JPG atau PNG.", "Ambil atau upload selfie wajah yang jelas.", "Periksa kembali sebelum data dikirim."][index]}</p></div></div></article>`).join("")}
+      </div>
+      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-extrabold text-slate-950">Status akun</h2><div class="mt-3">${bbUserAccount.getVerificationBadge(user.verificationStatus)}</div><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">${meta.text}</p><button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-nav="${nextRoute}">${user.verificationStatus === "verified" ? "Kembali ke Dashboard" : "Mulai Verifikasi"}</button></aside>
+    </div>`);
+    bindCommonEvents();
+  }
+
+  function renderEkycData(errors = {}) {
+    const mount = document.querySelector("#ekyc-data-diri-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) return renderAuthRequired(mount);
+    const identity = { fullName: user.fullName, nim: user.nim, email: user.email, phone: user.phone, campus: user.campus, address: "", birthDate: "", ...(user.ekyc?.identity || {}) };
+    mount.innerHTML = ekycShell("ekyc-data-diri", "Data Diri Mahasiswa", "Pastikan data sesuai dengan KTP, KTM, dan data kampus kamu.", `<form class="grid gap-4 md:grid-cols-2" data-ekyc-data-form novalidate>
+      ${ekycInput("Nama lengkap", "fullName", identity.fullName, errors.fullName)}
+      ${ekycInput("NIM", "nim", identity.nim, errors.nim)}
+      ${ekycInput("Email kampus", "email", identity.email, errors.email, "email", "bg-slate-50 text-slate-500", "readonly")}
+      ${ekycInput("Nomor telepon", "phone", identity.phone, errors.phone)}
+      ${ekycInput("Asal kampus", "campus", identity.campus, errors.campus)}
+      ${ekycInput("Tanggal lahir", "birthDate", identity.birthDate, errors.birthDate, "date")}
+      <label class="text-sm font-bold text-slate-700 md:col-span-2">Alamat domisili<textarea class="field mt-2 min-h-24" name="address" placeholder="Alamat domisili saat kuliah">${identity.address || ""}</textarea>${bbUserAccount.fieldError(errors, "address")}</label>
+      <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="ekyc">Kembali</button><button class="btn-primary rounded-2xl px-5 py-3">Lanjut Upload Identitas</button></div>
+    </form>`);
+    bindCommonEvents();
+    document.querySelector("[data-ekyc-data-form]")?.addEventListener("submit", event => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+      const nextErrors = {};
+      ["fullName", "nim", "phone", "campus", "birthDate", "address"].forEach(key => { if (!String(data[key] || "").trim()) nextErrors[key] = "Field ini wajib diisi."; });
+      if (!/^[+\d]+$/.test(String(data.phone || "").trim())) nextErrors.phone = "Nomor telepon hanya boleh angka dan simbol +.";
+      if (Object.keys(nextErrors).length) return renderEkycData(nextErrors);
+      bbUserAccount.saveEkycDraft({ identity: data });
+      ui.toast("Data diri tersimpan.");
+      router.navigate("ekyc-upload-identitas");
+    });
+  }
+
+  function ekycInput(label, name, value = "", error = "", type = "text", extraClass = "", attrs = "") {
+    return `<label class="text-sm font-bold text-slate-700">${label}<input class="field mt-2 ${extraClass}" name="${name}" type="${type}" value="${value || ""}" ${attrs}>${error ? `<p class="mt-1 text-xs font-bold text-red-600">${error}</p>` : ""}</label>`;
+  }
+
+  function renderEkycUpload(errors = {}) {
+    const mount = document.querySelector("#ekyc-upload-identitas-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) return renderAuthRequired(mount);
+    const docs = user.ekyc?.documents || {};
+    mount.innerHTML = ekycShell("ekyc-upload-identitas", "Upload Identitas", "Upload KTP dan KTM mahasiswa aktif. Format JPG/PNG dengan ukuran maksimal 5MB.", `<div class="grid gap-5 md:grid-cols-2">
+      ${uploadBox("ktp", "Foto KTP", docs.ktp, errors.ktp)}
+      ${uploadBox("ktm", "Foto KTM", docs.ktm, errors.ktm)}
+      <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="ekyc-data-diri">Kembali</button><button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-upload-next>Lanjut Selfie</button></div>
+    </div>`);
+    bindCommonEvents();
+    bindEkycUploads(renderEkycUpload);
+    document.querySelector("[data-ekyc-upload-next]")?.addEventListener("click", () => {
+      const latest = bbUserAccount.getSessionUser()?.ekyc?.documents || {};
+      const nextErrors = {};
+      if (!latest.ktp?.name) nextErrors.ktp = "Foto KTP wajib diupload.";
+      if (!latest.ktm?.name) nextErrors.ktm = "Foto KTM wajib diupload.";
+      if (Object.keys(nextErrors).length) return renderEkycUpload(nextErrors);
+      router.navigate("ekyc-selfie");
+    });
+  }
+
+  function uploadBox(key, title, file = {}, error = "") {
+    return `<article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
+      <div class="flex items-start justify-between gap-3"><div><h2 class="font-extrabold text-slate-950">${title}</h2><p class="mt-1 text-xs font-bold text-slate-500">JPG/PNG maksimal 5MB</p></div>${file?.name ? `<span class="badge bg-teal-50 text-teal-700">Tersimpan</span>` : `<span class="badge bg-amber-50 text-amber-700">Belum upload</span>`}</div>
+      <div class="mt-4 grid min-h-44 place-items-center overflow-hidden rounded-3xl bg-slate-50 text-center text-sm font-bold text-slate-500">${file?.preview ? `<img src="${file.preview}" alt="${title}" class="h-44 w-full object-cover">` : `${icon("image-up", "mx-auto mb-2 h-8 w-8 text-brand-blue")}Preview ${title}`}</div>
+      ${file?.name ? `<p class="mt-3 truncate text-sm font-bold text-slate-600">${file.name}</p>` : ""}
+      ${error ? `<p class="mt-2 text-xs font-bold text-red-600">${error}</p>` : ""}
+      <label class="btn-secondary mt-4 flex cursor-pointer justify-center rounded-2xl px-5 py-3 text-sm"><input class="sr-only" type="file" accept="image/png,image/jpeg" data-ekyc-file="${key}">${file?.name ? "Ganti File" : "Pilih File"}</label>
+    </article>`;
+  }
+
+  function bindEkycUploads(renderFn) {
+    document.querySelectorAll("[data-ekyc-file]").forEach(input => input.addEventListener("change", event => {
+      const file = event.target.files?.[0];
+      const key = event.target.dataset.ekycFile;
+      if (!file) return;
+      if (!["image/jpeg", "image/png"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+        ui.toast("File harus JPG/PNG dan maksimal 5MB.");
+        return;
+      }
+      const preview = URL.createObjectURL(file);
+      const patch = key === "selfie" ? { selfie: { name: file.name, size: file.size, type: file.type, preview } } : { documents: { [key]: { name: file.name, size: file.size, type: file.type, preview } } };
+      bbUserAccount.saveEkycDraft(patch);
+      ui.toast("File berhasil dipilih.");
+      renderFn();
+    }));
+  }
+
+  function renderEkycSelfie(errors = {}) {
+    const mount = document.querySelector("#ekyc-selfie-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) return renderAuthRequired(mount);
+    const selfie = user.ekyc?.selfie || {};
+    mount.innerHTML = ekycShell("ekyc-selfie", "Selfie Verifikasi", "Ambil atau upload foto wajah yang jelas, tanpa masker, dan sesuai identitas.", `<div class="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
+        <div class="grid min-h-72 place-items-center overflow-hidden rounded-3xl bg-slate-50 text-center text-sm font-bold text-slate-500" data-ekyc-camera-frame>${selfie.preview ? `<img src="${selfie.preview}" alt="Selfie verifikasi" class="h-72 w-full object-cover">` : `${icon("camera", "mx-auto mb-3 h-10 w-10 text-brand-blue")}Preview selfie`}</div>
+        ${errors.selfie ? `<p class="mt-3 text-xs font-bold text-red-600">${errors.selfie}</p>` : ""}
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-ekyc-camera>Aktifkan Kamera</button><label class="btn-secondary flex cursor-pointer justify-center rounded-2xl px-5 py-3"><input class="sr-only" type="file" accept="image/png,image/jpeg" data-ekyc-file="selfie">Upload Selfie</label></div>
+      </section>
+      <aside class="h-fit rounded-3xl bg-blue-50 p-5 text-sm font-bold leading-6 text-blue-800"><h2 class="text-lg font-extrabold">Instruksi selfie</h2><p class="mt-3">Pastikan wajah terlihat penuh, pencahayaan cukup, dan foto bukan hasil edit berlebihan.</p><p class="mt-3">Gunakan upload jika kamera browser tidak aktif di perangkatmu.</p></aside>
+      <div class="lg:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="ekyc-upload-identitas">Kembali</button><button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-selfie-next>Lanjut Review</button></div>
+    </div>`);
+    bindCommonEvents();
+    bindEkycUploads(renderEkycSelfie);
+    document.querySelector("[data-ekyc-camera]")?.addEventListener("click", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const frame = document.querySelector("[data-ekyc-camera-frame]");
+        frame.innerHTML = `<video class="h-72 w-full rounded-3xl object-cover" autoplay playsinline muted></video>`;
+        frame.querySelector("video").srcObject = stream;
+        ui.toast("Kamera aktif. Gunakan upload selfie untuk menyimpan foto.");
+      } catch {
+        ui.toast("Kamera tidak tersedia, gunakan upload foto selfie.");
+      }
+    });
+    document.querySelector("[data-ekyc-selfie-next]")?.addEventListener("click", () => {
+      const latest = bbUserAccount.getSessionUser()?.ekyc?.selfie || {};
+      if (!latest.name) return renderEkycSelfie({ selfie: "Selfie wajib diupload." });
+      router.navigate("ekyc-review");
+    });
+  }
+
+  function renderEkycReview() {
+    const mount = document.querySelector("#ekyc-review-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) return renderAuthRequired(mount);
+    const identity = user.ekyc?.identity || {};
+    const docs = user.ekyc?.documents || {};
+    const selfie = user.ekyc?.selfie || {};
+    mount.innerHTML = ekycShell("ekyc-review", "Review Data e-KYC", "Periksa kembali data sebelum dikirim untuk ditinjau tim BarangBareng.", `<div class="grid gap-5 lg:grid-cols-[1fr_360px]">
+      <section class="grid gap-4">
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><h2 class="font-extrabold text-slate-950">Data diri</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="ekyc-data-diri">Edit</button></div><div class="mt-4 grid gap-3 text-sm font-bold text-slate-600 sm:grid-cols-2">${["fullName", "nim", "email", "phone", "campus", "birthDate", "address"].map(key => `<p class="rounded-2xl bg-slate-50 p-3"><span class="block text-xs text-slate-400">${key}</span>${identity[key] || "-"}</p>`).join("")}</div></article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><h2 class="font-extrabold text-slate-950">Dokumen</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="ekyc-upload-identitas">Edit</button></div><div class="mt-4 grid gap-3 sm:grid-cols-2">${["ktp", "ktm"].map(key => `<p class="rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-600"><span class="block text-xs text-slate-400">${key.toUpperCase()}</span>${docs[key]?.name || "-"}</p>`).join("")}</div></article>
+      </section>
+      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><h2 class="font-extrabold text-slate-950">Selfie</h2><div class="mt-4 overflow-hidden rounded-3xl bg-slate-50">${selfie.preview ? `<img src="${selfie.preview}" alt="Selfie review" class="h-56 w-full object-cover">` : `<div class="grid h-56 place-items-center text-sm font-bold text-slate-500">Belum ada selfie</div>`}</div><button class="mt-4 text-sm font-extrabold text-brand-blue" data-nav="ekyc-selfie">Edit selfie</button><button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-ekyc-submit>Kirim Verifikasi</button></aside>
+    </div>`);
+    bindCommonEvents();
+    document.querySelector("[data-ekyc-submit]")?.addEventListener("click", event => {
+      event.currentTarget.disabled = true;
+      event.currentTarget.textContent = "Mengirim...";
+      bbUserAccount.submitEkyc({ identity, documents: docs, selfie });
+      ui.toast("Verifikasi berhasil dikirim.");
+      setTimeout(() => router.navigate("ekyc-success"), 350);
+    });
+  }
+
+  function renderEkycSuccess() {
+    const mount = document.querySelector("#ekyc-success-view");
+    if (!mount) return;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    if (!user) return renderAuthRequired(mount);
+    mount.innerHTML = ekycShell("ekyc-success", "Verifikasi Berhasil Dikirim", "Tim BarangBareng akan meninjau data kamu dalam 1x24 jam.", `<section class="mx-auto max-w-2xl text-center"><span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-blue-50 text-brand-blue">${icon("shield-check", "h-11 w-11")}</span><h2 class="mt-5 text-2xl font-extrabold text-slate-950">Data sedang ditinjau</h2><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Kami akan memperbarui status akun setelah proses pemeriksaan selesai.</p><div class="mt-5">${bbUserAccount.getVerificationBadge("pending")}</div><button class="btn-primary mt-8 rounded-2xl px-5 py-3" data-nav="dashboard-buyer">Kembali ke Dashboard</button></section>`);
+    bindCommonEvents();
+  }
+  // STUDENT EKYC FEATURE END
+
   // ACCOUNT SETTINGS PAGE START
   const accountPrefsKey = "barangBarengAccountPreferences";
 
@@ -1318,7 +1548,7 @@
           <aside class="grid h-fit gap-6 lg:sticky lg:top-28">
             <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
               <div class="flex items-start gap-4"><span class="grid h-16 w-16 shrink-0 place-items-center rounded-3xl bg-gradient-brand text-xl font-extrabold text-white">${bbUserAccount.initials(user.fullName)}</span><div class="min-w-0"><h2 class="truncate text-xl font-extrabold text-slate-950">${user.fullName}</h2><p class="truncate text-sm font-semibold text-slate-500">${user.email}</p><p class="mt-1 text-sm font-semibold text-slate-500">${user.campus}</p></div></div>
-              <div class="mt-5 flex flex-wrap gap-2">${bbUserAccount.levelBadge(user)}<span class="badge bg-teal-50 text-teal-700">Aktif</span><span class="badge bg-blue-50 text-brand-blue">Terverifikasi</span></div>
+              <div class="mt-5 flex flex-wrap gap-2">${bbUserAccount.levelBadge(user)}<span class="badge bg-teal-50 text-teal-700">Aktif</span>${bbUserAccount.getVerificationBadge(user.verificationStatus)}</div>
               <div class="mt-5 grid grid-cols-2 gap-3 text-sm font-bold text-slate-600"><div class="rounded-2xl bg-slate-50 p-4"><span class="block text-xs text-slate-400">Transaksi</span>${user.successfulTransactions} berhasil</div><div class="rounded-2xl bg-slate-50 p-4"><span class="block text-xs text-slate-400">Rating</span>${Number(user.rating).toFixed(1)} / 5</div></div>
             </article>
 
@@ -1423,7 +1653,7 @@
     const goldBenefit = user.level === "Gold" ? `<section class="mt-6 rounded-3xl bg-amber-50 p-5 text-amber-800"><span class="badge bg-white text-amber-700">Gold Benefit</span><h2 class="mt-3 text-xl font-extrabold">Keuntungan Gold</h2><div class="mt-4 grid gap-3 md:grid-cols-2">${["Diskon biaya admin sebesar 30%.", "Prioritas dalam sistem pencarian.", "Boost listing.", "Barang milik pengguna Gold lebih sering muncul."].map(text => `<p class="rounded-2xl bg-white p-4 text-sm font-bold">${text}</p>`).join("")}</div></section>` : "";
     mount.innerHTML = `<div class="mx-auto max-w-5xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><section class="card p-8">
       <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-        <div class="flex flex-col gap-5 md:flex-row md:items-center"><span class="grid h-24 w-24 place-items-center rounded-[2rem] bg-gradient-brand text-3xl font-extrabold text-white">${bbUserAccount.initials(user.fullName)}</span><div><h1 class="text-3xl font-extrabold text-slate-950">${user.fullName}</h1><p class="text-slate-500">${user.email} - ${user.campus}</p><p class="mt-2">${bbUserAccount.levelBadge(user)} Mahasiswa Terverifikasi - ${user.successfulTransactions} transaksi - Rating ${Number(user.rating).toFixed(1)}</p></div></div>
+        <div class="flex flex-col gap-5 md:flex-row md:items-center"><span class="grid h-24 w-24 place-items-center rounded-[2rem] bg-gradient-brand text-3xl font-extrabold text-white">${bbUserAccount.initials(user.fullName)}</span><div><h1 class="text-3xl font-extrabold text-slate-950">${user.fullName}</h1><p class="text-slate-500">${user.email} - ${user.campus}</p><p class="mt-2 flex flex-wrap gap-2">${bbUserAccount.levelBadge(user)}${bbUserAccount.getVerificationBadge(user.verificationStatus)}<span class="badge bg-slate-50 text-slate-600">${user.successfulTransactions} transaksi</span><span class="badge bg-slate-50 text-slate-600">Rating ${Number(user.rating).toFixed(1)}</span></p></div></div>
         <button class="btn-secondary rounded-2xl px-5 py-3" data-nav="pengaturan-akun">Pengaturan Akun</button>
       </div>
       <div class="mt-7 h-4 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${Math.max(4, user.progressPercent)}%"></div></div>
@@ -1436,5 +1666,5 @@
   renderProfile = renderProfileAccount;
   // USER ACCOUNT FEATURE END
 
-  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, renderAccountSettings, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
+  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, renderAccountSettings, renderForgotPassword, renderEkycStart, renderEkycData, renderEkycUpload, renderEkycSelfie, renderEkycReview, renderEkycSuccess, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
 })();

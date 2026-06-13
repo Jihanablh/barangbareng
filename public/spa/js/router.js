@@ -29,7 +29,14 @@
     "dashboard-buyer": '<section id="buyer-view" data-view="dashboard-buyer"></section>',
     "dashboard-seller": '<section id="seller-view" data-view="dashboard-seller"></section>',
     profile: '<section id="profile-view" data-view="profile"></section>',
-    "pengaturan-akun": '<section id="account-settings-view" data-view="pengaturan-akun"></section>'
+    "pengaturan-akun": '<section id="account-settings-view" data-view="pengaturan-akun"></section>',
+    "lupa-password": '<section id="forgot-password-view" data-view="lupa-password"></section>',
+    ekyc: '<section id="ekyc-view" data-view="ekyc"></section>',
+    "ekyc-data-diri": '<section id="ekyc-data-diri-view" data-view="ekyc-data-diri"></section>',
+    "ekyc-upload-identitas": '<section id="ekyc-upload-identitas-view" data-view="ekyc-upload-identitas"></section>',
+    "ekyc-selfie": '<section id="ekyc-selfie-view" data-view="ekyc-selfie"></section>',
+    "ekyc-review": '<section id="ekyc-review-view" data-view="ekyc-review"></section>',
+    "ekyc-success": '<section id="ekyc-success-view" data-view="ekyc-success"></section>'
   };
 
   window.router = {
@@ -65,7 +72,14 @@
       "dashboard-buyer": "partials/dashboard-buyer.html",
       "dashboard-seller": "partials/dashboard-seller.html",
       profile: "partials/profile.html",
-      "pengaturan-akun": "partials/pengaturan-akun.html"
+      "pengaturan-akun": "partials/pengaturan-akun.html",
+      "lupa-password": "partials/lupa-password.html",
+      ekyc: "partials/ekyc.html",
+      "ekyc-data-diri": "partials/ekyc-data-diri.html",
+      "ekyc-upload-identitas": "partials/ekyc-upload-identitas.html",
+      "ekyc-selfie": "partials/ekyc-selfie.html",
+      "ekyc-review": "partials/ekyc-review.html",
+      "ekyc-success": "partials/ekyc-success.html"
     },
     async navigate(viewName, params = {}) {
       const path = this.views[viewName];
@@ -74,7 +88,14 @@
       if (params.productId && Number.isFinite(Number(params.productId))) state.rememberProduct(Number(params.productId));
       const hashParam = params.productId ? `/${params.productId}` : "";
       const queryParam = params.query ? `?q=${encodeURIComponent(params.query)}` : "";
-      const nextHash = `#/${viewName}${hashParam}${queryParam}`;
+      const routeAlias = {
+        "ekyc-data-diri": "ekyc/data-diri",
+        "ekyc-upload-identitas": "ekyc/upload-identitas",
+        "ekyc-selfie": "ekyc/selfie",
+        "ekyc-review": "ekyc/review",
+        "ekyc-success": "ekyc/success"
+      };
+      const nextHash = `#/${routeAlias[viewName] || viewName}${hashParam}${queryParam}`;
       if (window.location.hash !== nextHash) history.pushState({ viewName, params }, "", nextHash);
 
       const mainEl = document.querySelector("#app-main");
@@ -119,6 +140,16 @@
         id = parts[1];
       } else if (parts[0] === "reviews" && parts[1] === "create") {
         viewName = "reviews-create";
+        id = parts[2];
+      } else if (parts[0] === "ekyc") {
+        const ekycRoutes = {
+          "data-diri": "ekyc-data-diri",
+          "upload-identitas": "ekyc-upload-identitas",
+          selfie: "ekyc-selfie",
+          review: "ekyc-review",
+          success: "ekyc-success"
+        };
+        viewName = ekycRoutes[parts[1]] || "ekyc";
         id = parts[2];
       }
       if (!this.views[viewName]) return;
