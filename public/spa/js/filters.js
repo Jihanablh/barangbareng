@@ -1,7 +1,7 @@
 (function () {
   function productMatches(product) {
     const filters = state.filters;
-    const text = [product.name, product.category, product.subcategory, product.location, product.campus, product.badges.join(" ")].join(" ").toLowerCase();
+    const text = [product.name, product.category, product.subcategory, product.location, product.campus, product.description, product.searchText, product.badges.join(" "), ...(product.tags || [])].join(" ").toLowerCase();
     const queryOk = !filters.query || text.includes(filters.query.toLowerCase());
     const categoryOk = filters.category === "all" || product.category === filters.category;
     const campusOk = filters.campus === "all" || product.campus === filters.campus;
@@ -17,8 +17,10 @@
       (quick === "free" && product.type === "pinjam") ||
       (quick === "rating" && product.rating >= 4.8) ||
       (quick === "cheap" && product.price < 25000) ||
-      (quick === "kos" && product.badges.includes("Cocok untuk Anak Kos")) ||
-      (quick === "event" && product.badges.includes("Event Ready"));
+      (quick === "kos" && (product.category.includes("Kos") || product.badges.includes("Cocok Anak Kos") || product.tags?.includes("anak kos"))) ||
+      (quick === "event" && (product.category.includes("Event") || product.badges.includes("Event Ready") || product.tags?.includes("event"))) ||
+      (quick === "wisuda" && (product.category.includes("Wisuda") || product.tags?.includes("wisuda") || product.tags?.includes("sidang"))) ||
+      (quick === "organisasi" && (product.category.includes("Organisasi") || product.badges.includes("Organisasi") || product.tags?.includes("organisasi")));
     return queryOk && categoryOk && campusOk && typeOk && levelOk && ratingOk && priceOk && quickOk;
   }
 

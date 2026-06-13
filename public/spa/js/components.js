@@ -96,7 +96,7 @@
       </div>
     </section>
     <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div class="mb-8 text-center reveal"><p class="font-bold text-brand-blue">Kategori Quick Access</p><h2 class="mt-2 text-3xl font-extrabold text-slate-950">Apa yang Kamu Butuhkan Hari Ini?</h2><p class="mt-3 text-slate-500">12 kategori barang untuk semua kebutuhan mahasiswa.</p></div>
+      <div class="mb-8 text-center reveal"><p class="font-bold text-brand-blue">Pilih Barang Sesuai Kebutuhanmu</p><h2 class="mt-2 text-3xl font-extrabold text-slate-950">Dari Anak Kos sampai Event Kampus</h2><p class="mt-3 text-slate-500">Dari kebutuhan anak kos, sidang, wisuda, sampai event organisasi kampus.</p></div>
       <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">${BBData.categories.map(categoryCard).join("")}</div>
     </section>
     <section id="how-it-works" class="bg-white py-16"><div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><h2 class="text-3xl font-extrabold text-slate-950">Cara Kerja</h2><div class="mt-6 grid gap-4 md:grid-cols-4">${["Cari barang", "Bayar DP aman", "COD pakai QR", "Kembalikan barang"].map((step, index) => `<article class="card p-5"><span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-brand font-extrabold text-white">0${index + 1}</span><h3 class="mt-4 font-bold">${step}</h3><p class="mt-2 text-sm text-slate-500">Alur dibuat singkat, jelas, dan cocok untuk transaksi sekitar kampus.</p></article>`).join("")}</div></div></section>
@@ -882,7 +882,7 @@
   }
 
   function quickFilters() {
-    return [{ key: "nearby", label: "Terdekat" }, { key: "today", label: "Tersedia Hari Ini" }, { key: "free", label: "Pinjam Gratis" }, { key: "rating", label: "Rating 4.8+" }, { key: "cheap", label: "Harga < Rp25.000" }, { key: "kos", label: "Cocok untuk Anak Kos" }, { key: "event", label: "Cocok untuk Event" }];
+    return [{ key: "today", label: "Tersedia Hari Ini" }, { key: "free", label: "Pinjam Gratis" }, { key: "nearby", label: "Dekat Kampus" }, { key: "kos", label: "Cocok Anak Kos" }, { key: "wisuda", label: "Sidang & Wisuda" }, { key: "event", label: "Event Kampus" }, { key: "organisasi", label: "Organisasi" }, { key: "rating", label: "Top Rated" }, { key: "cheap", label: "Harga < Rp25.000" }];
   }
 
   function selectedProduct() {
@@ -1582,11 +1582,11 @@
         transaction: true,
         promo: false,
         review: true,
-        category: "Elektronik & Produktivitas",
+        category: "Akademik & Presentasi",
         ...(JSON.parse(localStorage.getItem(accountPrefsKey) || "{}"))
       };
     } catch {
-      return { transaction: true, promo: false, review: true, category: "Elektronik & Produktivitas" };
+      return { transaction: true, promo: false, review: true, category: "Akademik & Presentasi" };
     }
   }
 
@@ -1610,7 +1610,7 @@
     }
     const prefs = accountPreferences();
     const goldBenefit = user.level === "Gold" ? `<div class="mt-5 rounded-3xl bg-amber-50 p-5 text-amber-800"><span class="badge bg-white text-amber-700">Gold Benefit</span><div class="mt-4 grid gap-3 sm:grid-cols-2">${["Diskon biaya admin 30%", "Prioritas pencarian", "Boost listing", "Badge Gold Seller"].map(item => `<p class="rounded-2xl bg-white p-4 text-sm font-bold">${item}</p>`).join("")}</div></div>` : "";
-    const categories = ["Elektronik & Produktivitas", "Kamera, Konten & Media Sosial", "Kamar Kos & Daily Living", "Masak & Makan Anak Kos", "Fashion Formal & Acara Kampus", "Event & Organisasi", "Pinjam Gratis"];
+    const categories = ["Anak Kos & Perantau", "Sidang & Wisuda", "Event Kampus", "Organisasi Mahasiswa", "Akademik & Presentasi", "Dokumentasi & Konten", "Outdoor Mahasiswa"];
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <nav class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">

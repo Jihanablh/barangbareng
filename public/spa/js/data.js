@@ -1,142 +1,173 @@
 (function () {
+  const img = query => `https://source.unsplash.com/900x650/?${encodeURIComponent(query)}`;
   const images = {
-    laptop: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
-    mac: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
-    ipad: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=900&q=80",
-    printer: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=900&q=80",
-    projector: "https://images.unsplash.com/photo-1601944179066-29786cb9d32a?auto=format&fit=crop&w=900&q=80",
-    powerbank: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?auto=format&fit=crop&w=900&q=80",
-    hdmi: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80",
-    canon: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=900&q=80",
-    sony: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80",
-    gopro: "https://images.unsplash.com/photo-1523395243481-163f8f6155eb?auto=format&fit=crop&w=900&q=80",
-    tripod: "https://images.unsplash.com/photo-1500634245200-e5245c7574ef?auto=format&fit=crop&w=900&q=80",
-    ring: "https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?auto=format&fit=crop&w=900&q=80",
-    mic: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=900&q=80",
-    calculator: "https://images.unsplash.com/photo-1564473185935-58113cba1e80?auto=format&fit=crop&w=900&q=80",
-    tablet: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=900&q=80",
-    pointer: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=900&q=80",
-    hdd: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=80",
-    desk: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80",
-    fan: "https://images.unsplash.com/photo-1624969862644-791f3dc98927?auto=format&fit=crop&w=900&q=80",
-    rack: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=900&q=80",
-    mirror: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=900&q=80",
-    cooker: "https://images.unsplash.com/photo-1626200419199-391ae4be7a41?auto=format&fit=crop&w=900&q=80",
-    stove: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=80",
-    pan: "https://images.unsplash.com/photo-1592156328697-079f6ee0cfa5?auto=format&fit=crop&w=900&q=80",
-    blender: "https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=900&q=80",
-    iron: "https://images.unsplash.com/photo-1603816245457-fe9c80b740ff?auto=format&fit=crop&w=900&q=80",
-    steamer: "https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=80",
-    vacuum: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80",
-    hanger: "https://images.unsplash.com/photo-1562158070-622a77941113?auto=format&fit=crop&w=900&q=80",
-    suit: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=900&q=80",
-    blazer: "https://images.unsplash.com/photo-1551232864-3f0890e580d9?auto=format&fit=crop&w=900&q=80",
-    kebaya: "https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=900&q=80",
-    toga: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=80",
-    walkie: "https://images.unsplash.com/photo-1574482620826-40685ca5ebd2?auto=format&fit=crop&w=900&q=80",
-    speaker: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=80",
-    tent: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=900&q=80",
-    sleeping: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=900&q=80",
-    umbrella: "https://images.unsplash.com/photo-1524901548305-08eeddc35080?auto=format&fit=crop&w=900&q=80"
+    laptop: img("student laptop desk"), mac: img("macbook student"), ipad: img("ipad tablet study"), printer: img("portable printer"), projector: img("projector classroom"), screen: img("projector screen"), speaker: img("portable speaker event"), mic: img("wireless microphone"), hdmi: img("hdmi cable"), pointer: img("presentation pointer"), calculator: img("scientific calculator"), webcam: img("webcam laptop"), scanner: img("portable scanner"), hdd: img("external hard drive"), canon: img("canon mirrorless camera"), sony: img("sony camera"), gopro: img("gopro action camera"), tripod: img("camera tripod"), ring: img("ring light"), softbox: img("softbox lighting"), gimbal: img("camera gimbal"), clipmic: img("clip on microphone"), greenscreen: img("green screen studio"), backdrop: img("photo backdrop"), cooker: img("mini rice cooker"), iron: img("portable iron"), fan: img("portable fan"), desk: img("folding study table"), mattress: img("folding mattress"), drying: img("folding drying rack"), stove: img("electric portable stove"), pan: img("electric cooking pot"), lamp: img("study lamp"), cable: img("extension cord"), vacuum: img("mini vacuum cleaner"), shoeRack: img("portable shoe rack"), suit: img("formal suit"), blazer: img("women formal blazer"), kebaya: img("graduation kebaya"), shirt: img("white shirt formal"), skirt: img("black formal skirt"), pants: img("black formal pants"), pantofel: img("formal shoes"), heels: img("formal heels"), toga: img("graduation gown"), sash: img("graduation sash"), bouquet: img("graduation bouquet"), steamer: img("garment steamer"), walkie: img("walkie talkie"), tentEvent: img("event tent canopy"), megaphone: img("megaphone"), rollBanner: img("roll up banner stand"), whiteboard: img("portable whiteboard"), tablet: img("tablet attendance"), qrscanner: img("qr barcode scanner"), clipboard: img("clipboard event"), lanyard: img("lanyard event"), tent: img("camping tent"), sleeping: img("sleeping bag"), matras: img("camping mat"), carrier: img("carrier backpack"), headlamp: img("headlamp camping"), cooler: img("cooler box"), chair: img("folding camping chair"), flysheet: img("camping tarp")
   };
 
   const categories = [
-    { id: 1, name: "Elektronik & Produktivitas", image: images.laptop, count: 847, color: "from-blue-600 to-cyan-500", examples: "Laptop, iPad, Proyektor" },
-    { id: 2, name: "Kamera, Konten & Media", image: images.canon, count: 312, color: "from-cyan-500 to-teal-500", examples: "Kamera, Ring Light, Tripod" },
-    { id: 3, name: "Peralatan Kuliah & Akademik", image: images.calculator, count: 189, color: "from-amber-500 to-yellow-500", examples: "Kalkulator, Drawing Tablet" },
-    { id: 4, name: "Kamar Kos & Daily Living", image: images.desk, count: 423, color: "from-green-500 to-emerald-600", examples: "Meja Lipat, Kipas Angin" },
-    { id: 5, name: "Masak & Makan Anak Kos", image: images.cooker, count: 234, color: "from-amber-500 to-rose-500", examples: "Rice Cooker, Kompor Listrik" },
-    { id: 6, name: "Kebersihan & Laundry", image: images.iron, count: 167, color: "from-teal-500 to-blue-500", examples: "Setrika, Steamer, Vacuum" },
-    { id: 7, name: "Fashion Formal & Acara", image: images.suit, count: 256, color: "from-purple-500 to-violet-600", examples: "Jas, Blazer, Toga" },
-    { id: 8, name: "Event, Organisasi & Kepanitiaan", image: images.speaker, count: 134, color: "from-pink-500 to-rose-600", examples: "Speaker, HT, Mic Wireless" },
-    { id: 9, name: "Outdoor, Travel & Healing", image: images.tent, count: 198, color: "from-emerald-500 to-green-700", examples: "Tenda, Sleeping Bag" },
-    { id: 10, name: "Kesehatan & Darurat", image: images.umbrella, count: 89, color: "from-red-500 to-amber-500", examples: "Termometer, P3K" },
-    { id: 11, name: "Beauty & Self-Care", image: images.mirror, count: 112, color: "from-rose-500 to-fuchsia-600", examples: "Hair Dryer, Catokan" },
-    { id: 12, name: "Pinjam Gratis", image: images.umbrella, count: 156, color: "from-teal-500 to-emerald-600", examples: "Mukena, Payung, Charger" }
+    { id: 1, name: "Anak Kos & Perantau", image: images.cooker, count: 520, color: "from-emerald-500 to-teal-600", examples: "Rice cooker, setrika, meja lipat" },
+    { id: 2, name: "Sidang & Wisuda", image: images.toga, count: 310, color: "from-blue-600 to-indigo-500", examples: "Jas, kebaya, toga" },
+    { id: 3, name: "Event Kampus", image: images.projector, count: 420, color: "from-cyan-500 to-blue-600", examples: "Proyektor, speaker, mic" },
+    { id: 4, name: "Organisasi Mahasiswa", image: images.walkie, count: 280, color: "from-violet-500 to-blue-600", examples: "HT, banner, megaphone" },
+    { id: 5, name: "Akademik & Presentasi", image: images.laptop, count: 460, color: "from-amber-500 to-yellow-500", examples: "Laptop, tablet, kalkulator" },
+    { id: 6, name: "Dokumentasi & Konten", image: images.canon, count: 360, color: "from-teal-500 to-cyan-600", examples: "Kamera, tripod, lighting" },
+    { id: 7, name: "Outdoor Mahasiswa", image: images.tent, count: 190, color: "from-green-600 to-emerald-700", examples: "Tenda, sleeping bag, carrier" }
   ];
 
   const campuses = ["Universitas Bakrie", "Universitas Indonesia", "BINUS University", "Universitas Trisakti", "Universitas Gunadarma", "Universitas Negeri Jakarta", "UPN Veteran Jakarta", "Universitas Pancasila"];
-  const codLocations = ["Gerbang kampus utama", "Perpustakaan pusat", "Kantin lantai 1", "Lobby gedung", "Stasiun terdekat", "Kos area sekitar kampus", "Plaza Festival", "Stasiun Manggarai"];
-  const bundles = ["Paket Anak Kos Baru", "Paket Sidang", "Paket Presentasi", "Paket Konten", "Paket Camping", "Paket Event Kampus", "Paket Masak Hemat", "Paket Laundry Kos"];
+  const codLocations = ["Gerbang kampus utama", "Perpustakaan pusat", "Kantin lantai 1", "Lobby gedung", "Stasiun terdekat", "Kos area sekitar kampus", "Aula kampus", "Sekretariat organisasi"];
+  const bundles = ["Paket Anak Kos Baru", "Paket Sidang", "Paket Wisuda", "Paket Presentasi", "Paket Dokumentasi Event", "Paket Kepanitiaan", "Paket Camping Makrab", "Paket Konten Kampus"];
   const vouchers = [
     { code: "HEMATMAHASISWA", discount: 5000, type: "flat", label: "Potongan Rp5.000", minOrder: 20000 },
     { code: "KOSHEMAT", discount: 2500, type: "flat", label: "Gratis biaya transaksi", minOrder: 15000 },
     { code: "SIDANGREADY", discount: 10, type: "percent", label: "Diskon 10% sewa formal", minOrder: 30000 },
-    { code: "BARANGPERTAMA", discount: 7500, type: "flat", label: "Potongan pertama Rp7.500", minOrder: 25000 }
+    { code: "EVENTKAMPUS", discount: 7500, type: "flat", label: "Potongan event kampus", minOrder: 50000 }
   ];
 
-  const seeds = [
-    ["Laptop ASUS VivoBook", "Elektronik & Produktivitas", "Laptop", 25000, "sewa", "Margonda, Depok", "Universitas Indonesia", images.laptop, "Rizky Aulia", "RA", "gold", ["Banyak Dicari", "Budget Friendly"]],
-    ["MacBook Air M1", "Elektronik & Produktivitas", "Laptop Premium", 65000, "sewa", "Kemanggisan, Jakarta Barat", "BINUS University", images.mac, "Nabila Sari", "NS", "gold", ["Premium", "Top Rated"]],
-    ["iPad 9th Gen", "Elektronik & Produktivitas", "Tablet", 35000, "sewa", "Rawamangun, Jakarta Timur", "Universitas Negeri Jakarta", images.ipad, "Farhan Maulana", "FM", "silver", ["Terdekat"]],
-    ["Printer Canon Pixma", "Elektronik & Produktivitas", "Printer", 22000, "sewa", "Lenteng Agung", "Universitas Pancasila", images.printer, "Dewi Lestari", "DL", "silver", ["Cocok untuk Sidang"]],
-    ["Proyektor Mini", "Elektronik & Produktivitas", "Proyektor", 40000, "sewa", "Kuningan, Jakarta Selatan", "Universitas Bakrie", images.projector, "Arga Tama", "AT", "gold", ["Event Ready"]],
-    ["Powerbank 20.000 mAh", "Elektronik & Produktivitas", "Powerbank", 12000, "sewa", "Grogol, Jakarta Barat", "Universitas Trisakti", images.powerbank, "Kevin Putra", "KP", "bronze", ["Budget Friendly"]],
-    ["Kabel HDMI / Converter Type-C", "Elektronik & Produktivitas", "Kabel & Converter", 8000, "sewa", "Pondok Cina", "Universitas Gunadarma", images.hdmi, "Tasya Nabila", "TN", "silver", ["Budget Friendly"]],
-    ["Kamera Canon EOS M50", "Kamera, Konten & Media", "Kamera Mirrorless", 55000, "sewa", "Kuningan, Jakarta Selatan", "Universitas Bakrie", images.canon, "Anisa Dewi", "AD", "gold", ["Top Rated", "Konten Ready"]],
-    ["Sony A6000", "Kamera, Konten & Media", "Kamera Mirrorless", 50000, "sewa", "Depok Town Square", "Universitas Indonesia", images.sony, "Maya Putri", "MP", "gold", ["Banyak Dicari"]],
-    ["GoPro Hero 11", "Kamera, Konten & Media", "Action Cam", 45000, "sewa", "Kalimalang, Bekasi", "Universitas Gunadarma", images.gopro, "Rio Aditya", "RA", "silver", ["Outdoor Ready"]],
-    ["Tripod Kamera", "Kamera, Konten & Media", "Tripod", 15000, "sewa", "Sudirman, Jakarta", "Universitas Bakrie", images.tripod, "Salma Rahma", "SR", "silver", ["Event Ready"]],
-    ["Ring Light", "Kamera, Konten & Media", "Lighting", 18000, "sewa", "Cawang, Jakarta Timur", "UPN Veteran Jakarta", images.ring, "Laras Ayu", "LA", "silver", ["Konten Ready"]],
-    ["Mic Clip-on Wireless", "Kamera, Konten & Media", "Microphone", 22000, "sewa", "Rawamangun, Jakarta Timur", "Universitas Negeri Jakarta", images.mic, "Bima Arya", "BA", "gold", ["Konten Ready"]],
-    ["Kalkulator Scientific Casio", "Peralatan Kuliah & Akademik", "Kalkulator", 8000, "sewa", "Margonda, Depok", "Universitas Indonesia", images.calculator, "Fina Zahra", "FZ", "silver", ["Budget Friendly"]],
-    ["Drawing Tablet Wacom", "Peralatan Kuliah & Akademik", "Drawing Tablet", 30000, "sewa", "Kemanggisan", "BINUS University", images.tablet, "Hana Pratiwi", "HP", "silver", ["Design Ready"]],
-    ["Pointer Presentasi", "Peralatan Kuliah & Akademik", "Presenter", 10000, "sewa", "Grogol", "Universitas Trisakti", images.pointer, "Reno Satria", "RS", "bronze", ["Cocok untuk Sidang"]],
-    ["Hard Disk Eksternal", "Peralatan Kuliah & Akademik", "Storage", 20000, "sewa", "Pondok Cina", "Universitas Gunadarma", images.hdd, "Tasya Nabila", "TN", "silver", ["Terdekat"]],
-    ["Meja Lipat Anak Kos", "Kamar Kos & Daily Living", "Meja", 15000, "sewa", "Kukusan, Depok", "Universitas Indonesia", images.desk, "Dimas Prakoso", "DP", "silver", ["Cocok untuk Anak Kos"]],
-    ["Kipas Angin Portable", "Kamar Kos & Daily Living", "Kipas", 12000, "sewa", "Cawang", "UPN Veteran Jakarta", images.fan, "Nia Amalia", "NA", "silver", ["Cocok untuk Anak Kos"]],
-    ["Rak Susun Portable", "Kamar Kos & Daily Living", "Rak", 13000, "sewa", "Rawamangun", "Universitas Negeri Jakarta", images.rack, "Raka Wijaya", "RW", "bronze", ["Cocok untuk Anak Kos"]],
-    ["Cermin Full Body", "Kamar Kos & Daily Living", "Cermin", 16000, "sewa", "Kemanggisan", "BINUS University", images.mirror, "Mira Kartika", "MK", "silver", ["Terdekat"]],
-    ["Rice Cooker Mini", "Masak & Makan Anak Kos", "Rice Cooker", 14000, "sewa", "Kukusan, Depok", "Universitas Indonesia", images.cooker, "Alya Putri", "AP", "gold", ["Cocok untuk Anak Kos"]],
-    ["Kompor Listrik", "Masak & Makan Anak Kos", "Kompor", 18000, "sewa", "Lenteng Agung", "Universitas Pancasila", images.stove, "Galih Ramadhan", "GR", "silver", ["KOSHEMAT"]],
-    ["Teflon Mini", "Masak & Makan Anak Kos", "Teflon", 8000, "sewa", "Grogol", "Universitas Trisakti", images.pan, "Vina Septi", "VS", "bronze", ["Budget Friendly"]],
-    ["Blender Mini", "Masak & Makan Anak Kos", "Blender", 15000, "sewa", "Kalimalang", "Universitas Gunadarma", images.blender, "Tio Nugraha", "TN", "silver", ["Cocok untuk Anak Kos"]],
-    ["Setrika Philips", "Kebersihan & Laundry", "Setrika", 10000, "sewa", "Rawamangun", "Universitas Negeri Jakarta", images.iron, "Salsa Fitri", "SF", "silver", ["Budget Friendly"]],
-    ["Steamer Baju", "Kebersihan & Laundry", "Steamer", 18000, "sewa", "Kuningan", "Universitas Bakrie", images.steamer, "Yudha Pratama", "YP", "silver", ["Cocok untuk Sidang"]],
-    ["Vacuum Cleaner Mini", "Kebersihan & Laundry", "Vacuum", 17000, "sewa", "Depok", "Universitas Indonesia", images.vacuum, "Reza Fahmi", "RF", "bronze", ["Cocok untuk Anak Kos"]],
-    ["Jemuran Lipat", "Kebersihan & Laundry", "Jemuran", 9000, "sewa", "Cawang", "UPN Veteran Jakarta", images.hanger, "Icha Laras", "IL", "bronze", ["Budget Friendly"]],
-    ["Jas Pria Formal", "Fashion Formal & Acara", "Jas", 35000, "sewa", "Margonda, Depok", "Universitas Indonesia", images.suit, "Bagas Putra", "BP", "gold", ["Cocok untuk Sidang"]],
-    ["Blazer Wanita", "Fashion Formal & Acara", "Blazer", 32000, "sewa", "Kuningan", "Universitas Bakrie", images.blazer, "Aurel Kirana", "AK", "gold", ["Cocok untuk Sidang"]],
-    ["Kebaya Modern", "Fashion Formal & Acara", "Kebaya", 45000, "sewa", "Rawamangun", "Universitas Negeri Jakarta", images.kebaya, "Citra Maharani", "CM", "gold", ["Premium"]],
-    ["Toga Wisuda", "Fashion Formal & Acara", "Toga", 30000, "sewa", "Depok", "Universitas Indonesia", images.toga, "Fajar Nugroho", "FN", "silver", ["Cocok untuk Sidang"]],
-    ["HT Walkie Talkie", "Event, Organisasi & Kepanitiaan", "HT", 22000, "sewa", "Kuningan", "Universitas Bakrie", images.walkie, "Nando Pratama", "NP", "silver", ["Event Ready"]],
-    ["Speaker JBL", "Event, Organisasi & Kepanitiaan", "Speaker", 38000, "sewa", "Kemanggisan", "BINUS University", images.speaker, "Dara Lestari", "DL", "gold", ["Event Ready"]],
-    ["Tenda Camping", "Outdoor, Travel & Healing", "Tenda", 50000, "sewa", "Depok", "Universitas Gunadarma", images.tent, "Yoga Saputra", "YS", "gold", ["Outdoor Ready"]],
-    ["Sleeping Bag", "Outdoor, Travel & Healing", "Sleeping Bag", 18000, "sewa", "Lenteng Agung", "Universitas Pancasila", images.sleeping, "Rani Olivia", "RO", "silver", ["Budget Friendly"]],
-    ["Payung Kampus", "Pinjam Gratis", "Payung", 0, "pinjam", "Gerbang UI", "Universitas Indonesia", images.umbrella, "Komunitas BB", "BB", "gold", ["Pinjam Gratis"]]
+  const owners = [
+    ["Difa Surya", "DS", "gold"], ["Naura Latifa", "NL", "bronze"], ["Rizky Aulia", "RA", "gold"], ["Maya Putri", "MP", "silver"], ["Bagas Putra", "BP", "gold"], ["Anisa Dewi", "AD", "gold"], ["Nabila Sari", "NS", "silver"], ["Farhan Maulana", "FM", "silver"]
+  ];
+  const places = [
+    ["Kuningan, Jakarta Selatan", "Universitas Bakrie"], ["Margonda, Depok", "Universitas Indonesia"], ["Kemanggisan, Jakarta Barat", "BINUS University"], ["Grogol, Jakarta Barat", "Universitas Trisakti"], ["Pondok Cina, Depok", "Universitas Gunadarma"], ["Rawamangun, Jakarta Timur", "Universitas Negeri Jakarta"], ["Pondok Labu, Jakarta Selatan", "UPN Veteran Jakarta"], ["Lenteng Agung, Jakarta Selatan", "Universitas Pancasila"]
   ];
 
-  const products = seeds.map((seed, index) => ({
-    id: index + 1,
-    slug: seed[0].toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
-    name: seed[0],
-    category: seed[1],
-    subcategory: seed[2],
-    price: seed[3],
-    pricePerDay: seed[3],
-    buyPrice: seed[3] * 220,
-    type: seed[4],
-    minDays: 1,
-    maxDays: index % 3 === 0 ? 14 : 7,
-    rating: Number((4.5 + (index % 5) / 10).toFixed(1)),
-    reviewCount: 18 + index * 2,
-    rentedCount: 45 + index * 4,
-    condition: 88 + (index % 10),
-    location: seed[5],
-    campus: seed[6],
-    image: seed[7],
-    gallery: [seed[7], images.laptop, images.canon, images.desk],
-    owner: { name: seed[8], initials: seed[9], level: seed[10], rating: 4.7 + (index % 3) / 10, txCount: 40 + index * 5, verified: true },
-    status: index % 13 === 0 ? "low" : "available",
-    badges: seed[11],
-    description: `${seed[0]} siap dipakai untuk kebutuhan kuliah, kos, event kampus, dan aktivitas harian. Kondisi dicek sebelum serah terima.`,
-    includes: ["Unit utama", "Tas atau box penyimpanan", "Panduan singkat", "Bukti kondisi awal"],
-    notes: "Gunakan dengan hati-hati. COD disepakati bersama di area kampus atau kos terdekat.",
-    reviews: [
-      { name: "Difa S.", initials: "DS", rating: 5, date: "2 hari lalu", text: "Barang bersih, pemilik responsif, proses COD gampang." },
-      { name: "Maya P.", initials: "MP", rating: 4.8, date: "1 minggu lalu", text: "Sesuai foto dan deskripsi. Recommended untuk mahasiswa." }
-    ]
-  }));
+  const productSeeds = [
+    ["Rice Cooker Mini", "Anak Kos & Perantau", "Alat Masak Kos", 14000, "sewa", images.cooker, ["Cocok Anak Kos", "Tersedia"], "Cocok untuk anak kos yang butuh alat masak praktis selama tinggal di perantauan.", ["anak kos", "perantau", "masak", "rice cooker"]],
+    ["Setrika Portable", "Anak Kos & Perantau", "Laundry Kos", 10000, "sewa", images.iron, ["Cocok Anak Kos"], "Cocok untuk merapikan kemeja kuliah, outfit sidang, dan pakaian harian anak kos.", ["anak kos", "laundry", "sidang"]],
+    ["Kipas Angin Portable", "Anak Kos & Perantau", "Kamar Kos", 12000, "sewa", images.fan, ["Cocok Anak Kos"], "Cocok untuk kamar kos yang panas atau kebutuhan sementara saat pindah kos.", ["anak kos", "perantau", "kamar kos"]],
+    ["Meja Lipat Belajar", "Anak Kos & Perantau", "Meja Belajar", 15000, "sewa", images.desk, ["Cocok Anak Kos"], "Cocok untuk belajar, mengerjakan tugas, dan setup laptop di kamar kos kecil.", ["anak kos", "belajar", "akademik"]],
+    ["Kasur Lipat", "Anak Kos & Perantau", "Kamar Kos", 22000, "sewa", images.mattress, ["Cocok Anak Kos"], "Cocok untuk mahasiswa perantau, tamu kos, atau kebutuhan tidur sementara saat pindahan.", ["anak kos", "perantau", "kasur"]],
+    ["Jemuran Lipat", "Anak Kos & Perantau", "Laundry Kos", 9000, "sewa", images.drying, ["Cocok Anak Kos"], "Cocok untuk menjemur pakaian di kos dengan ruang terbatas.", ["anak kos", "laundry", "jemuran"]],
+    ["Kompor Listrik Portable", "Anak Kos & Perantau", "Alat Masak Kos", 18000, "sewa", images.stove, ["Cocok Anak Kos"], "Cocok untuk masak hemat di kos tanpa perlu membeli kompor baru.", ["anak kos", "masak", "perantau"]],
+    ["Panci Listrik Mini", "Anak Kos & Perantau", "Alat Masak Kos", 13000, "sewa", images.pan, ["Cocok Anak Kos"], "Cocok untuk merebus mi, memasak lauk sederhana, dan kebutuhan makan anak kos.", ["anak kos", "masak", "panci"]],
+    ["Lampu Belajar", "Anak Kos & Perantau", "Belajar", 8000, "pinjam", images.lamp, ["Pinjam Gratis", "Cocok Anak Kos"], "Cocok untuk belajar malam, mengerjakan tugas, atau persiapan ujian di kos.", ["anak kos", "belajar", "ujian"]],
+    ["Kabel Roll", "Anak Kos & Perantau", "Kelistrikan", 10000, "sewa", images.cable, ["Cocok Anak Kos", "Event Ready"], "Cocok untuk kamar kos, presentasi kelompok, dan kebutuhan colokan tambahan saat event kecil.", ["anak kos", "event", "kabel"]],
+    ["Vacuum Cleaner Mini", "Anak Kos & Perantau", "Kebersihan Kos", 17000, "sewa", images.vacuum, ["Cocok Anak Kos"], "Cocok untuk membersihkan kamar kos sebelum pindahan, tamu, atau inspeksi kamar.", ["anak kos", "kebersihan"]],
+    ["Rak Sepatu Portable", "Anak Kos & Perantau", "Kamar Kos", 9000, "sewa", images.shoeRack, ["Cocok Anak Kos"], "Cocok untuk menata sepatu di kos sementara tanpa membeli rak baru.", ["anak kos", "rak", "perantau"]],
+
+    ["Jas Formal Pria", "Sidang & Wisuda", "Pakaian Formal", 35000, "sewa", images.suit, ["Cocok Wisuda", "Cocok Sidang"], "Cocok untuk sidang akhir, seminar proposal, wawancara magang, dan acara formal kampus.", ["sidang", "wisuda", "formal", "jas"]],
+    ["Blazer Formal Wanita", "Sidang & Wisuda", "Pakaian Formal", 32000, "sewa", images.blazer, ["Cocok Sidang"], "Cocok untuk sidang, presentasi akhir, interview magang, dan acara resmi kampus.", ["sidang", "formal", "blazer"]],
+    ["Kebaya Wisuda", "Sidang & Wisuda", "Pakaian Wisuda", 45000, "sewa", images.kebaya, ["Cocok Wisuda", "Top Rated"], "Cocok untuk wisuda, yudisium, foto keluarga, dan acara kelulusan kampus.", ["wisuda", "kebaya", "yudisium"]],
+    ["Kemeja Putih", "Sidang & Wisuda", "Pakaian Formal", 18000, "sewa", images.shirt, ["Cocok Sidang"], "Cocok untuk sidang, seminar proposal, praktikum formal, dan acara organisasi resmi.", ["sidang", "kemeja", "formal"]],
+    ["Rok Hitam Formal", "Sidang & Wisuda", "Pakaian Formal", 18000, "sewa", images.skirt, ["Cocok Sidang"], "Cocok untuk sidang, wawancara, dan acara kampus yang membutuhkan dress code formal.", ["sidang", "formal", "rok"]],
+    ["Celana Bahan Hitam", "Sidang & Wisuda", "Pakaian Formal", 18000, "sewa", images.pants, ["Cocok Sidang"], "Cocok untuk sidang akhir, seminar proposal, dan presentasi resmi di kampus.", ["sidang", "formal", "celana"]],
+    ["Sepatu Pantofel", "Sidang & Wisuda", "Sepatu Formal", 25000, "sewa", images.pantofel, ["Cocok Wisuda"], "Cocok untuk sidang, wisuda, interview magang, dan acara formal organisasi.", ["sidang", "wisuda", "sepatu"]],
+    ["Heels Formal", "Sidang & Wisuda", "Sepatu Formal", 25000, "sewa", images.heels, ["Cocok Wisuda"], "Cocok untuk wisuda, yudisium, sidang, dan foto formal kampus.", ["wisuda", "sidang", "heels"]],
+    ["Toga Wisuda", "Sidang & Wisuda", "Perlengkapan Wisuda", 30000, "sewa", images.toga, ["Cocok Wisuda"], "Cocok untuk wisuda, foto studio, yudisium, dan dokumentasi kelulusan.", ["wisuda", "toga", "kelulusan"]],
+    ["Selempang Wisuda", "Sidang & Wisuda", "Aksesori Wisuda", 12000, "sewa", images.sash, ["Cocok Wisuda"], "Cocok untuk foto wisuda, selebrasi kelulusan, dan hadiah teman kampus.", ["wisuda", "selempang"]],
+    ["Buket Wisuda", "Sidang & Wisuda", "Aksesori Wisuda", 15000, "sewa", images.bouquet, ["Cocok Wisuda"], "Cocok untuk properti foto wisuda, yudisium, dan surprise kelulusan.", ["wisuda", "buket"]],
+    ["Steamer Baju Portable", "Sidang & Wisuda", "Perawatan Pakaian", 18000, "sewa", images.steamer, ["Cocok Sidang", "Cocok Wisuda"], "Cocok untuk merapikan jas, kebaya, dan kemeja sebelum sidang atau wisuda.", ["sidang", "wisuda", "steamer"]],
+
+    ["Proyektor", "Event Kampus", "Presentasi Event", 40000, "sewa", images.projector, ["Event Ready", "Top Rated"], "Cocok untuk seminar, workshop, kelas besar, lomba, dan presentasi organisasi kampus.", ["event", "proyektor", "seminar", "presentasi"]],
+    ["Screen Proyektor", "Event Kampus", "Presentasi Event", 25000, "sewa", images.screen, ["Event Ready"], "Cocok untuk seminar, nobar kampus, workshop, dan presentasi acara organisasi.", ["event", "proyektor", "screen"]],
+    ["Speaker Portable", "Event Kampus", "Audio Event", 38000, "sewa", images.speaker, ["Event Ready", "Top Rated"], "Cocok untuk seminar kecil, bazar, latihan UKM, dan gathering mahasiswa.", ["event", "speaker", "organisasi"]],
+    ["Microphone Wireless", "Event Kampus", "Audio Event", 25000, "sewa", images.mic, ["Event Ready"], "Cocok untuk moderator seminar, MC lomba, workshop, dan acara organisasi.", ["event", "microphone", "mc"]],
+    ["Tripod Kamera", "Event Kampus", "Dokumentasi Event", 15000, "sewa", images.tripod, ["Event Ready"], "Cocok untuk dokumentasi seminar, foto kepanitiaan, dan konten kegiatan kampus.", ["event", "dokumentasi", "tripod"]],
+    ["Ring Light", "Event Kampus", "Lighting Event", 18000, "sewa", images.ring, ["Konten Ready"], "Cocok untuk booth dokumentasi, live streaming, tugas konten, dan video organisasi.", ["event", "konten", "lighting"]],
+    ["Lighting Studio Mini", "Event Kampus", "Lighting Event", 30000, "sewa", images.softbox, ["Event Ready"], "Cocok untuk dokumentasi indoor, photoshoot UKM, dan video kampanye organisasi.", ["event", "konten", "lighting"]],
+    ["Kamera DSLR", "Event Kampus", "Dokumentasi Event", 50000, "sewa", images.canon, ["Event Ready", "Top Rated"], "Cocok untuk dokumentasi seminar, lomba, kepanitiaan, dan acara kampus.", ["event", "kamera", "dokumentasi"]],
+    ["HT / Walkie Talkie", "Event Kampus", "Koordinasi Event", 22000, "sewa", images.walkie, ["Event Ready", "Organisasi"], "Cocok untuk koordinasi panitia event kampus, makrab, lomba, dan kegiatan organisasi.", ["event", "organisasi", "ht", "walkie talkie"]],
+    ["Tenda Lipat Event", "Event Kampus", "Perlengkapan Event", 70000, "sewa", images.tentEvent, ["Event Ready"], "Cocok untuk bazar kampus, booth UKM, pendaftaran acara, dan kegiatan outdoor kampus.", ["event", "tenda", "booth"]],
+
+    ["Megaphone", "Organisasi Mahasiswa", "Koordinasi Panitia", 20000, "sewa", images.megaphone, ["Organisasi", "Event Ready"], "Cocok untuk briefing panitia, lomba kampus, aksi sosial, dan kegiatan lapangan organisasi.", ["organisasi", "event", "megaphone"]],
+    ["Printer Portable", "Organisasi Mahasiswa", "Administrasi Event", 22000, "sewa", images.printer, ["Organisasi"], "Cocok untuk cetak rundown, surat panitia, label peserta, dan kebutuhan sekretariat event.", ["organisasi", "printer", "panitia"]],
+    ["Roll Banner Stand", "Organisasi Mahasiswa", "Branding Event", 18000, "sewa", images.rollBanner, ["Organisasi", "Event Ready"], "Cocok untuk seminar, bazar, open recruitment, dan booth organisasi mahasiswa.", ["organisasi", "event", "banner"]],
+    ["Papan Tulis Portable", "Organisasi Mahasiswa", "Meeting", 20000, "sewa", images.whiteboard, ["Organisasi"], "Cocok untuk rapat divisi, kelas tambahan, workshop, dan brainstorming kepanitiaan.", ["organisasi", "meeting", "whiteboard"]],
+    ["Tablet Absensi", "Organisasi Mahasiswa", "Check-in Event", 30000, "sewa", images.tablet, ["Organisasi", "Event Ready"], "Cocok untuk absensi peserta, check-in seminar, dan registrasi event kampus.", ["organisasi", "absensi", "event"]],
+    ["QR Scanner Event", "Organisasi Mahasiswa", "Check-in Event", 20000, "sewa", images.qrscanner, ["Organisasi", "Event Ready"], "Cocok untuk scan tiket, absensi QR, dan validasi peserta acara kampus.", ["organisasi", "qr", "event"]],
+    ["Clipboard Panitia", "Organisasi Mahasiswa", "Administrasi Event", 5000, "pinjam", images.clipboard, ["Pinjam Gratis", "Organisasi"], "Cocok untuk panitia registrasi, lomba, survei lapangan, dan checklist acara.", ["organisasi", "panitia", "clipboard"]],
+    ["Lanyard Event", "Organisasi Mahasiswa", "Atribut Panitia", 5000, "pinjam", images.lanyard, ["Pinjam Gratis", "Organisasi"], "Cocok untuk identitas panitia seminar, lomba, open recruitment, dan gathering UKM.", ["organisasi", "lanyard", "event"]],
+    ["Laptop Presentasi", "Organisasi Mahasiswa", "Presentasi Event", 30000, "sewa", images.laptop, ["Organisasi", "Event Ready"], "Cocok untuk operator seminar, presentasi sponsor, dan kebutuhan kepanitiaan acara.", ["organisasi", "laptop", "presentasi"]],
+    ["Kabel HDMI", "Organisasi Mahasiswa", "Kabel Presentasi", 8000, "pinjam", images.hdmi, ["Pinjam Gratis", "Event Ready"], "Cocok untuk sambungan proyektor saat presentasi kelas, seminar, dan rapat organisasi.", ["organisasi", "event", "hdmi", "presentasi"]],
+
+    ["Laptop ASUS VivoBook", "Akademik & Presentasi", "Laptop", 25000, "sewa", images.laptop, ["Top Rated", "Budget Friendly"], "Cocok untuk tugas kuliah, presentasi, ujian online, dan kerja kelompok.", ["akademik", "presentasi", "laptop"]],
+    ["MacBook Air M1", "Akademik & Presentasi", "Laptop", 65000, "sewa", images.mac, ["Top Rated"], "Cocok untuk editing tugas multimedia, presentasi final, dan produksi portofolio kampus.", ["akademik", "presentasi", "editing"]],
+    ["iPad 9th Gen", "Akademik & Presentasi", "Tablet", 35000, "sewa", images.ipad, ["Akademik"], "Cocok untuk catatan digital, membaca jurnal, desain ringan, dan presentasi kelas.", ["akademik", "tablet", "presentasi"]],
+    ["Stylus Pen", "Akademik & Presentasi", "Aksesori Tablet", 12000, "sewa", images.pointer, ["Akademik"], "Cocok untuk mencatat materi kuliah, membuat sketsa tugas, dan anotasi slide.", ["akademik", "stylus", "catatan"]],
+    ["Calculator Scientific", "Akademik & Presentasi", "Kalkulator", 8000, "pinjam", images.calculator, ["Pinjam Gratis", "Akademik"], "Cocok untuk ujian, praktikum, statistik, akuntansi, dan tugas hitungan kampus.", ["akademik", "kalkulator", "ujian"]],
+    ["Printer", "Akademik & Presentasi", "Printer", 22000, "sewa", images.printer, ["Akademik"], "Cocok untuk cetak tugas, proposal, berkas sidang, dan dokumen organisasi.", ["akademik", "printer", "sidang"]],
+    ["Scanner Portable", "Akademik & Presentasi", "Scanner", 18000, "sewa", images.scanner, ["Akademik"], "Cocok untuk scan berkas beasiswa, dokumen sidang, dan arsip organisasi.", ["akademik", "scanner", "dokumen"]],
+    ["Webcam", "Akademik & Presentasi", "Kelas Online", 16000, "sewa", images.webcam, ["Akademik"], "Cocok untuk kelas online, wawancara magang, webinar, dan sidang daring.", ["akademik", "webcam", "online"]],
+    ["Pointer Presentasi", "Akademik & Presentasi", "Presenter", 10000, "sewa", images.pointer, ["Akademik", "Cocok Sidang"], "Cocok untuk presentasi kelas, seminar proposal, sidang, dan pitching organisasi.", ["akademik", "presentasi", "sidang"]],
+    ["Hard Disk External", "Akademik & Presentasi", "Storage", 20000, "sewa", images.hdd, ["Akademik"], "Cocok untuk backup video tugas, file skripsi, dokumentasi event, dan portofolio.", ["akademik", "storage", "backup"]],
+
+    ["Kamera Canon EOS M50", "Dokumentasi & Konten", "Kamera Mirrorless", 55000, "sewa", images.canon, ["Top Rated", "Konten Ready"], "Cocok untuk dokumentasi event kampus, sidang, wisuda, konten organisasi, dan tugas multimedia.", ["kamera", "konten", "event", "wisuda"]],
+    ["Sony A6000", "Dokumentasi & Konten", "Kamera Mirrorless", 50000, "sewa", images.sony, ["Top Rated", "Konten Ready"], "Cocok untuk foto produk bazar, dokumentasi UKM, portofolio, dan konten kampus.", ["kamera", "konten", "dokumentasi"]],
+    ["GoPro Hero", "Dokumentasi & Konten", "Action Cam", 45000, "sewa", images.gopro, ["Outdoor Ready"], "Cocok untuk dokumentasi makrab, kegiatan outdoor, vlog kampus, dan liputan UKM.", ["kamera", "outdoor", "konten"]],
+    ["Stabilizer / Gimbal", "Dokumentasi & Konten", "Video Gear", 35000, "sewa", images.gimbal, ["Konten Ready"], "Cocok untuk video aftermovie event, konten organisasi, dan dokumentasi kegiatan kampus.", ["konten", "video", "event"]],
+    ["Microphone Clip-on", "Dokumentasi & Konten", "Audio Konten", 22000, "sewa", images.clipmic, ["Konten Ready"], "Cocok untuk wawancara tugas, podcast kampus, video organisasi, dan liputan event.", ["konten", "audio", "podcast"]],
+    ["Softbox Lighting", "Dokumentasi & Konten", "Lighting", 28000, "sewa", images.softbox, ["Konten Ready"], "Cocok untuk video tugas, photoshoot organisasi, konten produk bazar, dan studio kecil.", ["konten", "lighting", "foto"]],
+    ["Green Screen Portable", "Dokumentasi & Konten", "Studio Portable", 25000, "sewa", images.greenscreen, ["Konten Ready"], "Cocok untuk video kreatif, presentasi multimedia, dan produksi konten kampus.", ["konten", "video", "green screen"]],
+    ["Backdrop Foto", "Dokumentasi & Konten", "Foto Studio", 22000, "sewa", images.backdrop, ["Konten Ready"], "Cocok untuk foto wisuda, foto kepanitiaan, katalog bazar, dan konten organisasi.", ["konten", "foto", "wisuda"]],
+
+    ["Tenda Camping", "Outdoor Mahasiswa", "Camping", 50000, "sewa", images.tent, ["Outdoor Ready"], "Cocok untuk makrab, camping UKM, kegiatan alam, dan healing bareng teman kampus.", ["outdoor", "camping", "makrab"]],
+    ["Sleeping Bag", "Outdoor Mahasiswa", "Camping", 18000, "sewa", images.sleeping, ["Outdoor Ready"], "Cocok untuk camping, makrab, kegiatan alam, dan perjalanan organisasi kampus.", ["outdoor", "camping", "makrab"]],
+    ["Matras Camping", "Outdoor Mahasiswa", "Camping", 12000, "sewa", images.matras, ["Outdoor Ready"], "Cocok untuk alas tidur saat camping, makrab, dan kegiatan outdoor mahasiswa.", ["outdoor", "camping", "matras"]],
+    ["Carrier Bag", "Outdoor Mahasiswa", "Tas Outdoor", 30000, "sewa", images.carrier, ["Outdoor Ready"], "Cocok untuk perjalanan makrab, naik gunung, dan kegiatan lapangan organisasi.", ["outdoor", "carrier", "travel"]],
+    ["Headlamp", "Outdoor Mahasiswa", "Penerangan Outdoor", 10000, "pinjam", images.headlamp, ["Pinjam Gratis", "Outdoor Ready"], "Cocok untuk camping, kegiatan malam, dan acara outdoor kampus.", ["outdoor", "headlamp", "camping"]],
+    ["Cooler Box", "Outdoor Mahasiswa", "Perlengkapan Outdoor", 25000, "sewa", images.cooler, ["Outdoor Ready"], "Cocok untuk bazar makanan, piknik organisasi, makrab, dan kegiatan outdoor kampus.", ["outdoor", "event", "cooler"]]
+  ];
+
+  const products = productSeeds.map((seed, index) => {
+    const owner = owners[index % owners.length];
+    const place = places[index % places.length];
+    const name = seed[0];
+    const category = seed[1];
+    const tags = seed[8];
+    const rating = Number((4.5 + (index % 5) / 10).toFixed(1));
+    return {
+      id: index + 1,
+      slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+      name,
+      category,
+      subcategory: seed[2],
+      price: seed[3],
+      pricePerDay: seed[3],
+      buyPrice: Math.max(150000, seed[3] * 220),
+      type: seed[4],
+      minDays: 1,
+      maxDays: category === "Outdoor Mahasiswa" ? 10 : 7,
+      rating,
+      reviewCount: 28 + index * 2,
+      rentedCount: 52 + index * 3,
+      condition: 88 + (index % 10),
+      location: place[0],
+      campus: place[1],
+      image: seed[5],
+      gallery: [seed[5], images.laptop, images.canon, images.cooker].filter(Boolean),
+      owner: { name: owner[0], initials: owner[1], level: owner[2], rating: Number((4.6 + (index % 4) / 10).toFixed(1)), txCount: 35 + index * 4, verified: true },
+      status: index % 17 === 0 ? "low" : "available",
+      badges: seed[6],
+      description: seed[7],
+      tags,
+      searchText: [name, category, seed[2], seed[7], ...tags, ...seed[6], place[0], place[1]].join(" ").toLowerCase(),
+      includes: includedItems(seed[2], name),
+      specifications: specifications(seed[2], name),
+      notes: "Gunakan dengan hati-hati. COD disepakati bersama di area kampus, kos, atau titik temu yang aman.",
+      rules: ["Gunakan sesuai kesepakatan", "Kembalikan tepat waktu", "Cek kondisi barang bersama saat serah terima"],
+      reviews: [
+        { name: "Difa S.", initials: "DS", rating: 5, date: "2 hari lalu", text: "Barang sesuai kebutuhan kampus dan proses COD rapi." },
+        { name: "Maya P.", initials: "MP", rating: 4.8, date: "1 minggu lalu", text: "Pemilik responsif, cocok untuk kebutuhan mahasiswa." }
+      ]
+    };
+  });
+
+  function includedItems(subcategory, name) {
+    if (/kamera|dslr|mirrorless/i.test(subcategory + name)) return ["Kamera", "Lensa", "Baterai", "Charger", "Tas kamera"];
+    if (/proyektor/i.test(name)) return ["Proyektor", "Kabel HDMI", "Remote", "Tas penyimpanan"];
+    if (/pakaian|formal|wisuda|sepatu/i.test(subcategory + name)) return ["Item utama", "Hanger", "Cover pakaian", "Bukti kondisi awal"];
+    if (/camping|outdoor|tenda|sleeping|carrier/i.test(subcategory + name)) return ["Unit utama", "Tas penyimpanan", "Panduan lipat", "Bukti kondisi awal"];
+    if (/audio|speaker|microphone|ht|walkie/i.test(subcategory + name)) return ["Unit utama", "Charger/baterai", "Kabel pendukung", "Panduan singkat"];
+    return ["Unit utama", "Tas atau box penyimpanan", "Panduan singkat", "Bukti kondisi awal"];
+  }
+
+  function specifications(subcategory, name) {
+    if (/laptop|macbook/i.test(name)) return ["Siap presentasi", "Baterai normal", "Charger tersedia", "Aplikasi dasar tersedia"];
+    if (/kamera|dslr|mirrorless/i.test(subcategory + name)) return ["Foto dan video", "Lensa kit", "Baterai cadangan", "Memory card opsional"];
+    if (/proyektor/i.test(name)) return ["HDMI input", "Cocok ruang kelas", "Remote tersedia", "Brightness event kampus"];
+    if (/rice|kompor|panci/i.test(name)) return ["Ukuran anak kos", "Hemat tempat", "Mudah dibersihkan", "Siap pakai harian"];
+    return ["Kondisi terawat", "Cocok kebutuhan kampus", "Mudah dibawa", "Siap COD sekitar kampus"];
+  }
 
   window.BBData = { images, products, categories, campuses, codLocations, bundles, vouchers };
 })();

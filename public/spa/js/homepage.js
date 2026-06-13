@@ -4,28 +4,24 @@
   const icon = (name, cls = "h-5 w-5") => components.icon(name, cls);
 
   const featuredNames = [
+    "Rice Cooker Mini",
+    "Jas Formal Pria",
+    "Kebaya Wisuda",
+    "Proyektor",
+    "HT / Walkie Talkie",
     "Laptop ASUS VivoBook",
     "Kamera Canon EOS M50",
-    "Rice Cooker Mini",
-    "Jas Pria Formal",
-    "Setrika Philips",
-    "Tenda Camping",
-    "Speaker JBL",
-    "Proyektor Mini"
+    "Tenda Camping"
   ];
 
   const categories = [
-    ["Elektronik & Produktivitas", "Laptop, iPad, proyektor", "847 barang", "Laptop ASUS VivoBook"],
-    ["Kamera, Konten & Media Sosial", "Kamera, ring light, tripod", "312 barang", "Kamera Canon EOS M50"],
-    ["Kamar Kos & Daily Living", "Meja lipat, kipas, rak susun", "320 barang", "Meja Lipat Anak Kos"],
-    ["Masak & Makan Anak Kos", "Rice cooker, teflon, blender", "265 barang", "Rice Cooker Mini"],
-    ["Kebersihan & Laundry", "Setrika, steamer, vacuum", "184 barang", "Setrika Philips"],
-    ["Fashion Formal & Acara Kampus", "Jas, kebaya, toga", "226 barang", "Jas Pria Formal"],
-    ["Event & Organisasi", "HT, speaker, mic", "198 barang", "Speaker JBL"],
-    ["Outdoor & Travel", "Tenda, sleeping bag", "142 barang", "Tenda Camping"],
-    ["Kesehatan & Darurat", "Termometer, P3K, payung", "95 barang", "Payung Kampus"],
-    ["Beauty & Self-Care", "Hair dryer, mirror, styling kit", "118 barang", "Cermin Full Body"],
-    ["Pinjam Gratis", "Payung, charger, buku", "73 barang", "Payung Kampus"]
+    ["Anak Kos & Perantau", "Rice cooker, setrika, meja lipat", "520 barang", "Rice Cooker Mini"],
+    ["Sidang & Wisuda", "Jas, kebaya, toga, sepatu formal", "310 barang", "Jas Formal Pria"],
+    ["Event Kampus", "Proyektor, speaker, mic, tenda event", "420 barang", "Proyektor"],
+    ["Organisasi Mahasiswa", "HT, banner, megaphone, tablet absensi", "280 barang", "HT / Walkie Talkie"],
+    ["Akademik & Presentasi", "Laptop, tablet, kalkulator, printer", "460 barang", "Laptop ASUS VivoBook"],
+    ["Dokumentasi & Konten", "Kamera, tripod, ring light, softbox", "360 barang", "Kamera Canon EOS M50"],
+    ["Outdoor Mahasiswa", "Tenda, sleeping bag, carrier", "190 barang", "Tenda Camping"]
   ];
 
   const useCases = [
@@ -37,7 +33,7 @@
 
   const bundles = [
     ["Paket Anak Kos Baru", "Meja lipat, kipas, rak susun, jemuran", "Mulai Rp28.000/hari"],
-    ["Paket Sidang", "Jas, kemeja, sepatu formal, tripod", "Mulai Rp35.000/hari"],
+    ["Paket Sidang & Wisuda", "Jas, kemeja, sepatu formal, steamer", "Mulai Rp35.000/hari"],
     ["Paket Presentasi", "Laptop, proyektor, pointer, HDMI", "Mulai Rp45.000/hari"],
     ["Paket Konten", "Kamera, tripod, ring light, mic", "Mulai Rp60.000/hari"],
     ["Paket Camping", "Tenda, matras, sleeping bag, lampu", "Mulai Rp50.000/hari"],
@@ -58,8 +54,8 @@
   ];
 
   const freeItems = [
-    ["Payung", BBData.images.umbrella], ["Kabel HDMI", BBData.images.hdmi], ["Kalkulator", BBData.images.calculator], ["Buku Referensi", BBData.images.tablet],
-    ["Charger HP", BBData.images.powerbank], ["Lunch Box", BBData.images.cooker], ["Jas Cadangan", BBData.images.suit], ["Tripod", BBData.images.tripod]
+    ["Kabel HDMI", BBData.images.hdmi], ["Calculator Scientific", BBData.images.calculator], ["Clipboard Panitia", BBData.images.clipboard], ["Lanyard Event", BBData.images.lanyard],
+    ["Headlamp", BBData.images.headlamp], ["Lampu Belajar", BBData.images.lamp], ["Tripod Kamera", BBData.images.tripod], ["Kabel Roll", BBData.images.cable]
   ];
 
   const faq = [
@@ -98,7 +94,7 @@
     const mount = document.querySelector("#home-view");
     if (!mount) return;
     const featured = featuredNames.map(byName);
-    const preview = [byName("Kamera Canon EOS M50"), byName("Rice Cooker Mini"), byName("Jas Pria Formal")];
+    const preview = [byName("Kamera Canon EOS M50"), byName("Rice Cooker Mini"), byName("Jas Formal Pria")];
     mount.innerHTML = `
       <section class="relative bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 pt-[72px]">
         <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,.96fr)] lg:px-8 lg:py-20">
@@ -114,7 +110,7 @@
                 <select id="home-campus" class="field min-w-0 lg:col-span-3">${components.optionList(["all", ...BBData.campuses], "all", "Kampus/Lokasi")}</select>
                 <button class="btn-primary w-full rounded-2xl px-5 py-3 lg:col-span-2" id="home-search-btn">Cari Barang</button>
               </div>
-              <div class="mt-4 flex gap-2 overflow-x-auto pb-1">${["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Tenda Camping", "Proyektor", "Setrika", "Tripod"].map(chip => `<button class="badge shrink-0 bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
+              <div class="mt-4 flex gap-2 overflow-x-auto pb-1">${["anak kos", "wisuda", "sidang", "event", "organisasi", "kamera", "proyektor", "rice cooker", "jas"].map(chip => `<button class="badge shrink-0 bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
             </div>
           </div>
           <div class="relative hidden min-h-[520px] lg:block">
@@ -139,7 +135,7 @@
         </div>
       </section>
 
-      <div id="categories">${sectionHeader("Temukan Barang Sesuai Kebutuhanmu", "Pilih kategori yang paling sesuai dengan kebutuhan kuliah, kos, event, atau aktivitas harianmu.")}</div>
+      <div id="categories">${sectionHeader("Pilih Barang Sesuai Kebutuhanmu", "Dari kebutuhan anak kos, sidang, wisuda, sampai event organisasi kampus.")}</div>
       <section class="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8"><div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">${categories.map(category => {
         const item = byName(category[3]);
         return `<button class="product-card card overflow-hidden text-left" data-home-category="${category[0]}"><img src="${item.image}" alt="${category[0]}" class="h-32 w-full object-cover"><div class="p-5"><strong class="text-slate-950">${category[0]}</strong><p class="mt-2 text-sm text-slate-500">${category[1]}</p><p class="mt-3 text-xs font-bold text-brand-blue">${category[2]}</p></div></button>`;
@@ -147,8 +143,8 @@
 
       ${sectionHeader("Lagi Banyak Dicari", "Barang populer yang sering disewa mahasiswa minggu ini.")}
       <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div class="mb-5 flex gap-2 overflow-x-auto pb-1">${["Semua", "Elektronik", "Anak Kos", "Formal", "Event", "Pinjam Gratis"].map((tab, index) => `<button class="badge shrink-0 ${index === 0 ? "bg-brand-blue text-white" : "bg-white text-slate-600"}" data-featured-tab="${tab}">${tab}</button>`).join("")}</div>
-        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">${featured.map(item => components.productCard(item)).join("")}</div>
+        <div class="mb-5 flex gap-2 overflow-x-auto pb-1">${["Semua", "Anak Kos", "Sidang & Wisuda", "Event Kampus", "Organisasi", "Dokumentasi", "Akademik"].map((tab, index) => `<button class="badge shrink-0 ${index === 0 ? "bg-brand-blue text-white" : "bg-white text-slate-600"}" data-featured-tab="${tab}">${tab}</button>`).join("")}</div>
+        <div id="featured-products" class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">${featured.map(item => components.productCard(item)).join("")}</div>
       </section>
 
       <section class="bg-white py-16">${sectionInner("Solusi Praktis untuk Kebutuhan Anak Rantau", "Dari kebutuhan kos, sidang, event kampus, sampai konten media sosial, semua bisa dicari di BarangBareng.", `<div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">${useCases.map(card => `<article class="product-card rounded-[28px] bg-gradient-to-br from-blue-50 to-teal-50 p-6"><span class="grid h-14 w-14 place-items-center rounded-2xl bg-white text-brand-blue shadow-card">${icon(card[2])}</span><h3 class="mt-5 text-xl font-extrabold text-slate-950">${card[0]}</h3><p class="mt-3 text-sm leading-6 text-slate-600">${card[1]}</p><button class="mt-5 text-sm font-extrabold text-brand-blue" data-nav="browse">Lihat Barang</button></article>`).join("")}</div>`)}</section>
@@ -207,7 +203,7 @@
       if (event.key === "Enter") goBrowseWithSearch();
     });
     document.querySelectorAll("[data-home-category]").forEach(button => button.addEventListener("click", () => {
-      state.filters.category = button.dataset.homeCategory.replace("Kamera, Konten & Media Sosial", "Kamera, Konten & Media").replace("Fashion Formal & Acara Kampus", "Fashion Formal & Acara");
+      state.filters.category = button.dataset.homeCategory;
       router.navigate("jelajah");
     }));
     document.querySelectorAll("[data-campus]").forEach(button => button.addEventListener("click", () => {
@@ -215,13 +211,44 @@
       router.navigate("jelajah");
     }));
     document.querySelector("[data-free-browse]")?.addEventListener("click", () => {
-      state.filters.category = "Pinjam Gratis";
+      state.filters.category = "all";
       state.filters.quickFilter = "free";
       router.navigate("jelajah");
     });
     document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => {
       state.filters.query = button.dataset.chip;
       router.navigate("jelajah", { query: button.dataset.chip });
+    }));
+    document.querySelectorAll("[data-featured-tab]").forEach(button => button.addEventListener("click", () => {
+      const map = {
+        "Anak Kos": "Anak Kos & Perantau",
+        "Sidang & Wisuda": "Sidang & Wisuda",
+        "Event Kampus": "Event Kampus",
+        Organisasi: "Organisasi Mahasiswa",
+        Dokumentasi: "Dokumentasi & Konten",
+        Akademik: "Akademik & Presentasi"
+      };
+      document.querySelectorAll("[data-featured-tab]").forEach(tab => tab.className = "badge shrink-0 bg-white text-slate-600");
+      button.className = "badge shrink-0 bg-brand-blue text-white";
+      const selected = map[button.dataset.featuredTab];
+      const products = selected ? BBData.products.filter(product => product.category === selected).slice(0, 8) : featuredNames.map(byName);
+      document.querySelector("#featured-products").innerHTML = products.map(item => components.productCard(item)).join("");
+      document.querySelectorAll("#featured-products [data-product]").forEach(card => {
+        const openProduct = () => router.navigate("product-detail", { productId: card.dataset.product });
+        card.addEventListener("click", openProduct);
+        card.addEventListener("keydown", event => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          openProduct();
+        });
+      });
+      document.querySelectorAll("#featured-products [data-wishlist]").forEach(like => like.addEventListener("click", event => {
+        event.stopPropagation();
+        const liked = state.toggleWishlist(Number(like.dataset.wishlist));
+        ui.toast(liked ? "Produk ditambahkan ke halaman Disimpan" : "Produk dihapus dari halaman Disimpan");
+        button.click();
+      }));
+      if (window.lucide) lucide.createIcons();
     }));
     document.querySelectorAll("[data-work-tab]").forEach(button => button.addEventListener("click", () => {
       document.querySelectorAll("[data-work-tab]").forEach(tab => tab.className = "badge bg-slate-100 text-slate-600");

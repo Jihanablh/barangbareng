@@ -6,7 +6,7 @@
   const campusOptions = BBData.campuses;
   const areaOptions = ["Kuningan", "Depok", "Kemanggisan", "Grogol", "Rawamangun", "Lenteng Agung", "Jakarta Selatan", "Jakarta Timur", "Jakarta Barat", "Bekasi", "Tangerang"];
   const codOptions = ["Gerbang kampus", "Perpustakaan", "Kantin", "Lobby gedung", "Stasiun terdekat", "Kos area sekitar kampus", "Bisa atur lokasi dengan pemilik"];
-  const categoryOptions = ["Elektronik & Produktivitas", "Kamera, Konten & Media Sosial", "Kamar Kos & Daily Living", "Masak & Makan Anak Kos", "Kebersihan & Laundry", "Fashion Formal & Acara Kampus", "Event & Organisasi", "Outdoor & Travel", "Kesehatan & Darurat", "Beauty & Self-Care", "Pinjam Gratis"];
+  const categoryOptions = ["Anak Kos & Perantau", "Sidang & Wisuda", "Event Kampus", "Organisasi Mahasiswa", "Akademik & Presentasi", "Dokumentasi & Konten", "Outdoor Mahasiswa"];
   const quickPrice = [
     ["under-10", "Di bawah Rp10.000", 0, 10000],
     ["10-25", "Rp10.000-Rp25.000", 10000, 25000],
@@ -36,11 +36,14 @@
   }
 
   function normalizeCategory(value) {
-    return value
-      .replace("Kamera, Konten & Media Sosial", "Kamera, Konten & Media")
-      .replace("Fashion Formal & Acara Kampus", "Fashion Formal & Acara")
-      .replace("Event & Organisasi", "Event, Organisasi & Kepanitiaan")
-      .replace("Outdoor & Travel", "Outdoor, Travel & Healing");
+    const aliases = {
+      "Anak Kos": "Anak Kos & Perantau",
+      Organisasi: "Organisasi Mahasiswa",
+      Dokumentasi: "Dokumentasi & Konten",
+      Akademik: "Akademik & Presentasi",
+      Outdoor: "Outdoor Mahasiswa"
+    };
+    return aliases[value] || value;
   }
 
   function productText(product) {
@@ -53,8 +56,32 @@
       ...(Array.isArray(product?.badges) ? product.badges : []),
       product?.owner?.level,
       product?.owner?.name,
-      product?.owner?.initials
+      product?.owner?.initials,
+      product?.description,
+      product?.searchText,
+      ...(Array.isArray(product?.tags) ? product.tags : [])
     ].filter(Boolean).join(" ").toLowerCase();
+  }
+
+  function applyProductChip(chip) {
+    const map = {
+      "Tersedia Hari Ini": "today",
+      "Pinjam Gratis": "free",
+      "Dekat Kampus": "nearby",
+      "Cocok Anak Kos": "kos",
+      "Sidang & Wisuda": "wisuda",
+      "Event Kampus": "event",
+      Organisasi: "organisasi",
+      "Top Rated": "rating",
+      "Harga < Rp25.000": "cheap"
+    };
+    if (map[chip]) {
+      state.filters.query = "";
+      state.filters.quickFilter = state.filters.quickFilter === map[chip] ? null : map[chip];
+    } else {
+      state.filters.query = chip;
+    }
+    requestBrowseUpdate();
   }
 
   function syncBrowseUrl() {
@@ -95,8 +122,10 @@
       (quick === "free" && product.type === "pinjam") ||
       (quick === "rating" && product.rating >= 4.8) ||
       (quick === "cheap" && product.price < 25000) ||
-      (quick === "kos" && (product.category.includes("Kos") || product.badges.includes("Cocok untuk Anak Kos"))) ||
-      (quick === "event" && (product.category.includes("Event") || product.badges.includes("Event Ready")));
+      (quick === "kos" && (product.category.includes("Kos") || product.badges.includes("Cocok Anak Kos") || product.tags?.includes("anak kos"))) ||
+      (quick === "event" && (product.category.includes("Event") || product.badges.includes("Event Ready") || product.tags?.includes("event"))) ||
+      (quick === "wisuda" && (product.category.includes("Wisuda") || product.tags?.includes("wisuda") || product.tags?.includes("sidang"))) ||
+      (quick === "organisasi" && (product.category.includes("Organisasi") || product.badges.includes("Organisasi") || product.tags?.includes("organisasi")));
     return queryOk && campusOk && areaOk && codOk && categoryOk && priceOk && typeOk && availabilityOk && ratingOk && levelOk && quickOk;
   }
 
@@ -187,7 +216,7 @@
   }
 
   function sortBar(totalPages) {
-    const productChips = ["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Setrika", "Tenda Camping", "Proyektor", "Tripod"];
+    const productChips = ["Tersedia Hari Ini", "Pinjam Gratis", "Dekat Kampus", "Cocok Anak Kos", "Sidang & Wisuda", "Event Kampus", "Organisasi", "Top Rated", "Harga < Rp25.000"];
     return `<section class="sticky z-30 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur-xl" style="top: var(--browse-sticky-top, 72px)">
       <div class="mx-auto max-w-[1480px] px-4 py-3 sm:px-6 lg:px-8">
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -291,7 +320,7 @@
       ui.toast(liked ? "Produk ditambahkan ke halaman Disimpan" : "Produk dihapus dari halaman Disimpan");
       renderBrowse();
     }));
-    document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => { state.filters.query = button.dataset.chip; requestBrowseUpdate(); }));
+    document.querySelectorAll("[data-chip]").forEach(button => button.addEventListener("click", () => applyProductChip(button.dataset.chip)));
     document.querySelectorAll("[data-reset-filter]").forEach(button => button.addEventListener("click", () => {
       state.filters = { query: "", category: "all", priceMin: 0, priceMax: 200000, location: "all", campus: "all", rating: 0, type: "all", level: "all", availability: "all", quickFilter: null, campuses: [], areas: [], codLocations: [], categories: [], ownerLevels: [], availabilityList: [], listingTypes: [] };
       state.sortBy = "relevant";
