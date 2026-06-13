@@ -16,8 +16,7 @@
   };
   const DEFAULT_EKYC = {
     identity: {},
-    documents: {},
-    selfie: {},
+    documents: { ktp: null, selfie: null },
     submittedAt: null
   };
 
@@ -132,6 +131,8 @@
 
   function normalizeUser(user) {
     const computed = calculateUserLevel(user.successfulTransactions, user.rating);
+    const rawDocuments = { ...(user.ekyc?.documents || {}) };
+    const selfieDocument = rawDocuments.selfie || null;
     return {
       ...user,
       fullName: user.fullName || user.name || "",
@@ -147,8 +148,11 @@
         ...DEFAULT_EKYC,
         ...(user.ekyc || {}),
         identity: { ...(user.ekyc?.identity || {}) },
-        documents: { ...(user.ekyc?.documents || {}) },
-        selfie: { ...(user.ekyc?.selfie || {}) }
+        documents: {
+          ktp: rawDocuments.ktp || null,
+          selfie: selfieDocument || null
+        },
+        submittedAt: user.ekyc?.submittedAt || null
       },
       level: computed.level,
       listingPriority: computed.listingPriority,
@@ -327,7 +331,15 @@
   function saveEkycDraft(patch = {}) {
     const user = getSessionUser();
     if (!user) return { success: false, message: "Silakan masuk terlebih dahulu." };
-    const users = getUsers().map(item => item.email === user.email ? normalizeUser({ ...item, ekyc: { ...item.ekyc, ...patch, identity: { ...item.ekyc?.identity, ...(patch.identity || {}) }, documents: { ...item.ekyc?.documents, ...(patch.documents || {}) }, selfie: { ...item.ekyc?.selfie, ...(patch.selfie || {}) } } }) : item);
+    const users = getUsers().map(item => item.email === user.email ? normalizeUser({
+      ...item,
+      ekyc: {
+        ...item.ekyc,
+        ...patch,
+        identity: { ...item.ekyc?.identity, ...(patch.identity || {}) },
+        documents: { ...item.ekyc?.documents, ...(patch.documents || {}) }
+      }
+    }) : item);
     setUsers(users);
     syncStateUser();
     return { success: true, user: getSessionUser() };
@@ -345,8 +357,10 @@
         ...item.ekyc,
         ...data,
         identity: { ...item.ekyc?.identity, ...(data.identity || {}) },
-        documents: { ...item.ekyc?.documents, ...(data.documents || {}) },
-        selfie: { ...item.ekyc?.selfie, ...(data.selfie || {}) },
+        documents: {
+          ktp: data.documents?.ktp || item.ekyc?.documents?.ktp || null,
+          selfie: data.documents?.selfie || item.ekyc?.documents?.selfie || null
+        },
         submittedAt
       }
     }) : item);

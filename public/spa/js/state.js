@@ -111,7 +111,6 @@
     registerStep: 1,
     verification: {
       ktpUploaded: false,
-      studentCardUploaded: false,
       selfieDone: false,
       otp: "",
       ocrName: "Difa Surya",
