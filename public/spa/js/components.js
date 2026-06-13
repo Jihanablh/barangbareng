@@ -27,7 +27,7 @@
   function productCard(product, list = false) {
     const liked = state.isWishlisted(product.id);
     const goldSeller = product.owner.level === "gold" ? `<span class="badge bg-amber-50 text-amber-700">Gold Seller</span>` : "";
-    return `<article class="product-card card overflow-hidden ${list ? "grid gap-4 p-4 md:grid-cols-[190px_1fr_180px]" : ""}">
+    return `<article class="product-card card cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${list ? "grid gap-4 p-4 md:grid-cols-[190px_1fr]" : ""}" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
       <div class="relative ${list ? "h-40 rounded-2xl" : "h-52 rounded-t-3xl"} overflow-hidden bg-slate-100">
         ${imgTag(product, "h-full w-full object-cover")}
         <div class="absolute left-3 top-3 flex flex-wrap gap-2">${productBadges(product)}</div>
@@ -35,7 +35,7 @@
       </div>
       <div class="${list ? "p-0" : "p-5"}">
         <div class="mb-2 flex flex-wrap gap-2">${product.badges.map(badge => `<span class="badge bg-slate-100 text-slate-600">${badge}</span>`).join("")}</div>
-        <button class="text-left" data-product="${product.id}"><h3 class="line-clamp-2 text-lg font-extrabold text-slate-950">${product.name}</h3></button>
+        <h3 class="line-clamp-2 text-lg font-extrabold text-slate-950">${product.name}</h3>
         <p class="mt-1 text-sm font-semibold text-slate-500">${product.category}</p>
         <p class="mt-3 text-sm font-semibold text-slate-600">Rating ${product.rating} · ${product.reviewCount} ulasan · ${product.rentedCount}x disewa</p>
         <p class="mt-2 flex items-center gap-2 text-sm text-slate-500">${icon("map-pin", "h-4 w-4 text-brand-blue")} ${product.campus} · ${product.location}</p>
@@ -43,13 +43,7 @@
           <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-brand text-xs font-extrabold text-white">${product.owner.initials}</span>
           <div><p class="text-sm font-bold">${product.owner.name}</p><p class="text-xs text-slate-500">${levelBadge(product.owner.level)} Terverifikasi</p>${goldSeller ? `<p class="mt-1">${goldSeller}</p>` : ""}</div>
         </div>
-      </div>
-      <div class="${list ? "flex flex-col justify-center" : "px-5 pb-5"}">
-        <p class="text-xl font-extrabold text-brand-blue">${price(product)}</p>
-        <div class="mt-4 grid gap-2">
-          <button class="btn-primary btn-ripple w-full rounded-2xl px-5 py-3" data-book="${product.id}">Sewa Sekarang</button>
-          <button class="btn-secondary w-full rounded-2xl px-5 py-3 text-sm" data-card-cart="${product.id}">Masukkan ke Keranjang</button>
-        </div>
+        <p class="mt-4 text-xl font-extrabold text-brand-blue">${price(product)}</p>
       </div>
     </article>`;
   }
@@ -166,7 +160,6 @@
     const total = detailFee(product, days);
     const similar = similarProducts(product);
     const liked = state.isWishlisted(product.id);
-    const inCart = state.isInCart(product.id);
     const reviewStats = reviewSummary(product);
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
@@ -176,49 +169,61 @@
         </div>
 
         <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm lg:p-8">
-          <div class="grid gap-8 lg:grid-cols-2 lg:items-start">
-          <article>
+          <div class="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(360px,5fr)] lg:items-stretch">
+          <article class="flex h-full flex-col">
             <div class="relative overflow-hidden rounded-[28px] bg-slate-100">
-              <img src="${activeImage}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 hover:scale-[1.03]" onerror="this.src='${fallbackImage}'">
+              <img src="${activeImage}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 hover:scale-[1.03] lg:aspect-[5/4]" onerror="this.src='${fallbackImage}'">
               <div class="absolute left-4 top-4 flex max-w-[80%] flex-wrap gap-2">${productBadges(product)}<span class="badge bg-white/95 text-slate-700">${product.subcategory}</span></div>
             </div>
             <div class="mt-4 grid grid-cols-4 gap-3">${gallery.slice(0, 4).map((src, index) => `<button class="overflow-hidden rounded-2xl border-2 ${src === activeImage ? "border-brand-blue" : "border-slate-100"} bg-slate-100 transition hover:border-blue-300" data-gallery-index="${index}"><img src="${src}" alt="Galeri ${index + 1} ${product.name}" class="aspect-square w-full object-cover" onerror="this.src='${fallbackImage}'"></button>`).join("")}</div>
           </article>
 
-          <article class="min-w-0">
-            <div class="flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge status-available">${product.status === "low" ? "Hampir Habis" : "Tersedia"}</span><span class="badge bg-amber-50 text-amber-700">Top Rated</span></div>
-            <h1 class="mt-4 text-2xl font-bold leading-tight text-slate-900 lg:text-3xl">${product.name}</h1>
-            <p class="mt-3 text-sm font-semibold leading-6 text-slate-500"><span class="text-amber-400">★</span> ${reviewStats.average} · ${reviewStats.total} ulasan · ${product.rentedCount}x disewa</p>
-            <p class="mt-5 text-3xl font-extrabold text-blue-600">${price(product)}</p>
-            <div class="mt-5 grid gap-3 rounded-2xl border border-slate-100 bg-white p-4 text-sm font-semibold text-slate-600 sm:grid-cols-2">
-              <p class="flex items-center gap-2">${icon("map-pin", "h-4 w-4 text-brand-blue")} ${product.location}</p>
-              <p class="flex items-center gap-2">${icon("school", "h-4 w-4 text-brand-blue")} ${product.campus}</p>
-            </div>
-            <div class="mt-5 flex flex-wrap gap-3">
-              <button class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold transition ${liked ? "border-red-100 bg-red-50 text-red-600" : "border-slate-200 text-slate-700 hover:bg-slate-50"}" data-wishlist="${product.id}">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")} ${liked ? "Tersimpan" : "Simpan"}</button>
-              <button class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50" data-share-product>${icon("share-2", "h-4 w-4")} Bagikan</button>
-            </div>
+          <article class="flex h-full min-w-0 flex-col rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
+            <section class="border-b border-slate-100 pb-5">
+              <p class="text-xs font-extrabold uppercase text-brand-blue">Header Produk</p>
+              <div class="mt-3 flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge status-available">${product.status === "low" ? "Hampir Habis" : "Tersedia"}</span><span class="badge bg-amber-50 text-amber-700">Top Rated</span></div>
+              <h1 class="mt-4 text-2xl font-bold leading-tight text-slate-900 lg:text-3xl">${product.name}</h1>
+              <p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Rating ${reviewStats.average} | ${reviewStats.total} ulasan | ${product.rentedCount}x disewa</p>
+              <p class="mt-5 text-3xl font-extrabold text-blue-600">${price(product)}</p>
+            </section>
 
-            <div class="mt-5 rounded-[24px] bg-slate-50 p-5">
+            <section class="mt-5 rounded-3xl border border-slate-100 bg-slate-50 p-4">
+              <p class="text-sm font-extrabold text-slate-900">Informasi Lokasi</p>
+              <div class="mt-3 grid gap-3 text-sm font-semibold text-slate-600 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                <p class="flex items-center gap-2">${icon("map-pin", "h-4 w-4 shrink-0 text-brand-blue")} ${product.location}</p>
+                <p class="flex items-center gap-2">${icon("school", "h-4 w-4 shrink-0 text-brand-blue")} ${product.campus}</p>
+              </div>
+            </section>
+
+            <section class="mt-5">
+              <p class="text-sm font-extrabold text-slate-900">Quick Actions</p>
+              <div class="mt-3 flex flex-wrap gap-3">
+                <button class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold transition ${liked ? "border-red-100 bg-red-50 text-red-600" : "border-slate-200 text-slate-700 hover:bg-slate-50"}" data-wishlist="${product.id}">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")} ${liked ? "Tersimpan" : "Simpan"}</button>
+                <button class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50" data-share-product>${icon("share-2", "h-4 w-4")} Bagikan</button>
+              </div>
+            </section>
+
+            <section class="mt-5 rounded-[24px] bg-slate-50 p-5">
               <p class="text-sm font-extrabold text-slate-900">Ringkasan Sewa</p>
-              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 <label class="text-sm font-bold text-slate-700">Tanggal Mulai<input id="booking-start" class="field mt-2" type="date" value="${state.bookingStart}"></label>
                 <label class="text-sm font-bold text-slate-700">Tanggal Selesai<input id="booking-end" class="field mt-2" type="date" value="${state.bookingEnd}"></label>
               </div>
               <p class="mt-3 rounded-2xl bg-blue-50 px-4 py-3 text-sm font-bold text-brand-blue">Durasi: ${days} hari</p>
               <div class="mt-4 rounded-3xl bg-white p-4 text-sm font-semibold text-slate-700">${detailFeeRows(product, total, days)}</div>
-            </div>
+            </section>
 
-            <div class="mt-5 grid gap-3">
+            <section class="mt-5 grid gap-3">
+              <p class="text-sm font-extrabold text-slate-900">CTA Utama</p>
               <button class="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:scale-[1.01] hover:shadow-lg active:scale-[0.98]" data-book="${product.id}">Sewa Sekarang</button>
-              <div class="grid gap-3 sm:grid-cols-2">
-                <button class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-center text-sm font-bold transition ${inCart ? "border-teal-100 bg-teal-50 text-teal-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}" data-add-cart="${product.id}">${icon(inCart ? "check" : "plus", "h-4 w-4 shrink-0")} <span>${inCart ? "Sudah di Keranjang" : "Masukkan ke Keranjang"}</span></button>
-                <button class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700 transition hover:bg-slate-50" data-nav="chat">${icon("message-circle", "h-4 w-4 shrink-0")} <span>Chat Pemilik</span></button>
-              </div>
-              <p class="rounded-2xl bg-teal-50 px-4 py-3 text-sm font-medium leading-6 text-teal-700">Pembayaran Aman dan transaksi tercatat di sistem.</p>
-            </div>
-          </article>
-          </div>
+              <button class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700 transition hover:bg-slate-50" data-nav="chat">${icon("message-circle", "h-4 w-4 shrink-0")} <span>Chat Pemilik</span></button>
+            </section>
+
+            <section class="mt-5 rounded-2xl bg-teal-50 px-4 py-3 text-sm font-medium leading-6 text-teal-700">
+              <p class="font-extrabold">Info Tambahan</p>
+              <p>Pembayaran Aman dan transaksi tercatat di sistem.</p>
+            </section>
+          </article>          </div>
         </section>
 
         <div class="mt-8">${ownerProfile(product)}</div>
@@ -472,7 +477,7 @@
   }
 
   function similarSection(products) {
-    return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Produk Serupa yang Mungkin Kamu Suka</h2><div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">${products.map(item => `<article class="overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><img src="${item.image}" alt="${item.name}" class="h-36 w-full object-cover" onerror="this.src='${fallbackImage}'"><div class="p-4"><h3 class="line-clamp-2 min-h-[2.4rem] text-sm font-extrabold text-slate-950">${item.name}</h3><p class="mt-2 text-sm font-bold text-brand-blue">${price(item)}</p><p class="mt-1 text-xs font-semibold text-slate-500">Rating ${item.rating} | ${item.location}</p><button class="btn-secondary mt-3 w-full rounded-xl px-3 py-2 text-xs" data-product="${item.id}">Lihat Detail</button></div></article>`).join("")}</div></section>`;
+    return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Produk Serupa yang Mungkin Kamu Suka</h2><div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">${products.map(item => `<article class="cursor-pointer overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${item.id}" role="button" tabindex="0" aria-label="Buka detail ${item.name}"><img src="${item.image}" alt="${item.name}" class="h-36 w-full object-cover" onerror="this.src='${fallbackImage}'"><div class="p-4"><h3 class="line-clamp-2 min-h-[2.4rem] text-sm font-extrabold text-slate-950">${item.name}</h3><p class="mt-2 text-sm font-bold text-brand-blue">${price(item)}</p><p class="mt-1 text-xs font-semibold text-slate-500">Rating ${item.rating} | ${item.location}</p></div></article>`).join("")}</div></section>`;
   }
 
   function bindDetailEvents(product) {
@@ -619,17 +624,15 @@
   }
 
   function wishlistCard(product) {
-    return `<article class="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      <button class="block w-full text-left" data-product="${product.id}"><img src="${product.image}" alt="${product.name}" class="h-44 w-full object-cover" onerror="this.src='${fallbackImage}'"></button>
+    return `<article class="cursor-pointer overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
+      <img src="${product.image}" alt="${product.name}" class="h-44 w-full object-cover" onerror="this.src='${fallbackImage}'">
       <div class="p-4">
         <div class="flex flex-wrap gap-2">${productBadges(product)}</div>
-        <button class="mt-3 text-left" data-product="${product.id}"><h2 class="line-clamp-2 text-lg font-extrabold text-slate-950">${product.name}</h2></button>
+        <h2 class="mt-3 line-clamp-2 text-lg font-extrabold text-slate-950">${product.name}</h2>
         <p class="mt-2 text-sm font-semibold text-slate-500">Rating ${product.rating} | ${product.location}</p>
         <p class="mt-1 text-sm text-slate-500">${product.campus}</p>
         <p class="mt-3 text-xl font-extrabold text-brand-blue">${price(product)}</p>
         <div class="mt-4 grid gap-2">
-          <button class="btn-primary rounded-2xl px-4 py-2.5 text-sm" data-book="${product.id}">Sewa Sekarang</button>
-          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm" data-add-cart-from-list="${product.id}">Masukkan ke Keranjang</button>
           <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm text-red-500" data-remove-wishlist="${product.id}">Hapus dari Disimpan</button>
         </div>
       </div>
@@ -688,14 +691,10 @@
   }
 
   function bindWishlistEvents() {
-    document.querySelectorAll("[data-remove-wishlist]").forEach(button => button.addEventListener("click", () => {
+    document.querySelectorAll("[data-remove-wishlist]").forEach(button => button.addEventListener("click", event => {
+      event.stopPropagation();
       if (state.isWishlisted(button.dataset.removeWishlist)) state.toggleWishlist(button.dataset.removeWishlist);
       ui.toast("Produk dihapus dari halaman Disimpan");
-      renderWishlist();
-    }));
-    document.querySelectorAll("[data-add-cart-from-list]").forEach(button => button.addEventListener("click", () => {
-      const added = state.addCart(button.dataset.addCartFromList);
-      ui.toast(added ? "Produk berhasil dimasukkan ke keranjang" : "Produk sudah ada di keranjang");
       renderWishlist();
     }));
   }
@@ -901,7 +900,15 @@
   }
 
   function bindCommonEvents() {
-    document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
+    document.querySelectorAll("[data-product]").forEach(card => {
+      const openProduct = () => router.navigate("product-detail", { productId: card.dataset.product });
+      card.addEventListener("click", openProduct);
+      card.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        openProduct();
+      });
+    });
     document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => { if (!requireVerifiedAccess()) return; state.rememberProduct(Number(button.dataset.book)); state.checkoutStep = 1; router.navigate("checkout"); }));
     document.querySelectorAll("[data-card-cart]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
@@ -1111,7 +1118,7 @@
   }
 
   function dashboardRecommendationCard(product) {
-    return `<article class="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm">
+    return `<article class="cursor-pointer overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
       <div class="relative h-36 overflow-hidden bg-slate-100">
         <img src="${product.image}" alt="${product.name}" class="h-full w-full object-cover" onerror="this.src='${fallbackImage}'">
         <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${state.isWishlisted(product.id) ? "text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Simpan ${product.name}">${icon("heart", state.isWishlisted(product.id) ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
@@ -1120,7 +1127,6 @@
         <h3 class="line-clamp-1 font-extrabold text-slate-950">${product.name}</h3>
         <p class="mt-1 text-xs font-semibold text-slate-500">${product.campus}</p>
         <p class="mt-3 text-sm font-extrabold text-brand-blue">${price(product)}</p>
-        <button class="btn-secondary mt-4 w-full rounded-2xl px-4 py-2 text-sm" data-product="${product.id}">Lihat Detail</button>
       </div>
     </article>`;
   }

@@ -130,18 +130,17 @@
 
   function productCard(product) {
     const liked = state.isWishlisted(product.id);
-    const inCart = state.isInCart(product.id);
     const status = product.status === "low" ? "Hampir Habis" : "Tersedia";
     const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.rentedCount > 40 ? "Terdekat" : product.badges[0] || "Event Ready";
     const goldSeller = product.owner.level === "gold" ? `<span class="badge bg-amber-50 text-amber-700">Gold Seller</span>` : "";
-    return `<article class="group min-w-0 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    return `<article class="group min-w-0 cursor-pointer overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
       <div class="relative overflow-hidden bg-slate-100">
         <img src="${product.image}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
         <div class="absolute left-1.5 top-1.5 flex max-w-[calc(100%-3.25rem)] flex-wrap gap-1 sm:left-2 sm:top-2"><span class="rounded-full px-2 py-1 text-[0.62rem] font-extrabold leading-none ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="hidden rounded-full bg-blue-50 px-2 py-1 text-[0.62rem] font-extrabold leading-none text-brand-blue sm:inline-flex">${extra}</span></div>
         <button class="absolute right-1.5 top-1.5 grid h-9 w-9 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card sm:right-2 sm:top-2 ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
       </div>
       <div class="p-2.5 sm:p-3">
-        <button class="block min-w-0 text-left" data-product="${product.id}"><h3 class="line-clamp-2 min-h-[2.25rem] break-words text-xs font-extrabold leading-snug text-slate-950 sm:text-sm">${product.name}</h3></button>
+        <h3 class="line-clamp-2 min-h-[2.25rem] break-words text-xs font-extrabold leading-snug text-slate-950 sm:text-sm">${product.name}</h3>
         <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-600 sm:text-[0.78rem]">Rating ${product.rating} | ${product.reviewCount} ulasan</p>
         <p class="mt-1.5 text-sm font-extrabold leading-tight text-brand-blue sm:text-base">${product.type === "pinjam" ? `Gratis <span class="block text-[0.62rem] text-slate-500 sm:inline sm:text-[0.7rem]">layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-[0.65rem] text-slate-500 sm:text-[0.7rem]">/hari</span>`}</p>
         <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-500 sm:text-[0.78rem]">${product.location}</p>
@@ -151,13 +150,6 @@
           <span class="shrink-0 text-[0.65rem] font-bold text-slate-400">${product.owner.initials}</span>
         </div>
         ${goldSeller ? `<div class="mt-2">${goldSeller}</div>` : ""}
-        <div class="mt-2.5 grid gap-1.5 sm:gap-2">
-          <button class="btn-ripple w-full rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 px-2.5 py-2 text-xs font-bold text-white shadow-md transition hover:scale-[1.02] sm:px-3 sm:py-2.5 sm:text-sm" data-book="${product.id}">Sewa</button>
-          <div class="grid grid-cols-2 gap-2">
-            <button class="rounded-xl border border-slate-200 bg-white px-2 py-2 text-[0.68rem] font-bold text-slate-700 transition hover:bg-slate-50 sm:px-3 sm:text-xs" data-product="${product.id}">Detail</button>
-            <button class="rounded-xl border px-2 py-2 text-[0.68rem] font-bold transition sm:px-3 sm:text-xs ${inCart ? "border-teal-100 bg-teal-50 text-teal-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}" data-card-cart="${product.id}">${inCart ? "Ada" : "Cart"}</button>
-          </div>
-        </div>
       </div>
     </article>`;
   }
@@ -284,23 +276,15 @@
   }
 
   function bindSharedEvents() {
-    document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
-    document.querySelectorAll("[data-book]").forEach(button => button.addEventListener("click", () => {
-      if (!window.bbUserAccount?.canAccessRentalFeature?.()) {
-        ui.toast("Lengkapi verifikasi identitas untuk menggunakan fitur ini.");
-        router.navigate("ekyc");
-        return;
-      }
-      state.rememberProduct(Number(button.dataset.book));
-      state.checkoutStep = 1;
-      router.navigate("checkout");
-    }));
-    document.querySelectorAll("[data-card-cart]").forEach(button => button.addEventListener("click", event => {
-      event.stopPropagation();
-      const added = state.addCart(button.dataset.cardCart);
-      ui.toast(added ? "Produk berhasil dimasukkan ke keranjang" : "Produk sudah ada di keranjang");
-      renderBrowse();
-    }));
+    document.querySelectorAll("[data-product]").forEach(card => {
+      const openProduct = () => router.navigate("product-detail", { productId: card.dataset.product });
+      card.addEventListener("click", openProduct);
+      card.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        openProduct();
+      });
+    });
     document.querySelectorAll("[data-wishlist]").forEach(button => button.addEventListener("click", event => {
       event.stopPropagation();
       const liked = state.toggleWishlist(Number(button.dataset.wishlist));
