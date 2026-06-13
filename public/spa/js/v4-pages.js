@@ -1,12 +1,13 @@
 (function () {
   const rupiah = value => components.rupiah(Number(value || 0));
   const icon = (name, cls = "h-5 w-5") => components.icon(name, cls);
+  const backLink = (label, to, className = "mb-5") => `<button type="button" class="${className} inline-flex min-w-0 items-center gap-2 text-sm font-bold text-slate-600 transition hover:-translate-x-0.5 hover:text-blue-600 sm:text-base" data-nav="${to}">${icon("arrow-left", "h-5 w-5 shrink-0")}<span class="min-w-0">${label}</span></button>`;
   const product = () => components.selectedProduct();
   const img = item => `<img src="${item.image}" alt="${item.name}" class="h-full w-full rounded-3xl object-cover" onerror="this.src='${item.image}'">`;
 
   function shell(title, subtitle, body, width = "max-w-5xl") {
     return `<div class="mx-auto ${width} px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-      <button class="btn-secondary mb-5 rounded-2xl px-4 py-2" data-nav="home">${icon("arrow-left", "h-4 w-4")} Beranda</button>
+      ${backLink("Kembali ke Beranda", "home")}
       <div class="mb-6"><p class="font-bold text-brand-blue">BarangBareng</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">${title}</h1><p class="mt-2 text-slate-500">${subtitle}</p></div>
       ${body}
     </div>`;
@@ -166,7 +167,7 @@
 
   function renderUploadProduct() {
     if (!window.bbUserAccount?.canAccessRentalFeature?.()) {
-      document.querySelector("#upload-product-view").innerHTML = shell("Verifikasi diperlukan", "Lengkapi e-KYC mahasiswa untuk mulai menyewakan barang.", `<section class="card p-8 text-center">${icon("shield-check", "mx-auto h-14 w-14 text-brand-blue")}<h2 class="mt-4 text-2xl font-extrabold text-slate-950">Akun perlu diverifikasi</h2><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Upload barang hanya tersedia untuk akun mahasiswa yang sudah lolos verifikasi identitas.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="ekyc">Lengkapi e-KYC</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="dashboard-buyer">Kembali Dashboard</button></div></section>`);
+      document.querySelector("#upload-product-view").innerHTML = shell("Verifikasi diperlukan", "Lengkapi e-KYC mahasiswa untuk mulai menyewakan barang.", `<section class="card p-8 text-center">${icon("shield-check", "mx-auto h-14 w-14 text-brand-blue")}<h2 class="mt-4 text-2xl font-extrabold text-slate-950">Akun perlu diverifikasi</h2><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Upload barang hanya tersedia untuk akun mahasiswa yang sudah lolos verifikasi identitas.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="ekyc">Lengkapi e-KYC</button>${backLink("Kembali ke Dashboard", "dashboard-buyer", "w-fit")}</div></section>`);
       bindBase();
       return;
     }
@@ -250,7 +251,7 @@
   }
 
   function renderPaymentVerification() {
-    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Menunggu pembayaran kamu diproses.", `<section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Pembayaran kamu akan tercatat otomatis setelah berhasil diproses.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="order-detail">Kembali ke Detail Transaksi</button></div></section>`);
+    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Menunggu pembayaran kamu diproses.", `<section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Pembayaran kamu akan tercatat otomatis setelah berhasil diproses.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button>${backLink("Kembali ke Detail Transaksi", "order-detail", "w-fit")}</div></section>`);
     bindBase();
     bindPaymentActions("dp");
   }
@@ -272,7 +273,7 @@
             ${successMetric("Sisa Pelunasan", rupiah(total.remaining))}
             ${successMetric("Jadwal Pelunasan", `Sebelum ${state.bookingStart}, pukul 12.00 WIB`)}
           </div>
-          <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="order-detail">Lihat Detail Transaksi</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="home">Kembali ke Beranda</button></div>
+          <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="order-detail">Lihat Detail Transaksi</button>${backLink("Kembali ke Beranda", "home", "w-fit")}</div>
         </section>
       </div>
     </main>`;
@@ -381,7 +382,7 @@
                 <li>Setelah membayar, klik ${actionText}.</li>
               </ol>
             </div>
-            <div class="mt-5 grid gap-3 sm:grid-cols-2"><button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-payment-qr>Buat QRIS Baru</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="order-detail">Kembali ke Detail Transaksi</button></div>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2"><button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-payment-qr>Buat QRIS Baru</button>${backLink("Kembali ke Detail Transaksi", "order-detail", "w-fit")}</div>
             <button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-payment-paid="${type}">${actionText}</button>
           </article>
         </section>
@@ -467,7 +468,7 @@
     if (status === "RETURNED") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" disabled>Menunggu Konfirmasi Pemilik</button><button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-complete-order>Konfirmasi Transaksi Selesai</button>`;
     if (status === "COMPLETED" && !reviewed) return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Penilaian</button>`;
     if (status === "COMPLETED" && reviewed) return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>`;
-    return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="browse">Kembali ke Jelajah Barang</button>`;
+    return `${backLink("Kembali ke Jelajah Barang", "browse", "mt-5 w-fit")}`;
   }
 
   function bindOrderActions() {
@@ -529,7 +530,7 @@
         <div class="mt-6 grid gap-3 sm:grid-cols-2">
           <button class="btn-primary rounded-2xl px-5 py-3" data-start-scan ${isReady ? "" : "disabled"}>Saya Sudah Bertemu Pemilik</button>
           <button class="btn-secondary rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button>
-          <button class="btn-secondary rounded-2xl px-5 py-3 sm:col-span-2" data-nav="order-detail">Kembali ke Detail Transaksi</button>
+          ${backLink("Kembali ke Detail Transaksi", "order-detail", "w-fit sm:col-span-2")}
         </div>
         <p id="scan-result" class="mt-5 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">${isReady ? "Menunggu konfirmasi serah terima." : "Pelunasan belum selesai."}</p>
       </article>

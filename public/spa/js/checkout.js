@@ -60,6 +60,7 @@
     const total = calculate(product, days);
     return `<main class="min-h-screen bg-slate-50">
       <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+        ${components.backLink("Kembali ke Detail Produk", "product-detail")}
         <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p class="text-sm font-semibold text-slate-500">Beranda &gt; Detail Produk &gt; Checkout</p>
@@ -127,7 +128,6 @@
             <div class="my-5 border-t border-dashed border-slate-200"></div>
             <div class="flex justify-between gap-4 text-lg font-extrabold text-slate-950"><span>Bayar sekarang</span><span class="text-brand-blue">${components.rupiah(total.dp)}</span></div>
             <button class="mt-5 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3.5 font-bold text-white shadow-md transition hover:scale-[1.01] hover:shadow-lg active:scale-[0.98]" data-create-dp-payment>Lanjut Bayar DP</button>
-            <button class="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-5 py-3.5 font-semibold text-slate-700 transition hover:bg-slate-50" data-product="${product.id}">Kembali ke Detail Produk</button>
           </aside>
         </div>
       </div>

@@ -2,6 +2,7 @@
   const fallbackImage = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='900' height='650'><defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop stop-color='#2563EB'/><stop offset='1' stop-color='#14B8A6'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/><text x='50%' y='50%' fill='white' font-size='42' font-family='Arial' font-weight='700' text-anchor='middle'>BarangBareng</text></svg>`);
   const rupiah = value => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
   const icon = (name, cls = "h-5 w-5") => `<i data-lucide="${name}" class="${cls}"></i>`;
+  const backLink = (label, to, className = "mb-5") => `<button type="button" class="${className} inline-flex min-w-0 items-center gap-2 text-sm font-bold text-slate-600 transition hover:-translate-x-0.5 hover:text-blue-600 sm:text-base" data-nav="${to}">${icon("arrow-left", "h-5 w-5 shrink-0")}<span class="min-w-0">${label}</span></button>`;
 
   function imgTag(product, cls) {
     return `<img src="${product.image}" alt="${product.name}" class="${cls}" onerror="this.src='${fallbackImage}'">`;
@@ -165,7 +166,7 @@
       <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <div class="mb-5 flex flex-col gap-3 text-sm font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p class="min-w-0 truncate">Beranda / Jelajah Barang / ${product.category} / ${product.name}</p>
-          <button class="inline-flex w-fit items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-brand-blue" data-nav="browse">${icon("arrow-left", "h-4 w-4")} Kembali ke Jelajah Barang</button>
+          ${backLink("Kembali ke Jelajah Barang", "browse", "w-fit")}
         </div>
 
         <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm lg:p-8">
@@ -730,7 +731,7 @@
             <div id="review-preview" class="mt-4 flex flex-wrap gap-3">${state.reviewUploads.map((file, index) => reviewImagePreview(file, index)).join("")}</div>
           </section>
           <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="order-detail">Batal</button><button id="review-submit" class="rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3 font-bold text-white shadow-md transition hover:scale-[1.01]">Kirim Ulasan</button></div>
-        </form>` : `<section class="mt-6 rounded-[24px] border border-amber-100 bg-amber-50 p-6 text-amber-800 shadow-sm"><h2 class="text-xl font-extrabold">Belum bisa memberi ulasan</h2><p class="mt-2 font-semibold">${eligibility.reason}</p><button class="btn-secondary mt-5 rounded-2xl px-5 py-3" data-nav="order-detail">Kembali ke Detail Transaksi</button></section>`}
+        </form>` : `<section class="mt-6 rounded-[24px] border border-amber-100 bg-amber-50 p-6 text-amber-800 shadow-sm"><h2 class="text-xl font-extrabold">Belum bisa memberi ulasan</h2><p class="mt-2 font-semibold">${eligibility.reason}</p>${backLink("Kembali ke Detail Transaksi", "order-detail", "mt-5 w-fit")}</section>`}
       </div>
     </main>`;
     bindCommonEvents();
@@ -796,7 +797,7 @@
     const mount = document.querySelector("#checkout-view");
     if (!mount) return;
     if (!window.bbUserAccount?.canAccessRentalFeature?.()) {
-      mount.innerHTML = `<div class="mx-auto max-w-4xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><section class="card p-8 text-center">${icon("shield-alert", "mx-auto h-14 w-14 text-brand-blue")}<h1 class="mt-4 text-2xl font-extrabold text-slate-950">Verifikasi diperlukan</h1><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Lengkapi verifikasi identitas untuk menggunakan fitur checkout dan sewa barang.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="ekyc">Lengkapi e-KYC</button><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="jelajah">Kembali Jelajah</button></div></section></div>`;
+      mount.innerHTML = `<div class="mx-auto max-w-4xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><section class="card p-8 text-center">${icon("shield-alert", "mx-auto h-14 w-14 text-brand-blue")}<h1 class="mt-4 text-2xl font-extrabold text-slate-950">Verifikasi diperlukan</h1><p class="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">Lengkapi verifikasi identitas untuk menggunakan fitur checkout dan sewa barang.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-nav="ekyc">Lengkapi e-KYC</button>${backLink("Kembali ke Jelajah Barang", "jelajah", "w-fit")}</div></section></div>`;
       bindCommonEvents();
       return;
     }
@@ -1304,8 +1305,18 @@
   }
 
   function ekycShell(activeView, title, subtitle, body) {
+    const backMap = {
+      ekyc: ["Kembali ke Dashboard", "dashboard-buyer"],
+      "ekyc-data-diri": ["Kembali ke e-KYC", "ekyc"],
+      "ekyc-upload-identitas": ["Kembali ke Data Diri", "ekyc-data-diri"],
+      "ekyc-selfie": ["Kembali ke Upload Identitas", "ekyc-upload-identitas"],
+      "ekyc-review": ["Kembali ke Selfie", "ekyc-selfie"],
+      "ekyc-success": ["Kembali ke Dashboard", "dashboard-buyer"]
+    };
+    const back = backMap[activeView] || ["Kembali ke Dashboard", "dashboard-buyer"];
     return `<main class="min-h-screen bg-slate-50 pt-28">
       <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+        ${backLink(back[0], back[1])}
         <div class="mb-5">${ekycProgress(activeView)}</div>
         <section class="card overflow-hidden">
           <div class="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-teal-50 p-6">
@@ -1322,7 +1333,7 @@
   function renderForgotPassword() {
     const mount = document.querySelector("#forgot-password-view");
     if (!mount) return;
-    mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-28"><div class="mx-auto max-w-3xl px-4 pb-16 sm:px-6 lg:px-8"><section class="card p-6"><p class="font-extrabold text-brand-blue">Bantuan Akun</p><h1 class="mt-2 text-2xl font-extrabold text-slate-950">Lupa password</h1><p class="mt-2 text-sm font-semibold leading-6 text-slate-500">Masukkan email kampus kamu. Permintaan pemulihan akan dicatat sebagai notifikasi halaman.</p><form class="mt-5 grid gap-4" data-forgot-password-form><label class="text-sm font-bold text-slate-700">Email kampus<input class="field mt-2" name="email" type="email" autocomplete="email" placeholder="nama@kampus.ac.id"></label><div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="login">Kembali Masuk</button><button class="btn-primary rounded-2xl px-5 py-3">Kirim Instruksi</button></div></form></section></div></main>`;
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-28"><div class="mx-auto max-w-3xl px-4 pb-16 sm:px-6 lg:px-8">${backLink("Kembali ke Login", "login")}<section class="card p-6"><p class="font-extrabold text-brand-blue">Bantuan Akun</p><h1 class="mt-2 text-2xl font-extrabold text-slate-950">Lupa password</h1><p class="mt-2 text-sm font-semibold leading-6 text-slate-500">Masukkan email kampus kamu. Permintaan pemulihan akan dicatat sebagai notifikasi halaman.</p><form class="mt-5 grid gap-4" data-forgot-password-form><label class="text-sm font-bold text-slate-700">Email kampus<input class="field mt-2" name="email" type="email" autocomplete="email" placeholder="nama@kampus.ac.id"></label><div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button class="btn-primary rounded-2xl px-5 py-3">Kirim Instruksi</button></div></form></section></div></main>`;
     bindCommonEvents();
     document.querySelector("[data-forgot-password-form]")?.addEventListener("submit", event => {
       event.preventDefault();
@@ -1342,7 +1353,7 @@
       <div class="grid gap-4">
         ${ekycSteps.slice(0, 4).map((step, index) => `<article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-50 font-extrabold text-brand-blue">${index + 1}</span><div><h2 class="font-extrabold text-slate-950">${step[1]}</h2><p class="mt-1 text-sm font-semibold leading-6 text-slate-500">${["Isi data identitas sesuai dokumen resmi.", "Upload foto KTP dalam format JPG atau PNG.", "Ambil atau upload selfie wajah yang jelas.", "Periksa kembali sebelum data dikirim."][index]}</p></div></div></article>`).join("")}
       </div>
-      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-extrabold text-slate-950">Status akun</h2><div class="mt-3">${bbUserAccount.getVerificationBadge(user.verificationStatus)}</div><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">${meta.text}</p><button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-nav="${nextRoute}">${user.verificationStatus === "verified" ? "Kembali ke Dashboard" : "Mulai Verifikasi"}</button></aside>
+      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-extrabold text-slate-950">Status akun</h2><div class="mt-3">${bbUserAccount.getVerificationBadge(user.verificationStatus)}</div><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">${meta.text}</p>${user.verificationStatus === "verified" ? backLink("Kembali ke Dashboard", "dashboard-buyer", "mt-6") : `<button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-nav="${nextRoute}">Mulai Verifikasi</button>`}</aside>
     </div>`);
     bindCommonEvents();
   }
@@ -1362,7 +1373,7 @@
       ${ekycInput("Kota", "city", identity.city, errors.city)}
       ${ekycInput("Provinsi", "province", identity.province, errors.province)}
       <label class="text-sm font-bold text-slate-700 md:col-span-2">Alamat sesuai KTP<textarea class="field mt-2 min-h-24" name="address" placeholder="Alamat lengkap sesuai KTP">${identity.address || ""}</textarea>${bbUserAccount.fieldError(errors, "address")}</label>
-      <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="ekyc">Kembali</button><button class="btn-primary rounded-2xl px-5 py-3">Lanjut Upload Identitas</button></div>
+      <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke e-KYC", "ekyc", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3">Lanjut Upload Identitas</button></div>
     </form>`);
     bindCommonEvents();
     document.querySelector("[data-ekyc-data-form]")?.addEventListener("submit", event => {
@@ -1390,7 +1401,7 @@
     const docs = user.ekyc?.documents || {};
     mount.innerHTML = ekycShell("ekyc-upload-identitas", "Upload Identitas", "Upload foto KTP. Pastikan seluruh informasi terlihat jelas dan tidak terpotong.", `<div class="grid gap-5">
       ${uploadBox("ktp", "Upload Foto KTP", "Pastikan seluruh informasi pada KTP terlihat jelas dan tidak terpotong.", docs.ktp, errors.ktp)}
-      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="ekyc-data-diri">Kembali</button><button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-upload-next>Lanjut Selfie</button></div>
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke Data Diri", "ekyc-data-diri", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-upload-next>Lanjut Selfie</button></div>
     </div>`);
     bindCommonEvents();
     bindEkycUploads(renderEkycUpload);
@@ -1469,7 +1480,7 @@
         <div class="mt-4 flex flex-col gap-3 sm:flex-row"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-ekyc-camera>Aktifkan Kamera</button><label class="btn-secondary flex cursor-pointer justify-center rounded-2xl px-5 py-3"><input class="sr-only" type="file" accept="image/png,image/jpeg" data-ekyc-file="selfie">Upload Foto</label>${selfie.name ? `<button type="button" class="btn-secondary rounded-2xl px-5 py-3 text-red-600" data-ekyc-remove="selfie">Hapus Foto</button>` : ""}</div>
       </section>
       <aside class="h-fit rounded-3xl bg-blue-50 p-5 text-sm font-bold leading-6 text-blue-800"><h2 class="text-lg font-extrabold">Instruksi selfie</h2><p class="mt-3">Pastikan wajah terlihat jelas.</p><p class="mt-3">Gunakan pencahayaan yang cukup.</p><p class="mt-3">Jangan gunakan masker atau kacamata hitam.</p><p class="mt-3">Upload foto tersedia jika kamera tidak dapat digunakan.</p></aside>
-      <div class="lg:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="ekyc-upload-identitas">Kembali</button><button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-selfie-next>Lanjut Review</button></div>
+      <div class="lg:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke Upload Identitas", "ekyc-upload-identitas", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-selfie-next>Lanjut Review</button></div>
     </div>`);
     bindCommonEvents();
     bindEkycUploads(renderEkycSelfie);
@@ -1557,7 +1568,7 @@
     if (!mount) return;
     const user = window.bbUserAccount?.getSessionUser?.();
     if (!user) return renderAuthRequired(mount);
-    mount.innerHTML = ekycShell("ekyc-success", "Verifikasi Berhasil Dikirim", "Terima kasih. Data identitas Anda telah berhasil dikirim dan sedang dalam proses verifikasi oleh tim BarangBareng.", `<section class="mx-auto max-w-2xl text-center"><span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-blue-50 text-brand-blue">${icon("shield-check", "h-11 w-11")}</span><h2 class="mt-5 text-2xl font-extrabold text-slate-950">Data sedang ditinjau</h2><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Kami akan memperbarui status akun setelah proses pemeriksaan selesai.</p><div class="mt-5">${bbUserAccount.getVerificationBadge("pending")}</div><button class="btn-primary mt-8 rounded-2xl px-5 py-3" data-nav="dashboard-buyer">Kembali ke Dashboard</button></section>`);
+    mount.innerHTML = ekycShell("ekyc-success", "Verifikasi Berhasil Dikirim", "Terima kasih. Data identitas Anda telah berhasil dikirim dan sedang dalam proses verifikasi oleh tim BarangBareng.", `<section class="mx-auto max-w-2xl text-center"><span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-blue-50 text-brand-blue">${icon("shield-check", "h-11 w-11")}</span><h2 class="mt-5 text-2xl font-extrabold text-slate-950">Data sedang ditinjau</h2><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Kami akan memperbarui status akun setelah proses pemeriksaan selesai.</p><div class="mt-5">${bbUserAccount.getVerificationBadge("pending")}</div>${backLink("Kembali ke Dashboard", "dashboard-buyer", "mt-8 w-fit")}</section>`);
     bindCommonEvents();
   }
   // STUDENT EKYC FEATURE END
@@ -1607,7 +1618,7 @@
         </nav>
         <header class="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div><h1 class="text-2xl font-extrabold text-slate-950 lg:text-3xl">Pengaturan Akun</h1><p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">Kelola informasi profil, keamanan akun, dan preferensi BarangBareng kamu.</p></div>
-          <button class="btn-secondary w-full rounded-2xl px-5 py-3 text-sm sm:w-fit" data-nav="dashboard-buyer">${icon("arrow-left", "h-4 w-4")} Kembali ke Dashboard</button>
+          ${backLink("Kembali ke Dashboard", "dashboard-buyer", "w-full sm:w-fit")}
         </header>
 
         <section class="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
@@ -1732,5 +1743,5 @@
   renderProfile = renderProfileAccount;
   // USER ACCOUNT FEATURE END
 
-  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, renderAccountSettings, renderForgotPassword, renderEkycStart, renderEkycData, renderEkycUpload, renderEkycSelfie, renderEkycReview, renderEkycSuccess, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon };
+  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, renderAccountSettings, renderForgotPassword, renderEkycStart, renderEkycData, renderEkycUpload, renderEkycSelfie, renderEkycReview, renderEkycSuccess, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon, backLink };
 })();
