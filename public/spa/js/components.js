@@ -67,27 +67,25 @@
     const mount = document.querySelector("#home-view");
     if (!mount) return;
     const featured = BBData.products.slice(0, 8);
-    mount.innerHTML = `<section class="gradient-animated hero-pattern relative overflow-hidden pt-[72px] text-white">
-      <div class="hero-blob left-[-80px] top-24 h-80 w-80 bg-white"></div>
-      <div class="hero-blob bottom-10 right-10 h-96 w-96 bg-teal-200"></div>
-      <div class="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:py-24">
-        <div class="relative z-10">
+    mount.innerHTML = `<section class="gradient-animated hero-pattern relative pt-[72px] text-white">
+      <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)] lg:px-8 lg:py-24">
+        <div class="relative z-10 min-w-0 max-w-full">
           <span class="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-bold">Platform Sewa Barang #1 untuk Mahasiswa</span>
-          <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">Sewa Barang Harian Mahasiswa, Hemat & Praktis.</h1>
-          <p class="mt-5 max-w-2xl text-lg leading-8 text-white/90">Temukan laptop, kamera, alat masak, perlengkapan kos, outfit formal, sampai kebutuhan event kampus dari sesama mahasiswa di sekitarmu.</p>
-          <div class="mt-8 rounded-[28px] bg-white p-4 text-slate-900 shadow-lg">
-            <div class="grid gap-3 lg:grid-cols-[1fr_180px_190px_auto]">
-              <label class="field flex items-center gap-3">${icon("search", "h-5 w-5 text-brand-blue")}<input id="hero-search" class="w-full outline-none" placeholder="Cari barang yang kamu butuhkan..."></label>
-              <select id="hero-category" class="field">${optionList(["all", ...BBData.categories.map(c => c.name)], "all", "Semua Kategori")}</select>
-              <select id="hero-campus" class="field">${optionList(["all", ...BBData.campuses], "all", "Lokasi / Kampus")}</select>
-              <button id="hero-search-btn" class="btn-primary btn-ripple rounded-2xl px-6 py-3">Cari Barang</button>
+          <h1 class="mt-6 max-w-full break-words text-3xl font-extrabold leading-tight sm:text-4xl lg:max-w-3xl lg:text-6xl">Sewa Barang Harian Mahasiswa, Hemat & Praktis.</h1>
+          <p class="mt-5 max-w-full text-base leading-7 text-white/90 sm:max-w-2xl sm:text-lg sm:leading-8 lg:text-xl">Temukan laptop, kamera, alat masak, perlengkapan kos, outfit formal, sampai kebutuhan event kampus dari sesama mahasiswa di sekitarmu.</p>
+          <div class="mt-8 w-full max-w-4xl rounded-[28px] bg-white p-4 text-slate-900 shadow-lg">
+            <div class="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
+              <label class="field flex min-w-0 items-center gap-3 lg:col-span-5">${icon("search", "h-5 w-5 shrink-0 text-brand-blue")}<input id="hero-search" class="min-w-0 flex-1 outline-none" placeholder="Cari barang yang kamu butuhkan..."></label>
+              <select id="hero-category" class="field min-w-0 lg:col-span-2">${optionList(["all", ...BBData.categories.map(c => c.name)], "all", "Semua Kategori")}</select>
+              <select id="hero-campus" class="field min-w-0 lg:col-span-3">${optionList(["all", ...BBData.campuses], "all", "Lokasi / Kampus")}</select>
+              <button id="hero-search-btn" class="btn-primary btn-ripple w-full rounded-2xl px-5 py-3 lg:col-span-2">Cari Barang</button>
             </div>
             <div class="mt-4 flex gap-2 overflow-x-auto pb-1">${["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Tenda", "Proyektor", "Setrika", "Tripod"].map(chip => `<button class="badge shrink-0 bg-blue-50 text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
           </div>
           <div class="mt-6 flex flex-wrap gap-3 text-sm font-bold text-white/95"><span>Pembayaran Aman</span><span>QRIS BarangBareng</span><span>Terverifikasi</span><span>COD Kampus</span></div>
           <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">${[[2400, "+", "Barang"], [8500, "+", "Pengguna"], [120, "+", "Kampus"], [49, "/5", "Rating"]].map(item => `<div class="rounded-3xl bg-white/14 p-4"><strong class="text-2xl" data-counter="${item[0]}" data-suffix="${item[1]}">0</strong><p class="text-sm text-white/80">${item[2]}</p></div>`).join("")}</div>
         </div>
-        <div class="relative z-10 min-h-[540px]">
+        <div class="relative z-10 hidden min-h-[540px] lg:block">
           <div class="absolute inset-0 rounded-[2.5rem] bg-white/15 p-5 backdrop-blur-xl">
             <div class="mb-5 flex items-center justify-between rounded-3xl bg-white p-4 text-slate-900">
               <div class="flex gap-2"><span class="h-3 w-3 rounded-full bg-red-400"></span><span class="h-3 w-3 rounded-full bg-amber-400"></span><span class="h-3 w-3 rounded-full bg-green-400"></span></div>

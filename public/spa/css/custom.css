@@ -14,6 +14,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 15px;
+  max-width: 100%;
   overflow-x: hidden;
 }
 body {
@@ -26,6 +27,12 @@ body {
   background-size: auto, auto, 44px 44px, 44px 44px, auto;
   color: var(--text-body);
   font-family: "Poppins", sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+#app-main {
+  max-width: 100%;
   overflow-x: hidden;
 }
 
