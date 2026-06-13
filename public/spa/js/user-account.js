@@ -261,7 +261,7 @@
 
   function dropdown(user) {
     const gold = user.level === "Gold" ? `<div class="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-semibold text-amber-800"><span class="badge bg-white text-amber-700">Gold Benefit</span><h3 class="mt-3 font-extrabold">Keuntungan Gold</h3><ul class="mt-2 grid gap-1"><li>Diskon biaya admin sebesar 30%.</li><li>Prioritas dalam sistem pencarian.</li><li>Boost listing.</li><li>Barang milik pengguna Gold lebih sering muncul.</li></ul></div>` : "";
-    return `<div class="bb-user-dropdown absolute right-0 top-12 z-[120] hidden w-[min(360px,calc(100vw-2rem))] rounded-[28px] border border-slate-100 bg-white p-5 text-left shadow-xl" data-bb-user-dropdown>
+    return `<div class="bb-user-dropdown absolute right-0 top-12 z-[120] hidden max-h-[calc(100vh-6rem)] w-[min(360px,calc(100vw-2rem))] overflow-y-auto rounded-[28px] border border-slate-100 bg-white p-5 text-left shadow-xl" data-bb-user-dropdown>
       <div class="flex items-start gap-3"><span class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-brand font-extrabold text-white">${initials(user.fullName)}</span><div class="min-w-0"><h3 class="truncate font-extrabold text-slate-950">${user.fullName}</h3><p class="truncate text-sm font-semibold text-slate-500">${user.email}</p><p class="mt-1 text-xs font-semibold text-slate-500">${user.phone} · ${user.campus}</p></div></div>
       <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-bold text-slate-500">
         <div class="rounded-2xl bg-slate-50 p-3">${levelBadge(user)}<span class="mt-1 block">Level</span></div>
@@ -317,7 +317,7 @@
     if (!user) return;
     document.querySelector("#bb-user-settings-modal")?.remove();
     document.body.insertAdjacentHTML("beforeend", `<div id="bb-user-settings-modal" class="fixed inset-0 z-[140] grid place-items-center overflow-y-auto bg-slate-950/45 px-4 py-8" role="dialog" aria-modal="true" aria-label="Pengaturan Akun">
-      <form class="w-full max-w-lg rounded-[28px] border border-slate-100 bg-white p-6 shadow-xl" data-bb-settings-form>
+      <form class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-slate-100 bg-white p-6 shadow-xl" data-bb-settings-form>
         <div class="flex items-start justify-between gap-4"><div><h2 class="text-xl font-extrabold text-slate-950">Pengaturan Akun</h2><p class="mt-1 text-sm text-slate-500">Perbarui informasi profil akun kamu.</p></div><button type="button" class="grid h-10 w-10 place-items-center rounded-full bg-slate-100" aria-label="Tutup pengaturan" data-bb-settings-close>X</button></div>
         <label class="mt-5 block text-sm font-bold text-slate-700">Nama lengkap<input class="field mt-2" name="fullName" value="${user.fullName}">${fieldError(errors, "fullName")}</label>
         <label class="mt-4 block text-sm font-bold text-slate-700">Email<input class="field mt-2 bg-slate-50" name="email" value="${user.email}" readonly></label>

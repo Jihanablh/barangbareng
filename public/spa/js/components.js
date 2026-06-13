@@ -748,7 +748,7 @@
   }
 
   function reviewImagePreview(file, index) {
-    return `<div class="relative"><img src="${file.preview}" alt="${file.name}" class="h-24 w-24 rounded-2xl object-cover"><button type="button" class="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-white text-red-500 shadow-card" data-remove-review-image="${index}">${icon("x", "h-4 w-4")}</button></div>`;
+    return `<div class="relative"><img src="${file.preview}" alt="${file.name}" class="h-24 w-24 rounded-2xl object-cover"><button type="button" class="absolute -right-2 -top-2 grid h-10 w-10 place-items-center rounded-full bg-white text-red-500 shadow-card" data-remove-review-image="${index}" aria-label="Hapus foto review">${icon("x", "h-4 w-4")}</button></div>`;
   }
 
   function bindReviewForm(transactionId, product) {
@@ -944,6 +944,327 @@
       timer = setTimeout(() => fn(...args), delay);
     };
   }
+
+  // DASHBOARD PENYEWA UPDATE START
+  function dashboardUser() {
+    return window.bbUserAccount?.getSessionUser?.() || {
+      fullName: state.currentUser?.name || "Pengguna BarangBareng",
+      email: "Masuk untuk melihat email",
+      phone: "-",
+      campus: state.currentUser?.campus || "Kampus sekitar",
+      successfulTransactions: 0,
+      rating: 0,
+      level: "Bronze",
+      listingPriority: 1,
+      progressText: "Mulai transaksi pertamamu untuk naik level.",
+      progressPercent: 0
+    };
+  }
+
+  function dashboardInitials(name) {
+    return window.bbUserAccount?.initials?.(name) || String(name || "BB").split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase();
+  }
+
+  function dashboardStatus(status) {
+    const map = {
+      WAITING_DP_PAYMENT: { label: "Menunggu DP", text: "Selesaikan pembayaran DP agar pesanan diproses.", tone: "bg-amber-50 text-amber-700", icon: "wallet", action: "Bayar DP", nav: "payment-qr" },
+      DP_PAID: { label: "DP Dibayar", text: "Pemilik sedang menyiapkan barang.", tone: "bg-teal-50 text-teal-700", icon: "check-circle-2", action: "Lihat Detail", nav: "order-detail" },
+      PREPARING_ITEM: { label: "Disiapkan", text: "Barang sedang disiapkan untuk jadwal sewa.", tone: "bg-blue-50 text-brand-blue", icon: "package-check", action: "Chat Pemilik", nav: "chat" },
+      WAITING_FINAL_PAYMENT: { label: "Menunggu Pelunasan", text: "Selesaikan pelunasan sebelum serah terima.", tone: "bg-amber-50 text-amber-700", icon: "credit-card", action: "Bayar Pelunasan", nav: "payment-final" },
+      FULLY_PAID: { label: "Lunas", text: "Pembayaran lunas. Barang siap diproses.", tone: "bg-teal-50 text-teal-700", icon: "badge-check", action: "Kode Serah Terima", nav: "qr-handover" },
+      READY_FOR_PICKUP: { label: "Siap Diambil", text: "Tunjukkan kode serah terima saat bertemu pemilik.", tone: "bg-blue-50 text-brand-blue", icon: "qr-code", action: "Tampilkan Kode", nav: "qr-handover" },
+      RENTED: { label: "Sedang Disewa", text: "Barang sedang kamu gunakan.", tone: "bg-blue-50 text-brand-blue", icon: "clock-3", action: "Detail Sewa", nav: "order-detail" },
+      RETURNED: { label: "Dikembalikan", text: "Menunggu konfirmasi akhir dari pemilik.", tone: "bg-slate-100 text-slate-700", icon: "rotate-ccw", action: "Lihat Detail", nav: "order-detail" },
+      COMPLETED: { label: "Selesai", text: "Transaksi selesai. Kamu bisa memberi penilaian.", tone: "bg-teal-50 text-teal-700", icon: "star", action: "Beri Penilaian", nav: "reviews-create" },
+      CANCELLED: { label: "Dibatalkan", text: "Transaksi ini dibatalkan.", tone: "bg-red-50 text-red-700", icon: "x-circle", action: "Cari Barang Lain", nav: "browse" },
+      PAYMENT_EXPIRED: { label: "Pembayaran Habis", text: "Buat pembayaran baru untuk melanjutkan.", tone: "bg-red-50 text-red-700", icon: "timer-off", action: "Bayar Lagi", nav: "payment-qr" }
+    };
+    return map[status] || map.WAITING_DP_PAYMENT;
+  }
+
+  function dashboardTotals(product) {
+    const days = Number(state.bookingDays || 2);
+    if (window.checkout?.calculate) return checkout.calculate(product, days);
+    const subtotal = product.type === "pinjam" ? 0 : Number(product.price || 0) * days;
+    const service = product.type === "pinjam" ? 5000 : Math.max(2500, Math.round(subtotal * 0.025));
+    const transaction = Math.round((subtotal + service) * 0.007);
+    const total = subtotal + service + transaction;
+    return { subtotal, service, transaction, total, dp: Math.round(total * 0.3), remaining: total - Math.round(total * 0.3) };
+  }
+
+  function dashboardOrderData() {
+    const activeProduct = selectedProduct();
+    const total = dashboardTotals(activeProduct);
+    const currentStatus = state.orderStatus || "WAITING_DP_PAYMENT";
+    const transactionId = state.orderCode || `ORD-20260609-${String(activeProduct.id).padStart(4, "0")}`;
+    const active = {
+      id: transactionId,
+      product: activeProduct,
+      status: currentStatus,
+      total: total.total,
+      due: state.bookingEnd || "22 Juni 2026",
+      date: state.bookingStart || "20 Juni 2026",
+      reviewed: state.reviewedTransaction?.(transactionId)
+    };
+    const history = [
+      active,
+      { id: "ORD-20260604-0007", product: BBData.products[3] || activeProduct, status: "COMPLETED", total: 64000, due: "08 Juni 2026", date: "06 Juni 2026", reviewed: true },
+      { id: "ORD-20260529-0002", product: BBData.products[6] || activeProduct, status: "CANCELLED", total: 0, due: "30 Mei 2026", date: "29 Mei 2026", reviewed: false }
+    ];
+    return { active, history };
+  }
+
+  function dashboardStat(label, value, iconName, tone) {
+    return `<article class="rounded-[24px] border border-slate-100 bg-white p-4 shadow-sm">
+      <div class="flex items-center justify-between gap-3">
+        <span class="grid h-10 w-10 place-items-center rounded-2xl ${tone}">${icon(iconName, "h-5 w-5")}</span>
+        <strong class="text-xl font-extrabold text-slate-950">${value}</strong>
+      </div>
+      <p class="mt-3 text-xs font-bold uppercase tracking-wide text-slate-400">${label}</p>
+    </article>`;
+  }
+
+  function dashboardMiniProduct(product, action = "Lihat Detail") {
+    if (!product) return "";
+    return `<article class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3">
+      <img src="${product.image}" alt="${product.name}" class="h-16 w-16 shrink-0 rounded-2xl object-cover" onerror="this.src='${fallbackImage}'">
+      <div class="min-w-0 flex-1">
+        <h3 class="truncate text-sm font-extrabold text-slate-950">${product.name}</h3>
+        <p class="mt-1 truncate text-xs font-semibold text-slate-500">${product.campus}</p>
+      </div>
+      <button class="rounded-xl bg-blue-50 px-3 py-2 text-xs font-extrabold text-brand-blue" data-product="${product.id}">${action}</button>
+    </article>`;
+  }
+
+  function dashboardOrderCard(order) {
+    const meta = dashboardStatus(order.status);
+    const canReview = order.status === "COMPLETED" && !order.reviewed;
+    const nav = canReview ? "reviews-create" : meta.nav;
+    const attr = nav === "reviews-create" ? `data-review-transaction="${order.id}"` : `data-nav="${nav}"`;
+    return `<article class="rounded-[28px] border border-slate-100 bg-white p-4 shadow-sm">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="flex min-w-0 gap-3">
+          <img src="${order.product.image}" alt="${order.product.name}" class="h-20 w-20 shrink-0 rounded-2xl object-cover" onerror="this.src='${fallbackImage}'">
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-slate-400">${order.id}</p>
+            <h3 class="mt-1 truncate text-lg font-extrabold text-slate-950">${order.product.name}</h3>
+            <p class="mt-1 text-sm font-semibold text-slate-500">${order.date} - ${order.due}</p>
+          </div>
+        </div>
+        <span class="badge ${meta.tone}">${meta.label}</span>
+      </div>
+      <div class="mt-4 grid gap-3 rounded-2xl bg-slate-50 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+        <p class="text-sm font-semibold leading-6 text-slate-600">${meta.text}</p>
+        <strong class="text-brand-blue">${rupiah(order.total)}</strong>
+      </div>
+      <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+        <button class="btn-primary rounded-2xl px-4 py-3 text-sm" ${attr}>${canReview ? "Beri Penilaian" : meta.action}</button>
+        <button class="btn-secondary rounded-2xl px-4 py-3 text-sm" data-product="${order.product.id}">Lihat Barang</button>
+      </div>
+    </article>`;
+  }
+
+  function dashboardPaymentCard(order) {
+    const meta = dashboardStatus(order.status);
+    const isPayment = ["WAITING_DP_PAYMENT", "WAITING_FINAL_PAYMENT", "PAYMENT_EXPIRED"].includes(order.status);
+    if (!isPayment) {
+      return `<article class="rounded-[24px] border border-slate-100 bg-slate-50 p-5 text-sm font-semibold leading-6 text-slate-500">Tidak ada pembayaran yang perlu diselesaikan sekarang.</article>`;
+    }
+    return `<article class="rounded-[24px] border border-amber-100 bg-amber-50 p-5">
+      <div class="flex items-start gap-3">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-amber-600">${icon(meta.icon, "h-5 w-5")}</span>
+        <div class="min-w-0">
+          <h3 class="font-extrabold text-amber-800">${meta.label}</h3>
+          <p class="mt-1 text-sm font-semibold leading-6 text-amber-700">${order.product.name}</p>
+          <p class="mt-2 text-2xl font-extrabold text-slate-950">${rupiah(order.total)}</p>
+        </div>
+      </div>
+      <button class="btn-primary mt-5 w-full rounded-2xl px-4 py-3" data-nav="${meta.nav}">${meta.action}</button>
+    </article>`;
+  }
+
+  function dashboardHistoryRow(order) {
+    const meta = dashboardStatus(order.status);
+    return `<article class="grid gap-3 rounded-2xl border border-slate-100 bg-white p-4 md:grid-cols-[1fr_140px_140px_auto] md:items-center">
+      <div class="min-w-0">
+        <p class="truncate text-sm font-extrabold text-slate-950">${order.product.name}</p>
+        <p class="mt-1 text-xs font-semibold text-slate-500">${order.id} - ${order.date}</p>
+      </div>
+      <span class="badge w-fit ${meta.tone}">${meta.label}</span>
+      <strong class="text-sm text-brand-blue">${rupiah(order.total)}</strong>
+      <button class="rounded-xl bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-600 hover:bg-blue-50 hover:text-brand-blue" data-nav="order-detail">Detail</button>
+    </article>`;
+  }
+
+  function dashboardNotification(text, index) {
+    const icons = ["bell", "calendar-check", "shield-check", "message-circle"];
+    return `<article class="rounded-2xl border border-slate-100 bg-white p-4">
+      <div class="flex gap-3">
+        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-brand-blue">${icon(icons[index % icons.length], "h-4 w-4")}</span>
+        <div><p class="text-sm font-bold leading-5 text-slate-700">${text}</p><p class="mt-1 text-xs font-semibold text-slate-400">${index + 1} jam lalu</p></div>
+      </div>
+    </article>`;
+  }
+
+  function dashboardRecommendationCard(product) {
+    return `<article class="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm">
+      <div class="relative h-36 overflow-hidden bg-slate-100">
+        <img src="${product.image}" alt="${product.name}" class="h-full w-full object-cover" onerror="this.src='${fallbackImage}'">
+        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${state.isWishlisted(product.id) ? "text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Simpan ${product.name}">${icon("heart", state.isWishlisted(product.id) ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
+      </div>
+      <div class="p-4">
+        <h3 class="line-clamp-1 font-extrabold text-slate-950">${product.name}</h3>
+        <p class="mt-1 text-xs font-semibold text-slate-500">${product.campus}</p>
+        <p class="mt-3 text-sm font-extrabold text-brand-blue">${price(product)}</p>
+        <button class="btn-secondary mt-4 w-full rounded-2xl px-4 py-2 text-sm" data-product="${product.id}">Lihat Detail</button>
+      </div>
+    </article>`;
+  }
+
+  function bindBuyerDashboardEvents() {
+    document.querySelectorAll("[data-buyer-history-filter]").forEach(button => button.addEventListener("click", () => {
+      state.buyerHistoryFilter = button.dataset.buyerHistoryFilter;
+      renderBuyer();
+    }));
+    document.querySelectorAll("[data-buyer-history-sort]").forEach(button => button.addEventListener("click", () => {
+      state.buyerHistorySort = button.dataset.buyerHistorySort;
+      renderBuyer();
+    }));
+    document.querySelectorAll("[data-dashboard-scroll]").forEach(button => button.addEventListener("click", () => {
+      document.querySelector(button.dataset.dashboardScroll)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+    document.querySelectorAll("[data-review-transaction]").forEach(button => button.addEventListener("click", event => {
+      router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction });
+    }));
+  }
+
+  function renderBuyerDashboard() {
+    const mount = document.querySelector("#buyer-view");
+    if (!mount) return;
+    const user = dashboardUser();
+    const { active, history } = dashboardOrderData();
+    const activeStatuses = ["WAITING_DP_PAYMENT", "DP_PAID", "PREPARING_ITEM", "WAITING_FINAL_PAYMENT", "FULLY_PAID", "READY_FOR_PICKUP", "RENTED", "RETURNED"];
+    const activeOrders = activeStatuses.includes(active.status) ? [active] : [];
+    const paymentCount = ["WAITING_DP_PAYMENT", "WAITING_FINAL_PAYMENT", "PAYMENT_EXPIRED"].includes(active.status) ? 1 : 0;
+    const cartProducts = state.cart.slice(0, 3).map(item => BBData.products.find(product => product.id === Number(item.productId))).filter(Boolean);
+    const wishlistProducts = state.wishlist.slice(0, 3).map(id => BBData.products.find(product => product.id === Number(id))).filter(Boolean);
+    const recommendations = BBData.products.filter(product => product.id !== active.product.id).slice(0, 4);
+    const filter = state.buyerHistoryFilter || "all";
+    const sort = state.buyerHistorySort || "newest";
+    const filteredHistory = history
+      .filter(order => filter === "all" || (filter === "review" ? order.status === "COMPLETED" && !order.reviewed : order.status === filter))
+      .sort((a, b) => sort === "highest" ? b.total - a.total : a.id < b.id ? 1 : -1);
+    const reviewNeeded = history.find(order => order.status === "COMPLETED" && !order.reviewed);
+    const firstName = String(user.fullName || "Pengguna").split(" ")[0];
+    const levelBadgeHtml = window.bbUserAccount?.levelBadge?.(user) || `<span class="badge bg-amber-100 text-amber-700">${user.level || "Bronze"}</span>`;
+
+    mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
+      <div class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <section class="overflow-hidden rounded-[32px] bg-gradient-brand p-5 text-white shadow-blue md:p-7">
+          <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-white/75">Dashboard Penyewa</p>
+              <h1 class="mt-2 text-2xl font-extrabold leading-tight md:text-4xl">Halo, ${firstName}. Semua kebutuhan sewamu ada di sini.</h1>
+              <p class="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/80">Pantau transaksi aktif, pembayaran, barang tersimpan, dan rekomendasi kampus tanpa pindah-pindah halaman.</p>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <button class="rounded-2xl bg-white px-4 py-3 text-sm font-extrabold text-brand-blue shadow-sm" data-nav="browse">Jelajah Barang</button>
+                <button class="rounded-2xl bg-white/15 px-4 py-3 text-sm font-extrabold text-white ring-1 ring-white/25" data-nav="keranjang">Buka Keranjang</button>
+                <button class="rounded-2xl bg-white/15 px-4 py-3 text-sm font-extrabold text-white ring-1 ring-white/25" data-nav="disimpan">Barang Disimpan</button>
+              </div>
+            </div>
+            <aside class="rounded-[28px] bg-white p-5 text-slate-800 shadow-card">
+              <div class="flex items-center gap-4">
+                <span class="grid h-16 w-16 shrink-0 place-items-center rounded-3xl bg-gradient-brand text-xl font-extrabold text-white">${dashboardInitials(user.fullName)}</span>
+                <div class="min-w-0">
+                  <h2 class="truncate text-lg font-extrabold text-slate-950">${user.fullName}</h2>
+                  <p class="truncate text-sm font-semibold text-slate-500">${user.campus}</p>
+                  <p class="mt-2">${levelBadgeHtml}</p>
+                </div>
+              </div>
+              <div class="mt-5 h-3 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${Math.max(4, Number(user.progressPercent || 0))}%"></div></div>
+              <p class="mt-2 text-xs font-semibold leading-5 text-slate-500">${user.progressText || "Progress level akan tampil setelah kamu mulai transaksi."}</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          ${dashboardStat("Sewa Aktif", activeOrders.length, "package-check", "bg-blue-50 text-brand-blue")}
+          ${dashboardStat("Pembayaran", paymentCount, "credit-card", "bg-amber-50 text-amber-700")}
+          ${dashboardStat("Keranjang", state.cart.length, "shopping-basket", "bg-teal-50 text-teal-700")}
+          ${dashboardStat("Disimpan", state.wishlist.length, "heart", "bg-rose-50 text-rose-600")}
+        </section>
+
+        <section class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div class="grid gap-6">
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div><p class="text-sm font-bold text-brand-blue">Transaksi</p><h2 class="text-2xl font-extrabold text-slate-950">Sewa Aktif</h2></div>
+                <button class="btn-secondary rounded-2xl px-4 py-3 text-sm" data-nav="order-detail">Lihat Detail Transaksi</button>
+              </div>
+              <div class="mt-5 grid gap-4">${activeOrders.length ? activeOrders.map(dashboardOrderCard).join("") : `<article class="rounded-[24px] bg-slate-50 p-6 text-center"><h3 class="font-extrabold text-slate-950">Belum ada sewa aktif</h3><p class="mt-2 text-sm font-semibold text-slate-500">Mulai cari barang yang kamu butuhkan di sekitar kampus.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang</button></article>`}</div>
+            </section>
+
+            <section id="buyer-history-section" class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+              <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div><p class="text-sm font-bold text-brand-blue">Riwayat</p><h2 class="text-2xl font-extrabold text-slate-950">Transaksi Terakhir</h2></div>
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                  ${[["all", "Semua"], ["COMPLETED", "Selesai"], ["CANCELLED", "Dibatalkan"], ["review", "Perlu Review"]].map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-extrabold ${filter === item[0] ? "bg-gradient-brand text-white" : "bg-slate-50 text-slate-600"}" data-buyer-history-filter="${item[0]}">${item[1]}</button>`).join("")}
+                  ${[["newest", "Terbaru"], ["highest", "Nominal"]].map(item => `<button class="shrink-0 rounded-2xl px-4 py-2 text-sm font-extrabold ${sort === item[0] ? "bg-blue-50 text-brand-blue" : "bg-slate-50 text-slate-600"}" data-buyer-history-sort="${item[0]}">${item[1]}</button>`).join("")}
+                </div>
+              </div>
+              <div class="mt-5 grid gap-3">${filteredHistory.length ? filteredHistory.map(dashboardHistoryRow).join("") : `<p class="rounded-2xl bg-slate-50 p-5 text-sm font-semibold text-slate-500">Belum ada transaksi pada filter ini.</p>`}</div>
+            </section>
+
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+              <div class="flex items-center justify-between gap-3">
+                <div><p class="text-sm font-bold text-brand-blue">Rekomendasi</p><h2 class="text-2xl font-extrabold text-slate-950">Cocok untuk Kamu</h2></div>
+                <button class="btn-secondary rounded-2xl px-4 py-3 text-sm" data-nav="browse">Lihat Semua</button>
+              </div>
+              <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">${recommendations.map(dashboardRecommendationCard).join("")}</div>
+            </section>
+          </div>
+
+          <aside class="grid h-fit gap-6 lg:sticky lg:top-28">
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
+              <h2 class="text-xl font-extrabold text-slate-950">Pembayaran</h2>
+              <div class="mt-4">${dashboardPaymentCard(active)}</div>
+            </section>
+
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
+              <h2 class="text-xl font-extrabold text-slate-950">Aksi Cepat</h2>
+              <div class="mt-4 grid grid-cols-2 gap-3">
+                ${[["browse", "Jelajah", "search"], ["keranjang", "Keranjang", "shopping-basket"], ["disimpan", "Disimpan", "heart"], ["topup", "Top Up", "wallet"], ["profile", "Profil", "user"], ["chat", "Bantuan", "message-circle"]].map(item => `<button class="rounded-2xl bg-slate-50 p-4 text-left text-sm font-extrabold text-slate-700 transition hover:bg-blue-50 hover:text-brand-blue" data-nav="${item[0]}">${icon(item[2], "mb-2 h-5 w-5")} ${item[1]}</button>`).join("")}
+              </div>
+            </section>
+
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
+              <div class="flex items-center justify-between"><h2 class="text-xl font-extrabold text-slate-950">Keranjang</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="keranjang">${state.cart.length} item</button></div>
+              <div class="mt-4 grid gap-3">${cartProducts.length ? cartProducts.map(product => dashboardMiniProduct(product, "Checkout")).join("") : `<p class="rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Keranjang masih kosong.</p>`}</div>
+            </section>
+
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
+              <div class="flex items-center justify-between"><h2 class="text-xl font-extrabold text-slate-950">Disimpan</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="disimpan">${state.wishlist.length} item</button></div>
+              <div class="mt-4 grid gap-3">${wishlistProducts.length ? wishlistProducts.map(product => dashboardMiniProduct(product)).join("") : `<p class="rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Belum ada barang disimpan.</p>`}</div>
+            </section>
+
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
+              <h2 class="text-xl font-extrabold text-slate-950">Penilaian</h2>
+              ${reviewNeeded ? `<p class="mt-3 text-sm font-semibold text-slate-500">${reviewNeeded.product.name} menunggu penilaian kamu.</p><button class="btn-primary mt-4 w-full rounded-2xl px-4 py-3" data-review-transaction="${reviewNeeded.id}">Beri Penilaian</button>` : `<p class="mt-3 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Tidak ada penilaian tertunda.</p>`}
+            </section>
+
+            <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
+              <h2 class="text-xl font-extrabold text-slate-950">Notifikasi</h2>
+              <div class="mt-4 grid gap-3">${(state.notifications || []).slice(0, 4).map(dashboardNotification).join("") || `<p class="rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Belum ada notifikasi.</p>`}</div>
+            </section>
+          </aside>
+        </section>
+      </div>
+    </main>`;
+    bindCommonEvents();
+    bindBuyerDashboardEvents();
+  }
+  renderBuyer = renderBuyerDashboard;
+  // DASHBOARD PENYEWA UPDATE END
 
   // USER ACCOUNT FEATURE START
   function renderProfileAccount() {

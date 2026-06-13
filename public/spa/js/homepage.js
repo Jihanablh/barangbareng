@@ -106,8 +106,8 @@
         <div class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.04fr_.96fr] lg:px-8 lg:py-20">
           <div>
             <span class="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-bold text-brand-blue">Platform Sewa Barang Harian untuk Mahasiswa</span>
-            <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-tight text-slate-950 sm:text-5xl lg:text-6xl">Sewa Barang Harian Mahasiswa, Lebih Hemat dan Praktis.</h1>
-            <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">Temukan laptop, kamera, alat kos, outfit sidang, perlengkapan event, sampai kebutuhan harian dari sesama mahasiswa di sekitarmu.</p>
+            <h1 class="mt-5 max-w-3xl text-3xl font-extrabold leading-tight text-slate-950 sm:text-5xl lg:text-6xl">Sewa Barang Harian Mahasiswa, Lebih Hemat dan Praktis.</h1>
+            <p class="mt-4 max-w-2xl text-sm font-semibold leading-7 text-slate-600 sm:text-lg sm:leading-8">Temukan laptop, kamera, alat kos, outfit sidang, perlengkapan event, sampai kebutuhan harian dari sesama mahasiswa di sekitarmu.</p>
             <div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-6 py-3" data-nav="browse">Jelajah Barang</button><button class="btn-secondary rounded-2xl px-6 py-3" data-nav="upload-product">Sewakan Barang</button></div>
             <div class="mt-8 rounded-[32px] bg-white p-4 shadow-card-hover">
               <div class="grid gap-3 lg:grid-cols-[1fr_190px_190px_auto]">
@@ -119,7 +119,7 @@
               <div class="mt-4 flex gap-2 overflow-x-auto pb-1">${["Laptop", "Kamera Canon", "Rice Cooker", "Jas Sidang", "Tenda Camping", "Proyektor", "Setrika", "Tripod"].map(chip => `<button class="badge shrink-0 bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
             </div>
           </div>
-          <div class="relative min-h-[520px]">
+          <div class="relative hidden min-h-[520px] lg:block">
             <div class="absolute inset-0 rounded-[40px] bg-gradient-to-br from-blue-600 to-teal-500 p-5 shadow-blue"></div>
             <div class="relative z-10 grid gap-4 p-6">
               <div class="rounded-[28px] bg-white/90 p-5 backdrop-blur-xl"><p class="text-sm font-bold text-slate-500">Marketplace aktif</p><h2 class="mt-1 text-2xl font-extrabold text-slate-950">Barang kampus siap disewa hari ini</h2></div>
@@ -132,7 +132,7 @@
         </div>
       </section>
 
-      <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           ${statCard("package-check", 2400, "Barang tersedia", "+")}
           ${statCard("users", 8500, "Pengguna mahasiswa", "+")}
@@ -167,7 +167,7 @@
 
       <section id="pinjam-gratis" class="bg-teal-50 py-16">${sectionInner("Butuh Barang Sementara? Cek Pinjam Gratis", "Beberapa barang bisa dipinjam tanpa biaya sewa, hanya dikenakan biaya layanan.", `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">${freeItems.map(item => `<article class="overflow-hidden rounded-[24px] bg-white shadow-card"><img src="${item[1]}" alt="${item[0]}" class="h-36 w-full object-cover"><div class="p-5"><h3 class="font-extrabold">${item[0]}</h3><p class="mt-2 text-sm text-slate-500">Gratis - biaya layanan Rp5.000</p><span class="badge mt-4 bg-teal-50 text-teal-700">Pinjam Gratis</span></div></article>`).join("")}</div><button class="btn-primary mt-8 rounded-2xl px-6 py-3" data-free-browse>Lihat Semua Pinjam Gratis</button>`)}</section>
 
-      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"><div class="overflow-hidden rounded-[36px] bg-gradient-to-br from-blue-600 to-teal-500 p-8 text-white shadow-blue lg:p-10"><div class="grid gap-8 lg:grid-cols-[1fr_.9fr] lg:items-center"><div><span class="badge bg-white/15 text-white">Untuk pemilik barang</span><h2 class="mt-4 text-3xl font-extrabold lg:text-5xl">Barangmu Nganggur? Jadikan Penghasilan.</h2><p class="mt-4 max-w-2xl text-white/85">Laptop, kamera, jas, rice cooker, atau alat event yang jarang dipakai bisa jadi sumber penghasilan tambahan.</p><div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="rounded-2xl bg-white px-6 py-3 font-extrabold text-brand-blue" data-nav="upload-product">Mulai Sewakan Barang</button><button class="rounded-2xl border border-white/40 px-6 py-3 font-extrabold text-white" data-scroll-target="how-it-works">Lihat Cara Kerja</button></div></div><div class="grid gap-3 sm:grid-cols-2">${[["Laptop", "Rp300rb-700rb/bulan"], ["Kamera", "Rp500rb-1jt/bulan"], ["Jas formal", "Rp150rb-400rb/bulan"], ["Speaker", "Rp200rb-600rb/bulan"]].map(item => `<div class="rounded-3xl bg-white/15 p-5 backdrop-blur"><p class="text-sm text-white/75">${item[0]}</p><strong class="mt-1 block text-xl">${item[1]}</strong></div>`).join("")}</div></div></div></section>
+      <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8"><div class="overflow-hidden rounded-[28px] bg-gradient-to-br from-blue-600 to-teal-500 p-6 text-white shadow-blue sm:rounded-[36px] sm:p-8 lg:p-10"><div class="grid gap-8 lg:grid-cols-[1fr_.9fr] lg:items-center"><div><span class="badge bg-white/15 text-white">Untuk pemilik barang</span><h2 class="mt-4 text-2xl font-extrabold sm:text-3xl lg:text-5xl">Barangmu Nganggur? Jadikan Penghasilan.</h2><p class="mt-4 max-w-2xl text-sm font-semibold leading-7 text-white/85 sm:text-base">Laptop, kamera, jas, rice cooker, atau alat event yang jarang dipakai bisa jadi sumber penghasilan tambahan.</p><div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="rounded-2xl bg-white px-6 py-3 font-extrabold text-brand-blue" data-nav="upload-product">Mulai Sewakan Barang</button><button class="rounded-2xl border border-white/40 px-6 py-3 font-extrabold text-white" data-scroll-target="how-it-works">Lihat Cara Kerja</button></div></div><div class="grid gap-3 sm:grid-cols-2">${[["Laptop", "Rp300rb-700rb/bulan"], ["Kamera", "Rp500rb-1jt/bulan"], ["Jas formal", "Rp150rb-400rb/bulan"], ["Speaker", "Rp200rb-600rb/bulan"]].map(item => `<div class="rounded-3xl bg-white/15 p-5 backdrop-blur"><p class="text-sm text-white/75">${item[0]}</p><strong class="mt-1 block text-lg sm:text-xl">${item[1]}</strong></div>`).join("")}</div></div></div></section>
 
       <section id="faq" class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8">${sectionTitle("FAQ Singkat", "Pertanyaan yang paling sering muncul dari pengguna baru.")}<div class="mt-8 grid gap-3">${faq.map((item, index) => `<article class="card overflow-hidden"><button class="flex w-full items-center justify-between gap-4 p-5 text-left font-extrabold text-slate-950" data-faq="${index}">${item[0]}${icon("chevron-down", "h-5 w-5 text-slate-400")}</button><div class="hidden px-5 pb-5 text-sm leading-6 text-slate-600" data-faq-panel="${index}">${item[1]}</div></article>`).join("")}</div></section>
     `;
