@@ -12,6 +12,7 @@
     login: '<section id="login-view" data-view="login"></section>',
     register: '<section id="register-view" data-view="register"></section>',
     topup: '<section id="topup-view" data-view="topup"></section>',
+    tracking: '<section id="tracking-view" data-view="tracking"></section>',
     "qr-handover": '<section id="qr-handover-view" data-view="qr-handover"></section>',
     chat: '<section id="chat-view" data-view="chat"></section>',
     "upload-product": '<section id="upload-product-view" data-view="upload-product"></section>',
@@ -55,6 +56,7 @@
       login: "partials/login.html",
       register: "partials/register.html",
       topup: "partials/topup.html",
+      tracking: "partials/tracking.html",
       "qr-handover": "partials/qr-handover.html",
       chat: "partials/chat.html",
       "upload-product": "partials/upload-product.html",
@@ -86,7 +88,8 @@
       if (!path) return;
       this.params = params;
       if (params.productId && Number.isFinite(Number(params.productId))) state.rememberProduct(Number(params.productId));
-      const hashParam = params.productId ? `/${params.productId}` : "";
+      const routeId = params.productId || params.orderId || "";
+      const hashParam = routeId ? `/${routeId}` : "";
       const queryParam = params.query ? `?q=${encodeURIComponent(params.query)}` : "";
       const routeAlias = {
         "ekyc-data-diri": "ekyc/data-diri",
@@ -137,6 +140,9 @@
         id = parts[1];
       } else if (parts[0] === "serah-terima") {
         viewName = "serah-terima";
+        id = parts[1];
+      } else if (parts[0] === "tracking") {
+        viewName = "tracking";
         id = parts[1];
       } else if (parts[0] === "reviews" && parts[1] === "create") {
         viewName = "reviews-create";

@@ -39,3 +39,104 @@
   color: #1E293B;
   padding: 10px 16px;
 }
+
+/* TRACKING FLOW FEATURE START */
+.bb-tracking-map {
+  position: relative;
+  isolation: isolate;
+}
+
+.bb-tracking-route {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  top: 48%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563EB, #14B8A6);
+  opacity: .24;
+}
+
+.bb-tracking-route::before,
+.bb-tracking-route::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  height: 110px;
+  width: 110px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: rgba(37, 99, 235, .08);
+}
+
+.bb-tracking-route::before {
+  left: -36px;
+}
+
+.bb-tracking-route::after {
+  right: -36px;
+  background: rgba(20, 184, 166, .10);
+}
+
+.bb-tracking-pin,
+.bb-tracking-marker {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  height: 48px;
+  width: 48px;
+  place-items: center;
+  border-radius: 999px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, .16);
+}
+
+.bb-tracking-pin {
+  background: #fff;
+  color: #2563EB;
+}
+
+.bb-tracking-origin {
+  left: 12%;
+  top: calc(48% - 24px);
+}
+
+.bb-tracking-destination {
+  right: 12%;
+  top: calc(48% - 24px);
+  color: #0F766E;
+}
+
+.bb-tracking-marker {
+  left: 15%;
+  top: calc(48% - 24px);
+  background: linear-gradient(135deg, #2563EB, #14B8A6);
+  color: #fff;
+}
+
+.bb-tracking-marker-move {
+  animation: bb-tracking-marker-trip 10s ease-in-out forwards;
+}
+
+.bb-tracking-marker-finish {
+  left: calc(85% - 48px);
+}
+
+.bb-spin-soft {
+  animation: bb-spin-soft 1s linear infinite;
+}
+
+@keyframes bb-tracking-marker-trip {
+  from {
+    left: 15%;
+  }
+  to {
+    left: calc(85% - 48px);
+  }
+}
+
+@keyframes bb-spin-soft {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* TRACKING FLOW FEATURE END */
