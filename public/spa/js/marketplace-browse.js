@@ -1,6 +1,8 @@
 (function () {
   const icon = (name, cls = "h-5 w-5") => components.icon(name, cls);
   const rupiah = value => components.rupiah(value);
+  const fallbackImage = BBData.fallbackProductImage || "/images/products/product-placeholder.svg";
+  const getProductImage = product => BBData.getProductImage?.(product) || fallbackImage;
   const PAGE_SIZE = 20;
 
   const campusOptions = BBData.campuses;
@@ -183,7 +185,7 @@
     const goldSeller = product.owner.level === "gold" ? `<span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Gold Seller</span>` : "";
     return `<article class="group min-w-0 cursor-pointer overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
       <div class="relative overflow-hidden bg-slate-100">
-        <img src="${product.image}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
+        <img src="${getProductImage(product)}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
         <div class="absolute left-3 top-3 flex max-w-[calc(100%-4rem)] flex-wrap gap-1.5"><span class="rounded-full px-2.5 py-1 text-xs font-bold ${statusTone}">${status}</span><span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">${extra}</span></div>
         <button class="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-red-500 ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
       </div>

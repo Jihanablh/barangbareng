@@ -3,7 +3,10 @@
   const icon = (name, cls = "h-5 w-5") => components.icon(name, cls);
   const backLink = (label, to, className = "mb-5") => `<button type="button" class="${className} inline-flex min-w-0 items-center gap-2 text-sm font-bold text-slate-600 transition hover:-translate-x-0.5 hover:text-blue-600 sm:text-base" data-nav="${to}">${icon("arrow-left", "h-5 w-5 shrink-0")}<span class="min-w-0">${label}</span></button>`;
   const product = () => components.selectedProduct();
-  const img = item => `<img src="${item.image}" alt="${item.name}" class="h-full w-full rounded-3xl object-cover" onerror="this.src='${item.image}'">`;
+  const fallbackImage = BBData.fallbackProductImage || "/images/products/product-placeholder.svg";
+  const getProductImage = item => BBData.getProductImage?.(item) || fallbackImage;
+  const getProductGallery = item => BBData.getProductGallery?.(item) || [getProductImage(item)];
+  const img = item => `<img src="${getProductImage(item)}" alt="${item.name || "Produk BarangBareng"}" class="h-full w-full rounded-3xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">`;
 
   function shell(title, subtitle, body, width = "max-w-5xl") {
     return `<div class="mx-auto ${width} px-4 pb-16 pt-28 sm:px-6 lg:px-8">
@@ -147,7 +150,7 @@
     const viewItem = item.image ? item : { ...fallback, ...item, name: item.name || "Preview Listing Baru", price: item.price || 0, image: fallback.image };
     return `<section class="grid gap-6 lg:grid-cols-[1fr_340px]">
       <form class="card grid gap-4 p-6">
-        <div class="grid gap-3 md:grid-cols-2"><div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-5"><p class="font-bold">Upload foto utama</p><div class="mt-3 h-36">${img(viewItem)}</div></div><div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-5"><p class="font-bold">Upload gallery</p><div class="mt-3 grid grid-cols-3 gap-2">${viewItem.gallery.slice(0, 3).map(src => `<img src="${src}" alt="Gallery" class="h-20 rounded-2xl object-cover">`).join("")}</div></div></div>
+        <div class="grid gap-3 md:grid-cols-2"><div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-5"><p class="font-bold">Upload foto utama</p><div class="mt-3 h-36">${img(viewItem)}</div></div><div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-5"><p class="font-bold">Upload gallery</p><div class="mt-3 grid grid-cols-3 gap-2">${getProductGallery(viewItem).slice(0, 3).map(src => `<img src="${src}" alt="Gallery" class="h-20 rounded-2xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">`).join("")}</div></div></div>
         <input class="field" value="${item.name || ""}" placeholder="Nama barang">
         <div class="grid gap-3 md:grid-cols-2"><select class="field">${BBData.categories.map(category => `<option ${category.name === item.category ? "selected" : ""}>${category.name}</option>`).join("")}</select><input class="field" value="${item.subcategory || ""}" placeholder="Subkategori"></div>
         <textarea class="field min-h-32" placeholder="Deskripsi">${item.description || ""}</textarea>
@@ -322,7 +325,7 @@
         <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
           <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Informasi Barang</h2>
           <div class="mt-5 flex flex-col gap-4 sm:flex-row">
-            <img src="${item.image}" alt="${item.name}" class="h-36 w-full rounded-3xl object-cover sm:w-40">
+            <img src="${getProductImage(item)}" alt="${item.name}" class="h-36 w-full rounded-3xl object-cover sm:w-40" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
             <div class="min-w-0 flex-1">
               <h3 class="text-xl font-bold text-slate-900 sm:text-2xl">${item.name}</h3>
               <p class="mt-2 text-sm font-semibold text-slate-500">${item.owner.name} · ${item.campus}</p>

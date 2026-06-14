@@ -2,6 +2,8 @@
   const byName = name => BBData.products.find(product => product.name === name) || BBData.products[0];
   const rupiah = value => components.rupiah(value);
   const icon = (name, cls = "h-5 w-5") => components.icon(name, cls);
+  const fallbackImage = BBData.fallbackProductImage || "/images/products/product-placeholder.svg";
+  const getProductImage = product => BBData.getProductImage?.(product) || fallbackImage;
 
   const featuredNames = [
     "Rice Cooker Mini",
@@ -71,7 +73,7 @@
   function productMini(product, tilt = "") {
     return `<article class="${tilt} rounded-[28px] bg-white p-3 text-slate-900 shadow-card-hover">
       <div class="grid grid-cols-[96px_1fr] gap-3">
-        <img src="${product.image}" alt="${product.name}" class="h-24 w-full rounded-2xl object-cover">
+        <img src="${getProductImage(product)}" alt="${product.name}" class="h-24 w-full rounded-2xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
         <div>
           <span class="badge bg-teal-50 text-teal-700">Tersedia</span>
           <h3 class="mt-2 line-clamp-1 font-extrabold">${product.name}</h3>
@@ -138,7 +140,7 @@
       <div id="categories">${sectionHeader("Pilih Barang Sesuai Kebutuhanmu", "Dari kebutuhan anak kos, sidang, wisuda, sampai event organisasi kampus.")}</div>
       <section class="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8"><div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">${categories.map(category => {
         const item = byName(category[3]);
-        return `<button class="product-card card overflow-hidden text-left" data-home-category="${category[0]}"><img src="${item.image}" alt="${category[0]}" class="h-32 w-full object-cover"><div class="p-5"><strong class="text-slate-950">${category[0]}</strong><p class="mt-2 text-sm text-slate-500">${category[1]}</p><p class="mt-3 text-xs font-bold text-brand-blue">${category[2]}</p></div></button>`;
+        return `<button class="product-card card overflow-hidden text-left" data-home-category="${category[0]}"><img src="${getProductImage(item)}" alt="${category[0]}" class="h-32 w-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"><div class="p-5"><strong class="text-slate-950">${category[0]}</strong><p class="mt-2 text-sm text-slate-500">${category[1]}</p><p class="mt-3 text-xs font-bold text-brand-blue">${category[2]}</p></div></button>`;
       }).join("")}</div></section>
 
       ${sectionHeader("Lagi Banyak Dicari", "Barang populer yang sering disewa mahasiswa minggu ini.")}
@@ -159,7 +161,7 @@
 
       <section id="campuses" class="bg-white py-16">${sectionInner("Cari Barang di Sekitar Kampusmu", "Temukan barang dari mahasiswa di kampus dan area kos terdekat.", `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">${campuses.map(campus => `<article class="card p-5"><h3 class="font-extrabold text-slate-950">${campus[0]}</h3><p class="mt-2 text-sm text-slate-500">${campus[1]}</p><p class="mt-4 font-bold text-brand-blue">${campus[2]}</p><button class="btn-secondary mt-5 rounded-2xl px-4 py-3" data-campus="${campus[0]}">Lihat Barang</button></article>`).join("")}</div>`)}</section>
 
-      <section id="pinjam-gratis" class="bg-teal-50 py-16">${sectionInner("Butuh Barang Sementara? Cek Pinjam Gratis", "Beberapa barang bisa dipinjam tanpa biaya sewa, hanya dikenakan biaya layanan.", `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">${freeItems.map(item => `<article class="overflow-hidden rounded-[24px] bg-white shadow-card"><img src="${item[1]}" alt="${item[0]}" class="h-36 w-full object-cover"><div class="p-5"><h3 class="font-extrabold">${item[0]}</h3><p class="mt-2 text-sm text-slate-500">Gratis - biaya layanan Rp5.000</p><span class="badge mt-4 bg-teal-50 text-teal-700">Pinjam Gratis</span></div></article>`).join("")}</div><button class="btn-primary mt-8 rounded-2xl px-6 py-3" data-free-browse>Lihat Semua Pinjam Gratis</button>`)}</section>
+      <section id="pinjam-gratis" class="bg-teal-50 py-16">${sectionInner("Butuh Barang Sementara? Cek Pinjam Gratis", "Beberapa barang bisa dipinjam tanpa biaya sewa, hanya dikenakan biaya layanan.", `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">${freeItems.map(item => `<article class="overflow-hidden rounded-[24px] bg-white shadow-card"><img src="${item[1] || fallbackImage}" alt="${item[0]}" class="h-36 w-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"><div class="p-5"><h3 class="font-extrabold">${item[0]}</h3><p class="mt-2 text-sm text-slate-500">Gratis - biaya layanan Rp5.000</p><span class="badge mt-4 bg-teal-50 text-teal-700">Pinjam Gratis</span></div></article>`).join("")}</div><button class="btn-primary mt-8 rounded-2xl px-6 py-3" data-free-browse>Lihat Semua Pinjam Gratis</button>`)}</section>
 
       <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8"><div class="overflow-hidden rounded-[28px] bg-gradient-to-br from-blue-600 to-teal-500 p-6 text-white shadow-blue sm:rounded-[36px] sm:p-8 lg:p-10"><div class="grid gap-8 lg:grid-cols-[1fr_.9fr] lg:items-center"><div><span class="badge bg-white/15 text-white">Untuk pemilik barang</span><h2 class="mt-4 text-2xl font-extrabold sm:text-3xl lg:text-5xl">Barangmu Nganggur? Jadikan Penghasilan.</h2><p class="mt-4 max-w-2xl text-sm font-semibold leading-7 text-white/85 sm:text-base">Laptop, kamera, jas, rice cooker, atau alat event yang jarang dipakai bisa jadi sumber penghasilan tambahan.</p><div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="rounded-2xl bg-white px-6 py-3 font-extrabold text-brand-blue" data-nav="upload-product">Mulai Sewakan Barang</button><button class="rounded-2xl border border-white/40 px-6 py-3 font-extrabold text-white" data-scroll-target="how-it-works">Lihat Cara Kerja</button></div></div><div class="grid gap-3 sm:grid-cols-2">${[["Laptop", "Rp300rb-700rb/bulan"], ["Kamera", "Rp500rb-1jt/bulan"], ["Jas formal", "Rp150rb-400rb/bulan"], ["Speaker", "Rp200rb-600rb/bulan"]].map(item => `<div class="rounded-3xl bg-white/15 p-5 backdrop-blur"><p class="text-sm text-white/75">${item[0]}</p><strong class="mt-1 block text-lg sm:text-xl">${item[1]}</strong></div>`).join("")}</div></div></div></section>
 

@@ -1,11 +1,13 @@
 (function () {
-  const fallbackImage = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='900' height='650'><defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop stop-color='#2563EB'/><stop offset='1' stop-color='#14B8A6'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/><text x='50%' y='50%' fill='white' font-size='42' font-family='Arial' font-weight='700' text-anchor='middle'>BarangBareng</text></svg>`);
+  const fallbackImage = BBData.fallbackProductImage || "/images/products/product-placeholder.svg";
+  const getProductImage = product => BBData.getProductImage?.(product) || fallbackImage;
+  const getProductGallery = product => BBData.getProductGallery?.(product) || [getProductImage(product)];
   const rupiah = value => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
   const icon = (name, cls = "h-5 w-5") => `<i data-lucide="${name}" class="${cls}"></i>`;
   const backLink = (label, to, className = "mb-5") => `<button type="button" class="${className} inline-flex min-w-0 items-center gap-2 text-sm font-bold text-slate-600 transition hover:-translate-x-0.5 hover:text-blue-600 sm:text-base" data-nav="${to}">${icon("arrow-left", "h-5 w-5 shrink-0")}<span class="min-w-0">${label}</span></button>`;
 
   function imgTag(product, cls) {
-    return `<img src="${product.image}" alt="${product.name}" class="${cls}" onerror="this.src='${fallbackImage}'">`;
+    return `<img src="${getProductImage(product)}" alt="${product.name || "Produk BarangBareng"}" class="${cls}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">`;
   }
 
   function levelBadge(level) {
@@ -155,8 +157,8 @@
     if (!mount) return;
     const product = selectedProduct();
     ensureDetailState(product);
-    const gallery = [product.image, ...(product.gallery || [])].filter((src, index, list) => src && list.indexOf(src) === index).slice(0, 5);
-    const activeImage = gallery[state.detailGallery?.[product.id] || 0] || product.image;
+    const gallery = getProductGallery(product).slice(0, 5);
+    const activeImage = gallery[state.detailGallery?.[product.id] || 0] || getProductImage(product);
     const days = detailDuration();
     const total = detailFee(product, days);
     const similar = similarProducts(product);
@@ -173,10 +175,10 @@
           <div class="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(360px,5fr)] lg:items-stretch">
           <article class="flex h-full flex-col">
             <div class="relative overflow-hidden rounded-[28px] bg-slate-100">
-              <img src="${activeImage}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 hover:scale-[1.03] lg:aspect-[5/4]" onerror="this.src='${fallbackImage}'">
+              <img src="${activeImage}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 hover:scale-[1.03] lg:aspect-[5/4]" onerror="this.onerror=null;this.src='${fallbackImage}'">
               <div class="absolute left-4 top-4 flex max-w-[80%] flex-wrap gap-2">${productBadges(product)}<span class="badge bg-white/95 text-slate-700">${product.subcategory}</span></div>
             </div>
-            <div class="mt-4 grid grid-cols-4 gap-3">${gallery.slice(0, 4).map((src, index) => `<button class="overflow-hidden rounded-2xl border-2 ${src === activeImage ? "border-brand-blue" : "border-slate-100"} bg-slate-100 transition hover:border-blue-300" data-gallery-index="${index}"><img src="${src}" alt="Galeri ${index + 1} ${product.name}" class="aspect-square w-full object-cover" onerror="this.src='${fallbackImage}'"></button>`).join("")}</div>
+            <div class="mt-4 grid grid-cols-4 gap-3">${gallery.slice(0, 4).map((src, index) => `<button class="overflow-hidden rounded-2xl border-2 ${src === activeImage ? "border-brand-blue" : "border-slate-100"} bg-slate-100 transition hover:border-blue-300" data-gallery-index="${index}"><img src="${src}" alt="Galeri ${index + 1} ${product.name}" class="aspect-square w-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"></button>`).join("")}</div>
           </article>
 
           <article class="flex h-full min-w-0 flex-col rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
@@ -456,7 +458,7 @@
           <h3 class="mt-3 font-extrabold text-slate-950">${review.title}</h3>
           <p class="mt-2 text-sm leading-6 text-slate-600">${review.comment}</p>
           <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold">${review.isItemMatchDescription ? `<span class="badge bg-teal-50 text-teal-700">Barang sesuai deskripsi</span>` : ""}${review.willRentAgain ? `<span class="badge bg-blue-50 text-brand-blue">Akan menyewa lagi</span>` : ""}</div>
-          ${review.images?.length ? `<div class="mt-3 flex gap-2 overflow-x-auto pb-1">${review.images.map(src => `<img src="${src}" alt="Foto review" class="h-20 w-20 shrink-0 rounded-2xl object-cover" loading="lazy" onerror="this.src='${fallbackImage}'">`).join("")}</div>` : ""}
+          ${review.images?.length ? `<div class="mt-3 flex gap-2 overflow-x-auto pb-1">${review.images.map(src => `<img src="${src}" alt="Foto review" class="h-20 w-20 shrink-0 rounded-2xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">`).join("")}</div>` : ""}
           <button class="mt-3 inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-bold ${liked ? "bg-blue-50 text-brand-blue" : "text-slate-600"}" data-review-like="${review.id}">${icon("thumbs-up", "h-4 w-4")} ${review.likeCount || 0}</button>
         </div>
       </div>
@@ -589,7 +591,7 @@
     return `<article class="rounded-[24px] border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
       <div class="grid gap-4 lg:grid-cols-[auto_140px_1fr_auto] lg:items-start">
         <input class="mt-2 h-5 w-5 accent-blue-600" type="checkbox" ${item.selected ? "checked" : ""} data-cart-select="${product.id}" aria-label="Pilih ${product.name}">
-        <img src="${product.image}" alt="${product.name}" class="h-36 w-full rounded-2xl object-cover lg:h-32" onerror="this.src='${fallbackImage}'">
+        <img src="${getProductImage(product)}" alt="${product.name}" class="h-36 w-full rounded-2xl object-cover lg:h-32" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
         <div class="min-w-0">
           <h2 class="text-lg font-extrabold text-slate-950">${product.name}</h2>
           <p class="mt-1 text-sm font-semibold text-slate-500">${product.category}</p>
@@ -711,7 +713,7 @@
       <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
         <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Beranda / Detail Transaksi / Beri Ulasan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Beri Ulasan</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Bagikan pengalaman kamu agar pengguna lain bisa menyewa dengan lebih percaya diri.</p></div>
         <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
-          <div class="flex flex-col gap-4 sm:flex-row"><img src="${product.image}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" onerror="this.src='${fallbackImage}'"><div><span class="badge bg-teal-50 text-teal-700">Status: Selesai</span><h2 class="mt-3 text-xl font-extrabold text-slate-950">${product.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">Disewa dari: ${product.owner.name}</p><p class="mt-1 text-sm text-slate-500">Tanggal sewa: ${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p><p class="mt-1 text-sm text-slate-500">Nomor transaksi: ${transactionId}</p></div></div>
+          <div class="flex flex-col gap-4 sm:flex-row"><img src="${getProductImage(product)}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"><div><span class="badge bg-teal-50 text-teal-700">Status: Selesai</span><h2 class="mt-3 text-xl font-extrabold text-slate-950">${product.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">Disewa dari: ${product.owner.name}</p><p class="mt-1 text-sm text-slate-500">Tanggal sewa: ${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p><p class="mt-1 text-sm text-slate-500">Nomor transaksi: ${transactionId}</p></div></div>
         </section>
         ${eligibility.canReview ? `<form id="review-form" class="mt-6 grid gap-5">
           ${ratingInputCard("Rating Barang", [["itemConditionRating", "Kondisi barang"], ["itemDescriptionMatchRating", "Kesesuaian dengan deskripsi"], ["itemOverallRating", "Kepuasan keseluruhan"]], draft)}
@@ -826,7 +828,7 @@
     }[state.orderStatus] || "Menunggu Pembayaran DP";
     mount.innerHTML = dashboardShell("Dashboard Penyewa", [
       ["Saldo Koin", `${state.coinBalance} Koin`], ["Pesanan Aktif", "2"], ["Disimpan", state.wishlist.length], ["Total Hemat", "Rp3,4jt"], ["Level Pengguna", "Silver"], ["Voucher Aktif", "3"]
-    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${item.image}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${readableStatus}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
+    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${getProductImage(item)}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${readableStatus}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
     bindCommonEvents();
     document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
   }
@@ -1039,7 +1041,7 @@
   function dashboardMiniProduct(product, action = "Lihat Detail") {
     if (!product) return "";
     return `<article class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3">
-      <img src="${product.image}" alt="${product.name}" class="h-16 w-16 shrink-0 rounded-2xl object-cover" onerror="this.src='${fallbackImage}'">
+      <img src="${getProductImage(product)}" alt="${product.name}" class="h-16 w-16 shrink-0 rounded-2xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
       <div class="min-w-0 flex-1">
         <h3 class="truncate text-sm font-extrabold text-slate-950">${product.name}</h3>
         <p class="mt-1 truncate text-xs font-semibold text-slate-500">${product.campus}</p>
@@ -1056,7 +1058,7 @@
     return `<article class="rounded-[28px] border border-slate-100 bg-white p-4 shadow-sm">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div class="flex min-w-0 gap-3">
-          <img src="${order.product.image}" alt="${order.product.name}" class="h-20 w-20 shrink-0 rounded-2xl object-cover" onerror="this.src='${fallbackImage}'">
+          <img src="${getProductImage(order.product)}" alt="${order.product.name}" class="h-20 w-20 shrink-0 rounded-2xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
           <div class="min-w-0">
             <p class="text-xs font-bold text-slate-400">${order.id}</p>
             <h3 class="mt-1 truncate text-lg font-extrabold text-slate-950">${order.product.name}</h3>

@@ -66,7 +66,7 @@
     ownerFriendlinessRating: Math.round(product.owner.rating || 5),
     title: index === 0 ? "Barang sesuai deskripsi" : "Pengalaman sewa menyenangkan",
     comment: review.text,
-    images: index === 0 ? [product.gallery?.[0] || product.image] : [],
+    images: index === 0 ? [window.BBData?.getProductGallery?.(product)?.[0] || window.BBData?.getProductImage?.(product)].filter(Boolean) : [],
     isItemMatchDescription: true,
     willRentAgain: index !== 1,
     likeCount: 8 + product.id + index,

@@ -1,5 +1,10 @@
 (function () {
-  const img = query => `https://source.unsplash.com/900x650/?${encodeURIComponent(query)}`;
+  const fallbackProductImage = "/images/products/product-placeholder.svg";
+  const imageLock = value => String(value).split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) + 100;
+  const img = query => {
+    const clean = String(query || "student product").toLowerCase().replace(/[^a-z0-9]+/g, ",").replace(/^,|,$/g, "");
+    return `https://loremflickr.com/900/650/${clean || "student,product"}?lock=${imageLock(clean)}`;
+  };
   const images = {
     laptop: img("student laptop desk"), mac: img("macbook student"), ipad: img("ipad tablet study"), printer: img("portable printer"), projector: img("projector classroom"), screen: img("projector screen"), speaker: img("portable speaker event"), mic: img("wireless microphone"), hdmi: img("hdmi cable"), pointer: img("presentation pointer"), calculator: img("scientific calculator"), webcam: img("webcam laptop"), scanner: img("portable scanner"), hdd: img("external hard drive"), canon: img("canon mirrorless camera"), sony: img("sony camera"), gopro: img("gopro action camera"), tripod: img("camera tripod"), ring: img("ring light"), softbox: img("softbox lighting"), gimbal: img("camera gimbal"), clipmic: img("clip on microphone"), greenscreen: img("green screen studio"), backdrop: img("photo backdrop"), cooker: img("mini rice cooker"), iron: img("portable iron"), fan: img("portable fan"), desk: img("folding study table"), mattress: img("folding mattress"), drying: img("folding drying rack"), stove: img("electric portable stove"), pan: img("electric cooking pot"), lamp: img("study lamp"), cable: img("extension cord"), vacuum: img("mini vacuum cleaner"), shoeRack: img("portable shoe rack"), suit: img("formal suit"), blazer: img("women formal blazer"), kebaya: img("graduation kebaya"), shirt: img("white shirt formal"), skirt: img("black formal skirt"), pants: img("black formal pants"), pantofel: img("formal shoes"), heels: img("formal heels"), toga: img("graduation gown"), sash: img("graduation sash"), bouquet: img("graduation bouquet"), steamer: img("garment steamer"), walkie: img("walkie talkie"), tentEvent: img("event tent canopy"), megaphone: img("megaphone"), rollBanner: img("roll up banner stand"), whiteboard: img("portable whiteboard"), tablet: img("tablet attendance"), qrscanner: img("qr barcode scanner"), clipboard: img("clipboard event"), lanyard: img("lanyard event"), tent: img("camping tent"), sleeping: img("sleeping bag"), matras: img("camping mat"), carrier: img("carrier backpack"), headlamp: img("headlamp camping"), cooler: img("cooler box"), chair: img("folding camping chair"), flysheet: img("camping tarp")
   };
@@ -134,8 +139,8 @@
       condition: 88 + (index % 10),
       location: place[0],
       campus: place[1],
-      image: seed[5],
-      gallery: [seed[5], images.laptop, images.canon, images.cooker].filter(Boolean),
+      image: seed[5] || fallbackProductImage,
+      gallery: [seed[5], img(`${name} close up`), img(`${seed[2]} product`), img(`${category} campus`)].filter(Boolean),
       owner: { name: owner[0], initials: owner[1], level: owner[2], rating: Number((4.6 + (index % 4) / 10).toFixed(1)), txCount: 35 + index * 4, verified: true },
       ownerName: owner[0],
       ownerVerificationStatus: "verified",
@@ -174,5 +179,16 @@
     return ["Kondisi terawat", "Cocok kebutuhan kampus", "Mudah dibawa", "Siap COD sekitar kampus"];
   }
 
-  window.BBData = { images, products, categories, campuses, codLocations, bundles, vouchers };
+  function getProductImage(product) {
+    return product?.image || product?.thumbnail || product?.photo || product?.images?.[0] || product?.gallery?.[0] || fallbackProductImage;
+  }
+
+  function getProductGallery(product) {
+    const gallery = Array.isArray(product?.gallery) ? product.gallery : Array.isArray(product?.images) ? product.images : [];
+    const cleanGallery = [getProductImage(product), ...gallery].filter(Boolean);
+    const uniqueGallery = cleanGallery.filter((src, index, list) => list.indexOf(src) === index);
+    return uniqueGallery.length ? uniqueGallery : [fallbackProductImage];
+  }
+
+  window.BBData = { images, products, categories, campuses, codLocations, bundles, vouchers, fallbackProductImage, getProductImage, getProductGallery };
 })();

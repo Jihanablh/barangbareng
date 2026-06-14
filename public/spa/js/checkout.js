@@ -1,5 +1,7 @@
 (function () {
   const DP_PERCENTAGE = 30;
+  const fallbackImage = BBData.fallbackProductImage || "/images/products/product-placeholder.svg";
+  const getProductImage = product => BBData.getProductImage?.(product) || fallbackImage;
 
   function todayOffset(days = 0) {
     const date = new Date();
@@ -76,7 +78,7 @@
           <section class="grid min-w-0 gap-5">
             <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
               <div class="flex flex-col gap-4 sm:flex-row">
-                <img src="${product.image}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" onerror="this.src='${product.image}'">
+                <img src="${getProductImage(product)}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge bg-teal-50 text-teal-700">${product.status === "low" ? "Hampir Habis" : "Tersedia"}</span></div>
                   <h2 class="mt-3 text-xl font-bold text-slate-900 sm:text-2xl">${product.name}</h2>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="650" viewBox="0 0 900 650" role="img" aria-labelledby="title desc">
+  <title id="title">BarangBareng product image placeholder</title>
+  <desc id="desc">A branded fallback image for BarangBareng product photos.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#ffffff" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#ecfeff" stop-opacity=".9"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#0f172a" flood-opacity=".2"/>
+    </filter>
+  </defs>
+  <rect width="900" height="650" fill="url(#bg)"/>
+  <circle cx="128" cy="124" r="92" fill="#ffffff" opacity=".11"/>
+  <circle cx="786" cy="518" r="138" fill="#ffffff" opacity=".09"/>
+  <g filter="url(#shadow)">
+    <rect x="250" y="142" width="400" height="312" rx="44" fill="url(#card)"/>
+    <path d="M334 251h232l-28 126H362l-28-126z" fill="#dbeafe"/>
+    <path d="M366 229h168c18 0 32 14 32 32v10H334v-10c0-18 14-32 32-32z" fill="#2563eb"/>
+    <path d="M391 229c7-45 31-68 59-68s52 23 59 68" fill="none" stroke="#0f172a" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="394" cy="318" r="18" fill="#14b8a6"/>
+    <circle cx="506" cy="318" r="18" fill="#14b8a6"/>
+  </g>
+  <text x="450" y="520" fill="#ffffff" font-family="Arial, sans-serif" font-size="42" font-weight="800" text-anchor="middle">BarangBareng</text>
+  <text x="450" y="564" fill="#dffafe" font-family="Arial, sans-serif" font-size="23" font-weight="700" text-anchor="middle">Foto produk belum tersedia</text>
+</svg>
