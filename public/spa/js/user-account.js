@@ -3,7 +3,9 @@
   const USERS_KEY = "barangBarengUsers";
   const CURRENT_USER_KEY = "barangBarengCurrentUser";
   const SESSION_KEY = "barangBarengSession";
+  const DEFAULT_SESSION_SEEDED_KEY = "barangBarengDefaultSessionSeeded";
   const SEEDED_ACCOUNT_EMAIL = "naura@barangbareng.com";
+  const JIHAN_ACCOUNT_EMAIL = "jihannabilah@gmail.com";
   const CAMPUS_EMAIL_DOMAINS = {
     "Universitas Indonesia": "ui.ac.id",
     "Universitas Bakrie": "bakrie.ac.id",
@@ -96,7 +98,7 @@
     const map = {
       not_submitted: { label: "Belum Verifikasi", tone: "border-amber-200 bg-amber-50 text-amber-700", text: "Lengkapi e-KYC mahasiswa untuk menyewa dan menyewakan barang." },
       pending: { label: "Sedang Ditinjau", tone: "border-blue-200 bg-blue-50 text-brand-blue", text: "Data e-KYC sedang diperiksa. Estimasi proses 1x24 jam." },
-      verified: { label: "Terverifikasi", tone: "border-teal-200 bg-teal-50 text-teal-700", text: "Identitas mahasiswa sudah terverifikasi." },
+      verified: { label: "Mahasiswa Terverifikasi", tone: "border-teal-200 bg-teal-50 text-teal-700", text: "Identitas mahasiswa sudah terverifikasi." },
       rejected: { label: "Perlu Diperbaiki", tone: "border-red-200 bg-red-50 text-red-700", text: "Data e-KYC perlu diperbaiki sebelum akun aktif penuh." }
     };
     return map[key] || map.not_submitted;
@@ -104,7 +106,8 @@
 
   function getVerificationBadge(status) {
     const meta = verificationMeta(status);
-    return `<span class="bb-auth-verification-badge inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-extrabold ${meta.tone}">${meta.label}</span>`;
+    const check = String(status) === "verified" ? `<span aria-hidden="true">✓</span>` : "";
+    return `<span class="bb-auth-verification-badge inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-extrabold ${meta.tone}">${check}${meta.label}</span>`;
   }
 
   function ownerPriority(owner = {}) {
@@ -130,7 +133,17 @@
   }
 
   function normalizeUser(user) {
-    const computed = calculateUserLevel(user.successfulTransactions, user.rating);
+    const totalTransactions = Number(user.totalTransactions ?? user.successfulTransactions ?? 0);
+    const computed = calculateUserLevel(totalTransactions, user.rating);
+    const explicitLevel = ["Gold", "Silver", "Bronze"].find(level => level.toLowerCase() === String(user.level || "").toLowerCase());
+    const levelMeta = explicitLevel ? {
+      level: explicitLevel,
+      listingPriority: explicitLevel === "Gold" ? 3 : explicitLevel === "Silver" ? 2 : 1,
+      progressPercent: explicitLevel === "Gold" ? 100 : computed.progressPercent,
+      progressText: explicitLevel === "Gold" ? "Level tertinggi telah tercapai." : computed.progressText,
+      nextLevel: explicitLevel === "Gold" ? null : computed.nextLevel
+    } : computed;
+    const isVerified = user.isVerified === true || user.isStudentVerified === true || user.verificationStatus === "verified" || user.ekyc?.status === "verified";
     const rawDocuments = { ...(user.ekyc?.documents || {}) };
     const selfieDocument = rawDocuments.selfie || null;
     return {
@@ -139,34 +152,76 @@
       nim: user.nim || "",
       phone: user.phone || "",
       campus: user.campus || "",
-      successfulTransactions: Number(user.successfulTransactions || 0),
+      accountStatus: user.accountStatus || "active",
+      successfulTransactions: totalTransactions,
+      totalTransactions,
       rating: Number(user.rating || 0),
-      verificationStatus: user.verificationStatus || user.kycStatus || "not_submitted",
+      verificationStatus: isVerified ? "verified" : user.verificationStatus || user.kycStatus || "not_submitted",
+      isVerified,
+      isStudentVerified: isVerified,
       verifiedAt: user.verifiedAt || null,
       rejectedReason: user.rejectedReason || "",
       ekyc: {
         ...DEFAULT_EKYC,
         ...(user.ekyc || {}),
+        status: isVerified ? "verified" : user.ekyc?.status || user.verificationStatus || "not_submitted",
         identity: { ...(user.ekyc?.identity || {}) },
         documents: {
           ktp: rawDocuments.ktp || null,
           selfie: selfieDocument || null
         },
+        verifiedAt: user.ekyc?.verifiedAt || user.verifiedAt || null,
+        verifiedBy: user.ekyc?.verifiedBy || (isVerified ? "system" : null),
         submittedAt: user.ekyc?.submittedAt || null
       },
-      level: computed.level,
-      listingPriority: computed.listingPriority,
-      progressPercent: computed.progressPercent,
-      progressText: computed.progressText,
-      nextLevel: computed.nextLevel
+      level: levelMeta.level,
+      listingPriority: levelMeta.listingPriority,
+      progressPercent: levelMeta.progressPercent,
+      progressText: levelMeta.progressText,
+      nextLevel: levelMeta.nextLevel
     };
   }
 
   function seedUsers() {
     const users = readJson(USERS_KEY, []);
-    if (users.some(user => String(user.email).toLowerCase() === SEEDED_ACCOUNT_EMAIL)) return users.map(normalizeUser);
-    const seeded = [
-      ...users,
+    const seededAt = new Date().toISOString();
+    const requiredUsers = [
+      {
+        id: "user-jihan-nabilah-rahman",
+        fullName: "Jihan Nabilah Rahman",
+        email: JIHAN_ACCOUNT_EMAIL,
+        // Prototype only: password is stored in localStorage for local testing. Production must use a backend, hash passwords, and never store raw passwords in the browser.
+        password: "Jihan12345",
+        phone: "",
+        campus: "Universitas Indonesia",
+        role: "renter_owner",
+        avatar: "/images/users/jihan-nabilah.jpg",
+        accountStatus: "active",
+        verificationStatus: "verified",
+        isVerified: true,
+        isStudentVerified: true,
+        verifiedAt: seededAt,
+        level: "Gold",
+        coinBalance: 50,
+        rating: 4.8,
+        totalTransactions: 12,
+        successfulTransactions: 12,
+        ekyc: {
+          status: "verified",
+          verifiedAt: seededAt,
+          verifiedBy: "system",
+          identity: {
+            fullName: "Jihan Nabilah Rahman",
+            email: JIHAN_ACCOUNT_EMAIL,
+            campus: "Universitas Indonesia"
+          },
+          documents: {
+            ktp: "verified",
+            selfie: "verified"
+          }
+        },
+        createdAt: seededAt
+      },
       {
         id: "user-001",
         fullName: "Naura Latifa",
@@ -181,8 +236,19 @@
         rating: 4.2,
         createdAt: "2026-06-13T00:00:00.000Z"
       }
-    ].map(normalizeUser);
+    ];
+    const userMap = new Map(users.map(user => [String(user.email || "").toLowerCase(), user]));
+    requiredUsers.forEach(user => {
+      const email = String(user.email).toLowerCase();
+      userMap.set(email, { ...(userMap.get(email) || {}), ...user });
+    });
+    const seeded = [...userMap.values()].map(normalizeUser);
     writeJson(USERS_KEY, seeded);
+    if (!readJson(SESSION_KEY, null) && !readJson(CURRENT_USER_KEY, null) && !localStorage.getItem(DEFAULT_SESSION_SEEDED_KEY)) {
+      writeJson(SESSION_KEY, { email: JIHAN_ACCOUNT_EMAIL, loggedInAt: seededAt, remember: true });
+      writeJson(CURRENT_USER_KEY, { email: JIHAN_ACCOUNT_EMAIL });
+      localStorage.setItem(DEFAULT_SESSION_SEEDED_KEY, "true");
+    }
     return seeded;
   }
 
@@ -215,8 +281,11 @@
       phone: user.phone,
       campus: user.campus,
       verificationStatus: user.verificationStatus,
+      isVerified: user.isVerified,
+      isStudentVerified: user.isStudentVerified,
       rating: user.rating,
       successfulTransactions: user.successfulTransactions,
+      totalTransactions: user.totalTransactions,
       level: user.level.toLowerCase(),
       listingPriority: user.listingPriority
     };
@@ -309,7 +378,7 @@
   function logout() {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(CURRENT_USER_KEY);
-    state.currentUser = { name: "Difa Surya", initials: "DS", level: "silver", campus: "Universitas Indonesia" };
+    state.currentUser = { name: "Jihan Nabilah Rahman", initials: "JN", level: "gold", campus: "Universitas Indonesia", verificationStatus: "verified", isVerified: true, isStudentVerified: true };
     renderAuthUi();
   }
 
@@ -375,7 +444,7 @@
   }
 
   function canAccessRentalFeature(user = getSessionUser()) {
-    return getVerificationStatus(user) === "verified";
+    return getVerificationStatus(user) === "verified" || user?.isVerified === true || user?.isStudentVerified === true;
   }
 
   function levelBadge(user) {
@@ -389,12 +458,11 @@
 
   function dropdown(user) {
     return `<div class="bb-user-dropdown absolute right-0 top-12 z-[120] hidden w-[min(240px,calc(100vw-2rem))] rounded-[22px] border border-slate-100 bg-white p-3 text-left shadow-xl" data-bb-user-dropdown>
-      <div class="mb-2 border-b border-slate-100 px-2 pb-3"><p class="truncate text-sm font-extrabold text-slate-950">${user.fullName}</p><p class="truncate text-xs font-semibold text-slate-500">${user.email}</p><div class="mt-2">${getVerificationBadge(user.verificationStatus)}</div></div>
-      <button type="button" class="w-full rounded-2xl px-3 py-3 text-left text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-brand-blue" data-bb-nav="profile">Profil</button>
+      <div class="mb-2 border-b border-slate-100 px-2 pb-3"><p class="truncate text-sm font-extrabold text-slate-950">${user.fullName}</p><p class="truncate text-xs font-semibold text-slate-500">${user.campus}</p><div class="mt-2">${getVerificationBadge(user.verificationStatus)}</div></div>
       <button type="button" class="w-full rounded-2xl px-3 py-3 text-left text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-brand-blue" data-bb-nav="dashboard-buyer">Dashboard</button>
-      <button type="button" class="w-full rounded-2xl px-3 py-3 text-left text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-brand-blue" data-bb-nav="ekyc">Verifikasi Mahasiswa</button>
+      <button type="button" class="w-full rounded-2xl px-3 py-3 text-left text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-brand-blue" data-bb-nav="profile">Profil</button>
       <button type="button" class="w-full rounded-2xl px-3 py-3 text-left text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-brand-blue" data-bb-account-settings>Pengaturan Akun</button>
-      <button type="button" class="mt-1 w-full rounded-2xl bg-red-50 px-3 py-3 text-left text-sm font-bold text-red-700 transition hover:bg-red-100" data-bb-logout>Logout</button>
+      <button type="button" class="mt-1 w-full rounded-2xl bg-red-50 px-3 py-3 text-left text-sm font-bold text-red-700 transition hover:bg-red-100" data-bb-logout>Keluar</button>
     </div>`;
   }
 

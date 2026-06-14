@@ -863,7 +863,13 @@
   }
 
   function dashboardShell(title, stats, body) {
-    return `<div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><h1 class="text-3xl font-extrabold text-slate-950">${title}</h1><div class="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">${stats.map(stat => `<article class="card p-5"><p class="text-sm font-semibold text-slate-500">${stat[0]}</p><strong class="mt-2 block text-2xl text-slate-950">${stat[1]}</strong></article>`).join("")}</div><div class="mt-6">${body}</div></div>`;
+    const user = window.bbUserAccount?.getSessionUser?.();
+    const verified = user ? window.bbUserAccount?.getVerificationBadge?.(user.verificationStatus) : "";
+    const userHeader = user ? `<section class="mt-4 flex flex-col gap-3 rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-4"><span class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-brand text-lg font-extrabold text-white">${dashboardInitials(user.fullName)}</span><div><h2 class="font-extrabold text-slate-950">${user.fullName}</h2><p class="text-sm font-semibold text-slate-500">${user.campus}</p></div></div>
+      <div class="flex flex-wrap gap-2">${window.bbUserAccount?.levelBadge?.(user) || ""}${verified}</div>
+    </section>` : "";
+    return `<div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8"><h1 class="text-3xl font-extrabold text-slate-950">${title}</h1>${userHeader}<div class="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">${stats.map(stat => `<article class="card p-5"><p class="text-sm font-semibold text-slate-500">${stat[0]}</p><strong class="mt-2 block text-2xl text-slate-950">${stat[1]}</strong></article>`).join("")}</div><div class="mt-6">${body}</div></div>`;
   }
 
   function emptyState() {
@@ -1160,6 +1166,7 @@
     const reviewNeeded = history.find(order => order.status === "COMPLETED" && !order.reviewed);
     const firstName = String(user.fullName || "Pengguna").split(" ")[0];
     const levelBadgeHtml = window.bbUserAccount?.levelBadge?.(user) || `<span class="badge bg-amber-100 text-amber-700">${user.level || "Bronze"}</span>`;
+    const verifiedBadgeHtml = window.bbUserAccount?.getVerificationBadge?.(user.verificationStatus || (user.isVerified ? "verified" : "not_submitted")) || "";
 
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
@@ -1181,7 +1188,7 @@
                 <div class="min-w-0">
                   <h2 class="truncate text-lg font-extrabold text-slate-950">${user.fullName}</h2>
                   <p class="truncate text-sm font-semibold text-slate-500">${user.campus}</p>
-                  <p class="mt-2">${levelBadgeHtml}</p>
+                  <p class="mt-2 flex flex-wrap gap-2">${levelBadgeHtml}${verifiedBadgeHtml}</p>
                 </div>
               </div>
               <div class="mt-5 h-3 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${Math.max(4, Number(user.progressPercent || 0))}%"></div></div>

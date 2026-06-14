@@ -77,7 +77,17 @@
   const initialReviewLikes = readJson(REVIEW_LIKES_KEY, []);
 
   window.state = {
-    currentUser: { name: "Difa Surya", initials: "DS", level: "silver", campus: "Universitas Indonesia" },
+    currentUser: {
+      name: "Jihan Nabilah Rahman",
+      fullName: "Jihan Nabilah Rahman",
+      initials: "JN",
+      email: "jihannabilah@gmail.com",
+      level: "gold",
+      campus: "Universitas Indonesia",
+      verificationStatus: "verified",
+      isVerified: true,
+      isStudentVerified: true
+    },
     wishlist: initialWishlist,
     cart: initialCart,
     reviews: Array.isArray(initialReviews) ? initialReviews : seededReviews,
@@ -113,7 +123,7 @@
       ktpUploaded: false,
       selfieDone: false,
       otp: "",
-      ocrName: "Difa Surya",
+      ocrName: "Jihan Nabilah Rahman",
       ocrCampus: "Universitas Indonesia"
     },
     editProductDraft: {},
