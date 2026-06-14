@@ -64,8 +64,8 @@
         <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p class="text-sm font-semibold text-slate-500">Beranda &gt; Detail Produk &gt; Checkout</p>
-            <h1 class="mt-2 text-2xl font-extrabold text-slate-950 lg:text-3xl">Checkout Sewa Barang</h1>
-            <p class="mt-2 text-slate-500">Periksa kembali detail sewa sebelum melanjutkan pembayaran DP.</p>
+            <h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">Checkout Sewa Barang</h1>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Periksa kembali detail sewa sebelum melanjutkan pembayaran DP.</p>
           </div>
           <div class="flex gap-2 overflow-x-auto rounded-[24px] border border-slate-100 bg-white p-2 text-xs font-bold text-slate-500 shadow-sm">
             ${["Checkout", "Bayar DP", "Pelunasan", "Selesai"].map((label, index) => `<span class="shrink-0 rounded-2xl px-3 py-2 ${index === 0 ? "bg-blue-50 text-brand-blue" : "bg-slate-50"}">${index + 1}. ${label}</span>`).join("")}
@@ -79,7 +79,7 @@
                 <img src="${product.image}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" onerror="this.src='${product.image}'">
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge bg-teal-50 text-teal-700">${product.status === "low" ? "Hampir Habis" : "Tersedia"}</span></div>
-                  <h2 class="mt-3 text-xl font-extrabold text-slate-950">${product.name}</h2>
+                  <h2 class="mt-3 text-xl font-bold text-slate-900 sm:text-2xl">${product.name}</h2>
                   <p class="mt-2 text-sm font-semibold text-slate-500">${product.owner.name}</p>
                   <p class="mt-1 text-sm font-semibold text-slate-500">${product.campus} · ${product.location}</p>
                   <p class="mt-3 text-2xl font-extrabold text-brand-blue">${product.type === "pinjam" ? "Gratis" : components.rupiah(product.price)} <span class="text-xs text-slate-500">/hari</span></p>
@@ -88,7 +88,7 @@
             </article>
 
             <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Detail Penyewaan</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Detail Penyewaan</h2>
               <div class="mt-5 grid gap-4 sm:grid-cols-2">
                 <label class="text-sm font-bold text-slate-700">Tanggal Mulai<input id="checkout-start" class="field mt-2" type="date" value="${state.bookingStart}"></label>
                 <label class="text-sm font-bold text-slate-700">Tanggal Selesai<input id="checkout-end" class="field mt-2" type="date" value="${state.bookingEnd}"></label>
@@ -103,7 +103,7 @@
             </article>
 
             <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Aturan Sewa</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Aturan Sewa</h2>
               <div class="mt-4 grid gap-3 text-sm font-semibold leading-6 text-slate-600">
                 ${(product.rules || ["Gunakan barang sesuai kesepakatan.", "Pengembalian dilakukan tepat waktu.", "Kondisi barang dicek bersama saat serah terima."]).map(rule => `<p class="rounded-2xl bg-slate-50 p-4">${rule}</p>`).join("")}
               </div>
@@ -111,7 +111,7 @@
           </section>
 
           <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28">
-            <h2 class="text-xl font-extrabold text-slate-950">Ringkasan Pembayaran</h2>
+            <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Ringkasan Pembayaran</h2>
             <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
               ${summaryRow("Harga sewa", `${product.type === "pinjam" ? "Gratis" : `${components.rupiah(product.price)} x ${days} hari`}`)}
               ${summaryRow("Subtotal", components.rupiah(total.subtotal))}

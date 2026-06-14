@@ -27,28 +27,28 @@
 
   function productCard(product, list = false) {
     const liked = state.isWishlisted(product.id);
-    const goldSeller = product.owner.level === "gold" ? `<span class="badge bg-amber-50 text-amber-700">Gold Seller</span>` : "";
-    return `<article class="product-card card cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${list ? "grid gap-4 p-4 md:grid-cols-[190px_1fr]" : ""}" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
-      <div class="relative ${list ? "h-40 rounded-2xl" : "h-52 rounded-t-3xl"} overflow-hidden bg-slate-100">
-        ${imgTag(product, "h-full w-full object-cover")}
-        <div class="absolute left-3 top-3 flex flex-wrap gap-2">${productBadges(product)}</div>
-        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-5 w-5 fill-current" : "h-5 w-5")}</button>
+    const statusBadge = product.status === "low"
+      ? `<span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Hampir Habis</span>`
+      : `<span class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-700">Tersedia</span>`;
+    const extraBadgeText = product.type === "pinjam" ? "Pinjam Gratis" : product.badges?.[0] || product.category;
+    const extraBadge = `<span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">${extraBadgeText}</span>`;
+    const goldSeller = product.owner.level === "gold" ? `<span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Gold Seller</span>` : "";
+    return `<article class="group product-card cursor-pointer overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${list ? "grid gap-4 p-3 sm:p-4 md:grid-cols-[190px_1fr]" : ""}" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
+      <div class="relative ${list ? "rounded-2xl" : ""} overflow-hidden bg-slate-100">
+        ${imgTag(product, "aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-105")}
+        <div class="absolute left-3 top-3 flex max-w-[calc(100%-4rem)] flex-wrap gap-1.5">${statusBadge}${extraBadge}</div>
+        <button class="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-red-500 ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
       </div>
-      <div class="${list ? "p-0" : "p-5"}">
-        <div class="mb-2 flex flex-wrap gap-2">${product.badges.map(badge => `<span class="badge bg-slate-100 text-slate-600">${badge}</span>`).join("")}</div>
-        <h3 class="line-clamp-2 text-lg font-extrabold text-slate-950">${product.name}</h3>
-        <p class="mt-1 text-sm font-semibold text-slate-500">${product.category}</p>
-        <p class="mt-3 text-sm font-semibold text-slate-600">Rating ${product.rating} · ${product.reviewCount} ulasan · ${product.rentedCount}x disewa</p>
-        <p class="mt-2 flex items-center gap-2 text-sm text-slate-500">${icon("map-pin", "h-4 w-4 text-brand-blue")} ${product.campus} · ${product.location}</p>
-        <div class="mt-4 flex items-center gap-3">
-          <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-brand text-xs font-extrabold text-white">${product.owner.initials}</span>
-          <div><p class="text-sm font-bold">${product.owner.name}</p><p class="text-xs text-slate-500">${levelBadge(product.owner.level)} Terverifikasi</p>${goldSeller ? `<p class="mt-1">${goldSeller}</p>` : ""}</div>
-        </div>
-        <p class="mt-4 text-xl font-extrabold text-brand-blue">${price(product)}</p>
+      <div class="${list ? "p-0" : "p-3 sm:p-4"}">
+        <p class="line-clamp-1 text-xs font-bold text-brand-blue sm:text-sm">${product.category}</p>
+        <h3 class="mt-1 line-clamp-2 text-sm font-bold leading-snug text-slate-900 sm:text-base">${product.name}</h3>
+        <p class="mt-2 text-base font-extrabold text-blue-600 sm:text-lg">${price(product)}</p>
+        <div class="mt-2 flex items-center gap-1 text-xs font-semibold text-slate-600 sm:text-sm">${icon("star", "h-3.5 w-3.5 fill-amber-400 text-amber-400")} <span>${product.rating}</span><span class="text-slate-300">|</span><span>${product.reviewCount} ulasan</span></div>
+        <p class="mt-1 line-clamp-1 text-xs text-slate-500 sm:text-sm">${product.campus} | ${product.location}</p>
+        ${goldSeller ? `<div class="mt-2">${goldSeller}</div>` : ""}
       </div>
     </article>`;
   }
-
   function categoryCard(category) {
     return `<button class="product-card card p-5 text-left" data-category="${category.name}">
       <span class="mb-5 block h-28 overflow-hidden rounded-2xl bg-slate-100">${imgTag({ image: category.image, name: category.name }, "h-full w-full object-cover")}</span>
@@ -66,8 +66,8 @@
       <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)] lg:px-8 lg:py-24">
         <div class="relative z-10 min-w-0 max-w-full">
           <span class="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-bold">Platform Sewa Barang #1 untuk Mahasiswa</span>
-          <h1 class="mt-6 max-w-full break-words text-3xl font-extrabold leading-tight sm:text-4xl lg:max-w-3xl lg:text-6xl">Sewa Barang Harian Mahasiswa, Hemat & Praktis.</h1>
-          <p class="mt-5 max-w-full text-base leading-7 text-white/90 sm:max-w-2xl sm:text-lg sm:leading-8 lg:text-xl">Temukan laptop, kamera, alat masak, perlengkapan kos, outfit formal, sampai kebutuhan event kampus dari sesama mahasiswa di sekitarmu.</p>
+          <h1 class="mt-6 max-w-full break-words text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:max-w-3xl lg:text-5xl xl:text-6xl">Sewa Barang Harian Mahasiswa, Hemat & Praktis.</h1>
+          <p class="mt-5 max-w-full text-base leading-relaxed text-white/90 sm:max-w-2xl sm:text-lg lg:text-xl">Temukan laptop, kamera, alat masak, perlengkapan kos, outfit formal, sampai kebutuhan event kampus dari sesama mahasiswa di sekitarmu.</p>
           <div class="mt-8 w-full max-w-4xl rounded-[28px] bg-white p-4 text-slate-900 shadow-lg">
             <div class="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
               <label class="field flex min-w-0 items-center gap-3 lg:col-span-5">${icon("search", "h-5 w-5 shrink-0 text-brand-blue")}<input id="hero-search" class="min-w-0 flex-1 outline-none" placeholder="Cari barang yang kamu butuhkan..."></label>
@@ -96,12 +96,12 @@
       </div>
     </section>
     <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div class="mb-8 text-center reveal"><p class="font-bold text-brand-blue">Pilih Barang Sesuai Kebutuhanmu</p><h2 class="mt-2 text-3xl font-extrabold text-slate-950">Dari Anak Kos sampai Event Kampus</h2><p class="mt-3 text-slate-500">Dari kebutuhan anak kos, sidang, wisuda, sampai event organisasi kampus.</p></div>
+      <div class="mb-8 text-center reveal"><p class="text-sm font-bold text-brand-blue">Pilih Barang Sesuai Kebutuhanmu</p><h2 class="mt-2 text-xl font-bold text-slate-900 sm:text-2xl">Dari Anak Kos sampai Event Kampus</h2><p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">Dari kebutuhan anak kos, sidang, wisuda, sampai event organisasi kampus.</p></div>
       <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">${BBData.categories.map(categoryCard).join("")}</div>
     </section>
-    <section id="how-it-works" class="bg-white py-16"><div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><h2 class="text-3xl font-extrabold text-slate-950">Cara Kerja</h2><div class="mt-6 grid gap-4 md:grid-cols-4">${["Cari barang", "Bayar DP aman", "COD pakai QR", "Kembalikan barang"].map((step, index) => `<article class="card p-5"><span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-brand font-extrabold text-white">0${index + 1}</span><h3 class="mt-4 font-bold">${step}</h3><p class="mt-2 text-sm text-slate-500">Alur dibuat singkat, jelas, dan cocok untuk transaksi sekitar kampus.</p></article>`).join("")}</div></div></section>
+    <section id="how-it-works" class="bg-white py-16"><div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Cara Kerja</h2><div class="mt-6 grid gap-4 md:grid-cols-4">${["Cari barang", "Bayar DP aman", "COD pakai QR", "Kembalikan barang"].map((step, index) => `<article class="card p-5"><span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-brand font-extrabold text-white">0${index + 1}</span><h3 class="mt-4 text-base font-bold text-slate-900 sm:text-lg">${step}</h3><p class="mt-2 text-sm leading-relaxed text-slate-600">Alur dibuat singkat, jelas, dan cocok untuk transaksi sekitar kampus.</p></article>`).join("")}</div></div></section>
     <section id="coin-pricing" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"><div class="card grid gap-6 p-8 lg:grid-cols-[1fr_auto] lg:items-center"><div><p class="font-bold text-brand-blue">Harga & Koin</p><h2 class="mt-2 text-3xl font-extrabold">1 Koin = Rp1.000</h2><p class="mt-3 text-slate-500">Top up hanya via QRIS BarangBareng. Min. top up pertama 20 Koin.</p></div><button class="btn-primary rounded-2xl px-6 py-3" data-nav="topup">Top Up Koin</button></div></section>
-    <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8"><div class="mb-6 flex items-end justify-between"><div><p class="font-bold text-brand-blue">Lagi Banyak Dicari</p><h2 class="text-3xl font-extrabold text-slate-950">Produk Populer</h2></div><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="browse">Lihat Semua</button></div><div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">${featured.map(p => productCard(p)).join("")}</div></section>`;
+    <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8"><div class="mb-6 flex items-end justify-between"><div><p class="text-sm font-bold text-brand-blue">Lagi Banyak Dicari</p><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Produk Populer</h2></div><button class="btn-secondary rounded-2xl px-5 py-3" data-nav="browse">Lihat Semua</button></div><div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">${featured.map(p => productCard(p)).join("")}</div></section>`;
     bindCommonEvents();
     document.querySelector("#hero-search-btn").addEventListener("click", () => {
       state.filters.query = document.querySelector("#hero-search").value;
@@ -184,8 +184,8 @@
               <p class="text-xs font-extrabold uppercase text-brand-blue">Header Produk</p>
               <div class="mt-3 flex flex-wrap gap-2"><span class="badge bg-blue-50 text-brand-blue">${product.category}</span><span class="badge status-available">${product.status === "low" ? "Hampir Habis" : "Tersedia"}</span><span class="badge bg-amber-50 text-amber-700">Top Rated</span></div>
               <h1 class="mt-4 text-2xl font-bold leading-tight text-slate-900 lg:text-3xl">${product.name}</h1>
-              <p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Rating ${reviewStats.average} | ${reviewStats.total} ulasan | ${product.rentedCount}x disewa</p>
-              <p class="mt-5 text-3xl font-extrabold text-blue-600">${price(product)}</p>
+              <p class="mt-3 text-sm font-semibold leading-relaxed text-slate-500">Rating ${reviewStats.average} | ${reviewStats.total} ulasan | ${product.rentedCount}x disewa</p>
+              <p class="mt-5 text-3xl font-extrabold text-blue-600 sm:text-4xl">${price(product)}</p>
             </section>
 
             <section class="mt-5 rounded-3xl border border-slate-100 bg-slate-50 p-4">
@@ -346,15 +346,15 @@
       "Keterlambatan pengembalian dikenakan biaya tambahan"
     ];
     return `<section class="grid gap-5 lg:grid-cols-2">
-      <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Spesifikasi Produk</h2><div class="mt-4 divide-y divide-slate-100">${specs.map(item => `<div class="flex justify-between gap-4 py-3 text-sm"><span class="font-semibold text-slate-500">${item[0]}</span><b class="text-right text-slate-900">${item[1]}</b></div>`).join("")}</div></article>
-      <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Deskripsi Produk</h2><p class="mt-4 max-w-3xl leading-7 text-slate-600">${product.description} Foto real, kondisi dicek sebelum serah terima, dan cocok untuk ${usageHint(product)}.</p><p class="mt-5 rounded-2xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">Cocok untuk: ${usageHint(product)}.</p></article>
+      <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Spesifikasi Produk</h2><div class="mt-4 divide-y divide-slate-100">${specs.map(item => `<div class="flex justify-between gap-4 py-3 text-sm"><span class="font-semibold text-slate-500">${item[0]}</span><b class="text-right text-slate-900">${item[1]}</b></div>`).join("")}</div></article>
+      <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Deskripsi Produk</h2><p class="mt-4 max-w-3xl text-sm leading-relaxed text-slate-600 sm:text-base">${product.description} Foto real, kondisi dicek sebelum serah terima, dan cocok untuk ${usageHint(product)}.</p><p class="mt-5 rounded-2xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">Cocok untuk: ${usageHint(product)}.</p></article>
       <div class="grid gap-5 lg:col-span-2 lg:grid-cols-2">
-        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Kelengkapan</h2><div class="mt-4 grid gap-2 sm:grid-cols-2">${product.includes.concat(["Aksesori tambahan sesuai stok", "Bukti kondisi awal"]).map(item => `<p class="flex items-center gap-2 rounded-2xl bg-teal-50 p-3 text-sm font-semibold text-teal-700">${icon("check", "h-4 w-4 shrink-0")} ${item}</p>`).join("")}</div></article>
-        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Kondisi Barang</h2><div class="mt-4 flex items-end gap-2"><p class="text-4xl font-extrabold text-brand-blue">${product.condition}%</p><span class="pb-1 text-sm font-bold text-slate-500">layak pakai</span></div><div class="mt-4 h-3 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${product.condition}%"></div></div><p class="mt-4 text-sm leading-6 text-slate-600">Kondisi fisik terawat dengan pemakaian wajar. Semua fungsi utama sudah dicek oleh pemilik sebelum disewakan.</p></article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Kelengkapan</h2><div class="mt-4 grid gap-2 sm:grid-cols-2">${product.includes.concat(["Aksesori tambahan sesuai stok", "Bukti kondisi awal"]).map(item => `<p class="flex items-center gap-2 rounded-2xl bg-teal-50 p-3 text-sm font-semibold text-teal-700">${icon("check", "h-4 w-4 shrink-0")} ${item}</p>`).join("")}</div></article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Kondisi Barang</h2><div class="mt-4 flex items-end gap-2"><p class="text-4xl font-extrabold text-brand-blue">${product.condition}%</p><span class="pb-1 text-sm font-bold text-slate-500">layak pakai</span></div><div class="mt-4 h-3 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${product.condition}%"></div></div><p class="mt-4 text-sm leading-relaxed text-slate-600">Kondisi fisik terawat dengan pemakaian wajar. Semua fungsi utama sudah dicek oleh pemilik sebelum disewakan.</p></article>
       </div>
       <div class="grid gap-5 lg:col-span-2 lg:grid-cols-[1fr_1.15fr]">
-        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Syarat Pemilik</h2><div class="mt-4 grid gap-2">${rules.map(item => `<p class="rounded-2xl bg-slate-50 p-3 text-sm font-semibold text-slate-600">${item}</p>`).join("")}</div></article>
-        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Kalender Ketersediaan</h2>${availabilityCalendar()}</article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Syarat Pemilik</h2><div class="mt-4 grid gap-2">${rules.map(item => `<p class="rounded-2xl bg-slate-50 p-3 text-sm font-semibold text-slate-600">${item}</p>`).join("")}</div></article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Kalender Ketersediaan</h2>${availabilityCalendar()}</article>
       </div>
     </section>`;
   }
@@ -468,7 +468,7 @@
   }
 
   function reviewEmptyState() {
-    return `<div class="rounded-3xl bg-slate-50 p-8 text-center">${icon("star", "mx-auto h-12 w-12 text-slate-300")}<h3 class="mt-4 text-xl font-extrabold text-slate-950">Belum ada ulasan untuk barang ini.</h3><p class="mt-2 text-slate-500">Jadilah penyewa pertama yang memberikan ulasan setelah transaksi selesai.</p><button class="btn-secondary mt-5 rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang Lain</button></div>`;
+    return `<div class="rounded-3xl bg-slate-50 p-8 text-center">${icon("star", "mx-auto h-12 w-12 text-slate-300")}<h3 class="mt-4 text-xl font-extrabold text-slate-950">Belum ada ulasan untuk barang ini.</h3><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Jadilah penyewa pertama yang memberikan ulasan setelah transaksi selesai.</p><button class="btn-secondary mt-5 rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang Lain</button></div>`;
   }
 
   function reviewFilterEmpty() {
@@ -490,7 +490,7 @@
   }
 
   function similarSection(products) {
-    return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-extrabold text-slate-950">Produk Serupa yang Mungkin Kamu Suka</h2><div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">${products.map(item => `<article class="cursor-pointer overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${item.id}" role="button" tabindex="0" aria-label="Buka detail ${item.name}"><img src="${item.image}" alt="${item.name}" class="h-36 w-full object-cover" onerror="this.src='${fallbackImage}'"><div class="p-4"><h3 class="line-clamp-2 min-h-[2.4rem] text-sm font-extrabold text-slate-950">${item.name}</h3><p class="mt-2 text-sm font-bold text-brand-blue">${price(item)}</p><p class="mt-1 text-xs font-semibold text-slate-500">Rating ${item.rating} | ${item.location}</p></div></article>`).join("")}</div></section>`;
+    return `<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Produk Serupa yang Mungkin Kamu Suka</h2><div class="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">${products.map(item => productCard(item)).join("")}</div></section>`;
   }
 
   function bindDetailEvents(product) {
@@ -558,13 +558,13 @@
     mount.innerHTML = `<main class="min-h-screen bg-slate-50">
       <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
         <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div><p class="text-sm font-bold text-brand-blue">Keranjang Sewa</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Keranjang Sewa</h1><p class="mt-2 text-slate-500">Kelola barang yang ingin kamu sewa sebelum melanjutkan checkout.</p></div>
+          <div><p class="text-sm font-bold text-brand-blue">Keranjang Sewa</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Keranjang Sewa</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Kelola barang yang ingin kamu sewa sebelum melanjutkan checkout.</p></div>
           <button class="btn-secondary w-fit rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang Lagi</button>
         </div>
         ${items.length ? `<section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <div class="grid gap-4">${items.map(({ item, product }) => cartItemCard(item, product)).join("")}</div>
           <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28">
-            <h2 class="text-xl font-extrabold text-slate-950">Ringkasan Keranjang</h2>
+            <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Ringkasan Keranjang</h2>
             <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
               ${summaryLine("Total item dipilih", selected.length)}
               ${summaryLine("Total biaya sewa", rupiah(rentTotal))}
@@ -626,7 +626,7 @@
     mount.innerHTML = `<main class="min-h-screen bg-slate-50">
       <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
         <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div><p class="text-sm font-bold text-brand-blue">Disimpan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Barang Disimpan</h1><p class="mt-2 text-slate-500">Barang yang kamu sukai dan bisa kamu sewa nanti.</p></div>
+          <div><p class="text-sm font-bold text-brand-blue">Disimpan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Barang Disimpan</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Barang yang kamu sukai dan bisa kamu sewa nanti.</p></div>
           <button class="btn-secondary w-fit rounded-2xl px-5 py-3" data-nav="browse">Jelajah Barang</button>
         </div>
         ${products.length ? `<section class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">${products.map(wishlistCard).join("")}</section>` : emptyWishlistState()}
@@ -637,19 +637,7 @@
   }
 
   function wishlistCard(product) {
-    return `<article class="cursor-pointer overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
-      <img src="${product.image}" alt="${product.name}" class="h-44 w-full object-cover" onerror="this.src='${fallbackImage}'">
-      <div class="p-4">
-        <div class="flex flex-wrap gap-2">${productBadges(product)}</div>
-        <h2 class="mt-3 line-clamp-2 text-lg font-extrabold text-slate-950">${product.name}</h2>
-        <p class="mt-2 text-sm font-semibold text-slate-500">Rating ${product.rating} | ${product.location}</p>
-        <p class="mt-1 text-sm text-slate-500">${product.campus}</p>
-        <p class="mt-3 text-xl font-extrabold text-brand-blue">${price(product)}</p>
-        <div class="mt-4 grid gap-2">
-          <button class="btn-secondary rounded-2xl px-4 py-2.5 text-sm text-red-500" data-remove-wishlist="${product.id}">Hapus dari Disimpan</button>
-        </div>
-      </div>
-    </article>`;
+    return productCard(product);
   }
 
   function emptyWishlistState() {
@@ -721,7 +709,7 @@
     const draft = state.reviewDraft;
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Beranda / Detail Transaksi / Beri Ulasan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Beri Ulasan</h1><p class="mt-2 text-slate-500">Bagikan pengalaman kamu agar pengguna lain bisa menyewa dengan lebih percaya diri.</p></div>
+        <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Beranda / Detail Transaksi / Beri Ulasan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Beri Ulasan</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Bagikan pengalaman kamu agar pengguna lain bisa menyewa dengan lebih percaya diri.</p></div>
         <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
           <div class="flex flex-col gap-4 sm:flex-row"><img src="${product.image}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" onerror="this.src='${fallbackImage}'"><div><span class="badge bg-teal-50 text-teal-700">Status: Selesai</span><h2 class="mt-3 text-xl font-extrabold text-slate-950">${product.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">Disewa dari: ${product.owner.name}</p><p class="mt-1 text-sm text-slate-500">Tanggal sewa: ${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p><p class="mt-1 text-sm text-slate-500">Nomor transaksi: ${transactionId}</p></div></div>
         </section>
@@ -729,7 +717,7 @@
           ${ratingInputCard("Rating Barang", [["itemConditionRating", "Kondisi barang"], ["itemDescriptionMatchRating", "Kesesuaian dengan deskripsi"], ["itemOverallRating", "Kepuasan keseluruhan"]], draft)}
           ${ratingInputCard("Rating Pemilik", [["ownerResponsivenessRating", "Responsivitas"], ["ownerPunctualityRating", "Ketepatan waktu"], ["ownerFriendlinessRating", "Keramahan"]], draft)}
           <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-extrabold text-slate-950">Tulis Review</h2>
+            <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Tulis Review</h2>
             <label class="mt-4 block text-sm font-bold text-slate-700">Judul Review<input id="review-title" class="field mt-2" maxlength="100" value="${draft.title}" placeholder="Contoh: Barang sesuai deskripsi dan pemilik sangat responsif"></label>
             <label class="mt-4 block text-sm font-bold text-slate-700">Isi Review<textarea id="review-comment" class="field mt-2 min-h-36" maxlength="500" placeholder="Ceritakan pengalaman kamu saat menyewa barang ini...">${draft.comment}</textarea></label>
             <p class="mt-2 text-right text-xs font-bold text-slate-400"><span id="review-counter">${draft.comment.length}</span>/500</p>
@@ -739,7 +727,7 @@
             </div>
           </section>
           <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 class="text-xl font-extrabold text-slate-950">Upload Foto</h2><p class="mt-1 text-sm text-slate-500">Maksimal 5 foto. Format JPG, PNG, atau WebP.</p></div><label class="btn-secondary w-fit cursor-pointer rounded-2xl px-5 py-3">Upload Foto<input id="review-upload" class="hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Upload Foto</h2><p class="mt-1 text-sm text-slate-500">Maksimal 5 foto. Format JPG, PNG, atau WebP.</p></div><label class="btn-secondary w-fit cursor-pointer rounded-2xl px-5 py-3">Upload Foto<input id="review-upload" class="hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div>
             <div id="review-preview" class="mt-4 flex flex-wrap gap-3">${state.reviewUploads.map((file, index) => reviewImagePreview(file, index)).join("")}</div>
           </section>
           <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-nav="order-detail">Batal</button><button id="review-submit" class="rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3 font-bold text-white shadow-md transition hover:scale-[1.01]">Kirim Ulasan</button></div>
@@ -751,7 +739,7 @@
   }
 
   function ratingInputCard(title, fields, draft) {
-    return `<section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-extrabold text-slate-950">${title}</h2><div class="mt-5 grid gap-4">${fields.map(([key, label]) => `<div class="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p class="font-bold text-slate-800">${label}</p><p class="text-sm font-semibold text-slate-500">${ratingLabel(draft[key])}</p></div><div class="flex gap-1">${[1, 2, 3, 4, 5].map(value => `<button type="button" class="text-2xl transition hover:scale-110 ${value <= draft[key] ? "text-amber-400" : "text-slate-300"}" data-rating-field="${key}" data-rating-value="${value}">★</button>`).join("")}</div></div>`).join("")}</div></section>`;
+    return `<section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">${title}</h2><div class="mt-5 grid gap-4">${fields.map(([key, label]) => `<div class="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p class="font-bold text-slate-800">${label}</p><p class="text-sm font-semibold text-slate-500">${ratingLabel(draft[key])}</p></div><div class="flex gap-1">${[1, 2, 3, 4, 5].map(value => `<button type="button" class="text-2xl transition hover:scale-110 ${value <= draft[key] ? "text-amber-400" : "text-slate-300"}" data-rating-field="${key}" data-rating-value="${value}">★</button>`).join("")}</div></div>`).join("")}</div></section>`;
   }
 
   function ratingLabel(value) {
@@ -838,7 +826,7 @@
     }[state.orderStatus] || "Menunggu Pembayaran DP";
     mount.innerHTML = dashboardShell("Dashboard Penyewa", [
       ["Saldo Koin", `${state.coinBalance} Koin`], ["Pesanan Aktif", "2"], ["Disimpan", state.wishlist.length], ["Total Hemat", "Rp3,4jt"], ["Level Pengguna", "Silver"], ["Voucher Aktif", "3"]
-    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${item.image}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${readableStatus}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-slate-500">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
+    ], `<div class="grid gap-6 lg:grid-cols-2"><section class="card p-6"><h2 class="text-xl font-bold">Pesanan Aktif</h2><div class="mt-4 grid gap-3">${state.notifications.map(text => `<p class="rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">${text}</p>`).join("")}</div><article class="mt-4 rounded-3xl border border-slate-100 bg-white p-4"><div class="flex gap-3"><img src="${item.image}" alt="${item.name}" class="h-20 w-20 rounded-2xl object-cover"><div><b>${item.name}</b><p class="text-sm font-semibold text-slate-500">Status: ${readableStatus}</p><p class="text-sm text-slate-500">${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p></div></div>${canReview ? `<button class="btn-primary mt-4 rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Ulasan</button>` : reviewed ? `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Ulasan</button>` : `<button class="btn-secondary mt-4 rounded-2xl px-5 py-3" data-nav="order-detail">Detail Transaksi</button>`}</article></section><section class="card p-6"><h2 class="text-xl font-bold">Top Up Koin</h2><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">QRIS BarangBareng, cepat dan tercatat.</p><button class="btn-primary mt-5 rounded-2xl px-5 py-3" data-nav="topup">Top Up Sekarang</button></section></div><h2 class="mt-8 text-2xl font-extrabold">Rekomendasi Terdekat</h2><div class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-4">${BBData.products.slice(0, 4).map(p => productCard(p)).join("")}</div>`);
     bindCommonEvents();
     document.querySelector("[data-review-transaction]")?.addEventListener("click", event => router.navigate("reviews-create", { productId: event.currentTarget.dataset.reviewTransaction }));
   }
@@ -877,7 +865,7 @@
   }
 
   function emptyState() {
-    return `<div class="card p-10 text-center">${icon("search-x", "mx-auto h-16 w-16 text-slate-300")}<h2 class="mt-5 text-2xl font-extrabold text-slate-950">Barang belum ketemu</h2><p class="mt-2 text-slate-500">Coba ubah kata kunci, kampus, kategori, atau filter cepat.</p><button class="btn-primary mt-6 rounded-2xl px-6 py-3" data-reset-filter>Reset Filter</button></div>`;
+    return `<div class="card p-10 text-center">${icon("search-x", "mx-auto h-16 w-16 text-slate-300")}<h2 class="mt-5 text-2xl font-extrabold text-slate-950">Barang belum ketemu</h2><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Coba ubah kata kunci, kampus, kategori, atau filter cepat.</p><button class="btn-primary mt-6 rounded-2xl px-6 py-3" data-reset-filter>Reset Filter</button></div>`;
   }
 
   function feeRows(total) {
@@ -1042,7 +1030,7 @@
     return `<article class="rounded-[24px] border border-slate-100 bg-white p-4 shadow-sm">
       <div class="flex items-center justify-between gap-3">
         <span class="grid h-10 w-10 place-items-center rounded-2xl ${tone}">${icon(iconName, "h-5 w-5")}</span>
-        <strong class="text-xl font-extrabold text-slate-950">${value}</strong>
+        <strong class="text-xl font-bold text-slate-900 sm:text-2xl">${value}</strong>
       </div>
       <p class="mt-3 text-xs font-bold uppercase tracking-wide text-slate-400">${label}</p>
     </article>`;
@@ -1131,17 +1119,7 @@
   }
 
   function dashboardRecommendationCard(product) {
-    return `<article class="cursor-pointer overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
-      <div class="relative h-36 overflow-hidden bg-slate-100">
-        <img src="${product.image}" alt="${product.name}" class="h-full w-full object-cover" onerror="this.src='${fallbackImage}'">
-        <button class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-500 shadow-card ${state.isWishlisted(product.id) ? "text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Simpan ${product.name}">${icon("heart", state.isWishlisted(product.id) ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
-      </div>
-      <div class="p-4">
-        <h3 class="line-clamp-1 font-extrabold text-slate-950">${product.name}</h3>
-        <p class="mt-1 text-xs font-semibold text-slate-500">${product.campus}</p>
-        <p class="mt-3 text-sm font-extrabold text-brand-blue">${price(product)}</p>
-      </div>
-    </article>`;
+    return productCard(product);
   }
 
   function bindBuyerDashboardEvents() {
@@ -1249,34 +1227,34 @@
 
           <aside class="grid h-fit gap-6 lg:sticky lg:top-28">
             <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Pembayaran</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Pembayaran</h2>
               <div class="mt-4">${dashboardPaymentCard(active)}</div>
             </section>
 
             <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Aksi Cepat</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Aksi Cepat</h2>
               <div class="mt-4 grid grid-cols-2 gap-3">
                 ${[["browse", "Jelajah", "search"], ["keranjang", "Keranjang", "shopping-basket"], ["disimpan", "Disimpan", "heart"], ["topup", "Top Up", "wallet"], ["profile", "Profil", "user"], ["chat", "Bantuan", "message-circle"]].map(item => `<button class="rounded-2xl bg-slate-50 p-4 text-left text-sm font-extrabold text-slate-700 transition hover:bg-blue-50 hover:text-brand-blue" data-nav="${item[0]}">${icon(item[2], "mb-2 h-5 w-5")} ${item[1]}</button>`).join("")}
               </div>
             </section>
 
             <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
-              <div class="flex items-center justify-between"><h2 class="text-xl font-extrabold text-slate-950">Keranjang</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="keranjang">${state.cart.length} item</button></div>
+              <div class="flex items-center justify-between"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Keranjang</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="keranjang">${state.cart.length} item</button></div>
               <div class="mt-4 grid gap-3">${cartProducts.length ? cartProducts.map(product => dashboardMiniProduct(product, "Checkout")).join("") : `<p class="rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Keranjang masih kosong.</p>`}</div>
             </section>
 
             <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
-              <div class="flex items-center justify-between"><h2 class="text-xl font-extrabold text-slate-950">Disimpan</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="disimpan">${state.wishlist.length} item</button></div>
+              <div class="flex items-center justify-between"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Disimpan</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="disimpan">${state.wishlist.length} item</button></div>
               <div class="mt-4 grid gap-3">${wishlistProducts.length ? wishlistProducts.map(product => dashboardMiniProduct(product)).join("") : `<p class="rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Belum ada barang disimpan.</p>`}</div>
             </section>
 
             <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Penilaian</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Penilaian</h2>
               ${reviewNeeded ? `<p class="mt-3 text-sm font-semibold text-slate-500">${reviewNeeded.product.name} menunggu penilaian kamu.</p><button class="btn-primary mt-4 w-full rounded-2xl px-4 py-3" data-review-transaction="${reviewNeeded.id}">Beri Penilaian</button>` : `<p class="mt-3 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Tidak ada penilaian tertunda.</p>`}
             </section>
 
             <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Notifikasi</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Notifikasi</h2>
               <div class="mt-4 grid gap-3">${(state.notifications || []).slice(0, 4).map(dashboardNotification).join("") || `<p class="rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">Belum ada notifikasi.</p>`}</div>
             </section>
           </aside>
@@ -1365,7 +1343,7 @@
       <div class="grid gap-4">
         ${ekycSteps.slice(0, 4).map((step, index) => `<article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-50 font-extrabold text-brand-blue">${index + 1}</span><div><h2 class="font-extrabold text-slate-950">${step[1]}</h2><p class="mt-1 text-sm font-semibold leading-6 text-slate-500">${["Isi data identitas sesuai dokumen resmi.", "Upload foto KTP dalam format JPG atau PNG.", "Ambil atau upload selfie wajah yang jelas.", "Periksa kembali sebelum data dikirim."][index]}</p></div></div></article>`).join("")}
       </div>
-      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-extrabold text-slate-950">Status akun</h2><div class="mt-3">${bbUserAccount.getVerificationBadge(user.verificationStatus)}</div><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">${meta.text}</p>${user.verificationStatus === "verified" ? backLink("Kembali ke Dashboard", "dashboard-buyer", "mt-6") : `<button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-nav="${nextRoute}">Mulai Verifikasi</button>`}</aside>
+      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"><h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Status akun</h2><div class="mt-3">${bbUserAccount.getVerificationBadge(user.verificationStatus)}</div><p class="mt-3 text-sm font-semibold leading-relaxed text-slate-500">${meta.text}</p>${user.verificationStatus === "verified" ? backLink("Kembali ke Dashboard", "dashboard-buyer", "mt-6") : `<button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-nav="${nextRoute}">Mulai Verifikasi</button>`}</aside>
     </div>`);
     bindCommonEvents();
   }
@@ -1580,7 +1558,7 @@
     if (!mount) return;
     const user = window.bbUserAccount?.getSessionUser?.();
     if (!user) return renderAuthRequired(mount);
-    mount.innerHTML = ekycShell("ekyc-success", "Verifikasi Berhasil Dikirim", "Terima kasih. Data identitas Anda telah berhasil dikirim dan sedang dalam proses verifikasi oleh tim BarangBareng.", `<section class="mx-auto max-w-2xl text-center"><span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-blue-50 text-brand-blue">${icon("shield-check", "h-11 w-11")}</span><h2 class="mt-5 text-2xl font-extrabold text-slate-950">Data sedang ditinjau</h2><p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Kami akan memperbarui status akun setelah proses pemeriksaan selesai.</p><div class="mt-5">${bbUserAccount.getVerificationBadge("pending")}</div>${backLink("Kembali ke Dashboard", "dashboard-buyer", "mt-8 w-fit")}</section>`);
+    mount.innerHTML = ekycShell("ekyc-success", "Verifikasi Berhasil Dikirim", "Terima kasih. Data identitas Anda telah berhasil dikirim dan sedang dalam proses verifikasi oleh tim BarangBareng.", `<section class="mx-auto max-w-2xl text-center"><span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-blue-50 text-brand-blue">${icon("shield-check", "h-11 w-11")}</span><h2 class="mt-5 text-2xl font-extrabold text-slate-950">Data sedang ditinjau</h2><p class="mt-3 text-sm font-semibold leading-relaxed text-slate-500">Kami akan memperbarui status akun setelah proses pemeriksaan selesai.</p><div class="mt-5">${bbUserAccount.getVerificationBadge("pending")}</div>${backLink("Kembali ke Dashboard", "dashboard-buyer", "mt-8 w-fit")}</section>`);
     bindCommonEvents();
   }
   // STUDENT EKYC FEATURE END
@@ -1642,7 +1620,7 @@
             </article>
 
             <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Level Pengguna</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Level Pengguna</h2>
               <p class="mt-3">${bbUserAccount.levelBadge(user)}</p>
               <div class="mt-5 h-3 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-brand" style="width:${Math.max(4, Number(user.progressPercent || 0))}%"></div></div>
               <p class="mt-2 text-sm font-semibold leading-6 text-slate-500">${user.progressText}</p>
@@ -1652,7 +1630,7 @@
 
           <div class="grid gap-6">
             <form class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm" data-account-settings-form novalidate>
-              <h2 class="text-xl font-extrabold text-slate-950">Form Pengaturan Profil</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Form Pengaturan Profil</h2>
               <div class="mt-5 grid gap-4 md:grid-cols-2">
                 <label class="text-sm font-bold text-slate-700">Nama lengkap<input class="field mt-2" name="fullName" autocomplete="name" value="${user.fullName}">${bbUserAccount.fieldError(errors, "fullName")}</label>
                 <label class="text-sm font-bold text-slate-700">Email<input class="field mt-2 bg-slate-50 text-slate-500" name="email" type="email" value="${user.email}" readonly></label>
@@ -1665,7 +1643,7 @@
             </form>
 
             <section class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Keamanan Akun</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Keamanan Akun</h2>
               <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
                 <div><p class="text-sm font-bold text-slate-500">Email login</p><p class="mt-1 font-extrabold text-slate-950">${user.email}</p><p class="mt-2 text-sm font-semibold leading-6 text-slate-500">Password aktif. Perubahan password akan tersedia setelah integrasi backend.</p></div>
                 <button class="btn-secondary rounded-2xl px-5 py-3 text-sm" disabled>Ubah Password</button>
@@ -1673,7 +1651,7 @@
             </section>
 
             <section class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 class="text-xl font-extrabold text-slate-950">Preferensi Akun</h2>
+              <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Preferensi Akun</h2>
               <div class="mt-5 grid gap-3">
                 ${accountPreferenceToggle("transaction", "Notifikasi transaksi", "Info pembayaran, status sewa, dan serah terima.", prefs.transaction)}
                 ${accountPreferenceToggle("promo", "Notifikasi promo", "Rekomendasi promo dan kategori populer.", prefs.promo)}

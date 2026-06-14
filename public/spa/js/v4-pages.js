@@ -8,7 +8,7 @@
   function shell(title, subtitle, body, width = "max-w-5xl") {
     return `<div class="mx-auto ${width} px-4 pb-16 pt-28 sm:px-6 lg:px-8">
       ${backLink("Kembali ke Beranda", "home")}
-      <div class="mb-6"><p class="font-bold text-brand-blue">BarangBareng</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">${title}</h1><p class="mt-2 text-slate-500">${subtitle}</p></div>
+      <div class="mb-6"><p class="font-bold text-brand-blue">BarangBareng</p><h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${title}</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">${subtitle}</p></div>
       ${body}
     </div>`;
   }
@@ -196,7 +196,7 @@
   function renderProductStatistics() {
     const item = product();
     const statCards = [["Total Dilihat", "1.284"], ["Total Disimpan", 20 + item.id], ["Total Booking", item.rentedCount], ["Booking Selesai", Math.max(1, item.rentedCount - 7)], ["Pendapatan", rupiah(item.price * Math.max(item.rentedCount, 1))], ["Conversion Rate", "8.6%"]];
-    document.querySelector("#product-statistics-view").innerHTML = shell("Statistik Barang", `Analitik performa untuk ${item.name}.`, `<section class="grid gap-6 lg:grid-cols-[320px_1fr]"><aside class="card p-5"><div class="h-52">${img(item)}</div><h2 class="mt-4 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-slate-500">${item.status === "low" ? "Hampir Habis" : "Tersedia"} - ${item.category}</p><p class="mt-3 text-2xl font-extrabold text-brand-blue">${item.type === "pinjam" ? "Gratis" : rupiah(item.price)} <span class="text-xs text-slate-500">/hari</span></p><div class="mt-4 grid gap-2 text-sm font-semibold text-slate-600"><span>Rating ${item.rating}</span><span>${item.reviewCount} ulasan</span><span>${item.rentedCount} disewa</span><span>${20 + item.id} disimpan</span><span>1.284 dilihat</span></div><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></aside><div><div class="grid gap-4 md:grid-cols-3">${statCards.map(stat => `<article class="card p-5"><p class="text-sm font-semibold text-slate-500">${stat[0]}</p><strong class="mt-2 block text-2xl text-slate-950">${stat[1]}</strong></article>`).join("")}</div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Performa 30 Hari</h2><div class="mt-5 flex h-56 items-end gap-2">${[42, 64, 36, 80, 70, 96, 58, 74, 88, 60, 92, 78].map((height, index) => `<div class="flex flex-1 flex-col items-center gap-2"><div class="w-full rounded-t-xl bg-gradient-brand" style="height:${height}%"></div><span class="text-[10px] font-bold text-slate-400">${index + 1}</span></div>`).join("")}</div></section><section class="mt-6 grid gap-6 md:grid-cols-2"><div class="card p-6"><h2 class="text-xl font-bold">Kalender Booking</h2><div class="mt-4 grid grid-cols-7 gap-2">${Array.from({ length: 28 }, (_, i) => `<span class="rounded-xl ${i % 6 === 0 ? "bg-amber-100 text-amber-700" : "bg-teal-50 text-teal-700"} py-2 text-center text-xs font-bold">${i + 1}</span>`).join("")}</div></div><div class="card p-6"><h2 class="text-xl font-bold">Ulasan Terbaru</h2>${item.reviews.map(review => `<p class="mt-3 rounded-3xl bg-slate-50 p-4 text-sm text-slate-600"><b>${review.name}</b> - ${review.text}</p>`).join("")}</div></section><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Rekomendasi Optimasi Listing</h2><p class="mt-3 rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">Tambahkan foto real detail kelengkapan, jelaskan titik COD, dan aktifkan badge yang paling relevan.</p><div class="mt-5 flex flex-wrap gap-3"><button class="btn-primary rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary rounded-2xl px-5 py-3" data-disable-listing>Nonaktifkan Listing</button><button class="btn-secondary rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></div></section></div></section>`, "max-w-7xl");
+    document.querySelector("#product-statistics-view").innerHTML = shell("Statistik Barang", `Analitik performa untuk ${item.name}.`, `<section class="grid gap-6 lg:grid-cols-[320px_1fr]"><aside class="card p-5"><div class="h-52">${img(item)}</div><h2 class="mt-4 text-xl font-extrabold">${item.name}</h2><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">${item.status === "low" ? "Hampir Habis" : "Tersedia"} - ${item.category}</p><p class="mt-3 text-2xl font-extrabold text-brand-blue">${item.type === "pinjam" ? "Gratis" : rupiah(item.price)} <span class="text-xs text-slate-500">/hari</span></p><div class="mt-4 grid gap-2 text-sm font-semibold text-slate-600"><span>Rating ${item.rating}</span><span>${item.reviewCount} ulasan</span><span>${item.rentedCount} disewa</span><span>${20 + item.id} disimpan</span><span>1.284 dilihat</span></div><button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></aside><div><div class="grid gap-4 md:grid-cols-3">${statCards.map(stat => `<article class="card p-5"><p class="text-sm font-semibold text-slate-500">${stat[0]}</p><strong class="mt-2 block text-2xl text-slate-950">${stat[1]}</strong></article>`).join("")}</div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Performa 30 Hari</h2><div class="mt-5 flex h-56 items-end gap-2">${[42, 64, 36, 80, 70, 96, 58, 74, 88, 60, 92, 78].map((height, index) => `<div class="flex flex-1 flex-col items-center gap-2"><div class="w-full rounded-t-xl bg-gradient-brand" style="height:${height}%"></div><span class="text-[10px] font-bold text-slate-400">${index + 1}</span></div>`).join("")}</div></section><section class="mt-6 grid gap-6 md:grid-cols-2"><div class="card p-6"><h2 class="text-xl font-bold">Kalender Booking</h2><div class="mt-4 grid grid-cols-7 gap-2">${Array.from({ length: 28 }, (_, i) => `<span class="rounded-xl ${i % 6 === 0 ? "bg-amber-100 text-amber-700" : "bg-teal-50 text-teal-700"} py-2 text-center text-xs font-bold">${i + 1}</span>`).join("")}</div></div><div class="card p-6"><h2 class="text-xl font-bold">Ulasan Terbaru</h2>${item.reviews.map(review => `<p class="mt-3 rounded-3xl bg-slate-50 p-4 text-sm text-slate-600"><b>${review.name}</b> - ${review.text}</p>`).join("")}</div></section><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Rekomendasi Optimasi Listing</h2><p class="mt-3 rounded-3xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">Tambahkan foto real detail kelengkapan, jelaskan titik COD, dan aktifkan badge yang paling relevan.</p><div class="mt-5 flex flex-wrap gap-3"><button class="btn-primary rounded-2xl px-5 py-3" data-edit-product="${item.id}">Edit Barang</button><button class="btn-secondary rounded-2xl px-5 py-3" data-disable-listing>Nonaktifkan Listing</button><button class="btn-secondary rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Halaman Produk</button></div></section></div></section>`, "max-w-7xl");
     bindBase();
     document.querySelectorAll("[data-product]").forEach(button => button.addEventListener("click", () => router.navigate("product-detail", { productId: button.dataset.product })));
     document.querySelector("[data-disable-listing]")?.addEventListener("click", () => ui.toast("Listing dinonaktifkan"));
@@ -251,7 +251,7 @@
   }
 
   function renderPaymentVerification() {
-    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Menunggu pembayaran kamu diproses.", `<section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-slate-500">Pembayaran kamu akan tercatat otomatis setelah berhasil diproses.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button>${backLink("Kembali ke Detail Transaksi", "order-detail", "w-fit")}</div></section>`);
+    document.querySelector("#payment-verification-view").innerHTML = shell("Mengecek Status Pembayaran", "Menunggu pembayaran kamu diproses.", `<section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm"><i data-lucide="scan-line" class="mx-auto h-16 w-16 text-brand-blue"></i><h2 class="mt-4 text-2xl font-extrabold">Pembayaran sedang diproses</h2><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Pembayaran kamu akan tercatat otomatis setelah berhasil diproses.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-primary rounded-2xl px-5 py-3" data-payment-paid="dp">Cek Status Pembayaran</button>${backLink("Kembali ke Detail Transaksi", "order-detail", "w-fit")}</div></section>`);
     bindBase();
     bindPaymentActions("dp");
   }
@@ -263,7 +263,7 @@
       <div class="mx-auto max-w-4xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
         <section class="rounded-[28px] border border-slate-100 bg-white p-8 text-center shadow-sm">
           <span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-teal-50 text-teal-600">${icon("check-circle-2", "h-12 w-12")}</span>
-          <h1 class="mt-5 text-3xl font-extrabold text-slate-950">DP Berhasil Dibayar</h1>
+          <h1 class="mt-5 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">DP Berhasil Dibayar</h1>
           <p class="mx-auto mt-3 max-w-2xl text-slate-500">Pesanan kamu sudah tercatat. Pemilik akan menyiapkan barang sesuai jadwal.</p>
           <div class="mx-auto mt-8 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
             ${successMetric("Nomor Transaksi", state.orderCode)}
@@ -312,7 +312,7 @@
       <div class="grid gap-6">
         <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div><p class="text-sm font-bold text-slate-500">Nomor pesanan</p><h2 class="mt-1 text-xl font-extrabold text-slate-950">${transactionId}</h2></div>
+            <div><p class="text-sm font-bold text-slate-500">Nomor pesanan</p><h2 class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">${transactionId}</h2></div>
             <span class="badge ${current.tone}">${current.label}</span>
           </div>
           <p class="mt-4 rounded-2xl bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-600">${current.text}</p>
@@ -320,11 +320,11 @@
         </article>
 
         <article class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-          <h2 class="text-xl font-extrabold text-slate-950">Informasi Barang</h2>
+          <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Informasi Barang</h2>
           <div class="mt-5 flex flex-col gap-4 sm:flex-row">
             <img src="${item.image}" alt="${item.name}" class="h-36 w-full rounded-3xl object-cover sm:w-40">
             <div class="min-w-0 flex-1">
-              <h3 class="text-xl font-extrabold text-slate-950">${item.name}</h3>
+              <h3 class="text-xl font-bold text-slate-900 sm:text-2xl">${item.name}</h3>
               <p class="mt-2 text-sm font-semibold text-slate-500">${item.owner.name} · ${item.campus}</p>
               <p class="mt-2 text-sm text-slate-500">${state.bookingStart} sampai ${state.bookingEnd} · ${state.bookingDays} hari</p>
               <p class="mt-3 rounded-2xl bg-blue-50 p-3 text-sm font-bold text-brand-blue">${state.codLocation || item.location}</p>
@@ -345,7 +345,7 @@
         </div>
         <div class="my-5 border-t border-dashed border-slate-200"></div>
         <h3 class="font-extrabold">Aksi Berikutnya</h3>
-        <p class="mt-2 text-sm leading-6 text-slate-500">${current.text}</p>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">${current.text}</p>
         ${orderActions(status, item, transactionId, reviewed)}
       </aside>
     </section>`, "max-w-7xl");
@@ -358,12 +358,12 @@
     const isFinal = type === "final";
     const invoice = isFinal ? state.finalInvoiceNumber : state.invoiceNumber;
     return `<main class="min-h-screen bg-slate-50"><div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-      <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Checkout &gt; ${title}</p><h1 class="mt-2 text-2xl font-extrabold text-slate-950 lg:text-3xl">${title}</h1><p class="mt-2 text-slate-500">${subtitle}</p></div>
+      <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Checkout &gt; ${title}</p><h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${title}</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">${subtitle}</p></div>
       <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
         <section class="grid gap-5">
           <article class="rounded-[28px] border border-slate-100 bg-white p-6 text-center shadow-sm">
             <span class="badge bg-amber-50 text-amber-700">${statusText}</span>
-            <h2 class="mt-5 text-xl font-extrabold text-slate-950">QRIS GoPay Merchant</h2>
+            <h2 class="mt-5 text-xl font-bold text-slate-900 sm:text-2xl">QRIS GoPay Merchant</h2>
             <p class="mt-2 text-sm text-slate-500">${isFinal ? "Pelunasan dilakukan sebelum barang diserahkan kepada penyewa." : "Scan QRIS untuk membayar DP pesanan kamu."}</p>
             <div class="mx-auto mt-6 max-w-sm rounded-[28px] bg-slate-50 p-5">
               <p class="text-sm font-bold text-slate-500">${isFinal ? "Sisa pelunasan" : "DP yang harus dibayar"}</p>
@@ -524,7 +524,7 @@
         <span class="badge ${isReady ? "bg-blue-50 text-brand-blue" : "bg-amber-50 text-amber-700"}">${isReady ? "Kode Serah Terima Aktif" : "Menunggu Pembayaran Lunas"}</span>
         <div id="handover-page-qr" class="qr-container mx-auto mt-6 w-[240px] max-w-full"></div>
         <p class="mt-4 text-sm font-bold text-slate-500">Kode manual</p>
-        <p class="mt-2 tracking-[0.45em] text-3xl font-extrabold text-slate-950">${code}</p>
+        <p class="mt-2 tracking-[0.45em] text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${code}</p>
         <p class="mt-4 font-bold text-brand-blue">Berlaku <span id="handover-page-timer">10:00</span></p>
         <p class="mx-auto mt-4 max-w-xl text-sm font-semibold leading-6 ${isReady ? "text-slate-600" : "text-amber-600"}">${isReady ? "Kode hanya berlaku untuk transaksi ini dan tidak boleh dibagikan kepada orang lain." : "Selesaikan pelunasan dulu sebelum serah terima."}</p>
         <div class="mt-6 grid gap-3 sm:grid-cols-2">
@@ -535,7 +535,7 @@
         <p id="scan-result" class="mt-5 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">${isReady ? "Menunggu konfirmasi serah terima." : "Pelunasan belum selesai."}</p>
       </article>
       <aside class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-extrabold text-slate-950">Detail Serah Terima</h2>
+        <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Detail Serah Terima</h2>
         <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
           ${checkout.summaryRow("Barang", item.name)}
           ${checkout.summaryRow("Penyewa", state.currentUser.name)}

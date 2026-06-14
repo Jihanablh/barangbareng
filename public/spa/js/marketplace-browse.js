@@ -178,30 +178,25 @@
   function productCard(product) {
     const liked = state.isWishlisted(product.id);
     const status = product.status === "low" ? "Hampir Habis" : "Tersedia";
-    const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.rentedCount > 40 ? "Terdekat" : product.badges[0] || "Event Ready";
-    const goldSeller = product.owner.level === "gold" ? `<span class="badge bg-amber-50 text-amber-700">Gold Seller</span>` : "";
-    return `<article class="group min-w-0 cursor-pointer overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
+    const statusTone = product.status === "low" ? "bg-amber-50 text-amber-700" : "bg-teal-50 text-teal-700";
+    const extra = product.type === "pinjam" ? "Pinjam Gratis" : product.rating >= 4.8 ? "Top Rated" : product.badges[0] || product.category;
+    const goldSeller = product.owner.level === "gold" ? `<span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Gold Seller</span>` : "";
+    return `<article class="group min-w-0 cursor-pointer overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue" data-product="${product.id}" role="button" tabindex="0" aria-label="Buka detail ${product.name}">
       <div class="relative overflow-hidden bg-slate-100">
-        <img src="${product.image}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
-        <div class="absolute left-1.5 top-1.5 flex max-w-[calc(100%-3.25rem)] flex-wrap gap-1 sm:left-2 sm:top-2"><span class="rounded-full px-2 py-1 text-[0.62rem] font-extrabold leading-none ${product.status === "low" ? "bg-amber-100 text-amber-700" : "bg-teal-100 text-teal-700"}">${status}</span><span class="hidden rounded-full bg-blue-50 px-2 py-1 text-[0.62rem] font-extrabold leading-none text-brand-blue sm:inline-flex">${extra}</span></div>
-        <button class="absolute right-1.5 top-1.5 grid h-9 w-9 place-items-center rounded-full bg-white/95 text-slate-500 shadow-card sm:right-2 sm:top-2 ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
+        <img src="${product.image}" alt="${product.name}" class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-105" onerror="this.src='${product.gallery?.[0] || product.image}'">
+        <div class="absolute left-3 top-3 flex max-w-[calc(100%-4rem)] flex-wrap gap-1.5"><span class="rounded-full px-2.5 py-1 text-xs font-bold ${statusTone}">${status}</span><span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">${extra}</span></div>
+        <button class="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-red-500 ${liked ? "heart-liked text-red-500" : ""}" data-wishlist="${product.id}" aria-label="Disimpan">${icon("heart", liked ? "h-4 w-4 fill-current" : "h-4 w-4")}</button>
       </div>
-      <div class="p-2.5 sm:p-3">
-        <h3 class="line-clamp-2 min-h-[2.25rem] break-words text-xs font-extrabold leading-snug text-slate-950 sm:text-sm">${product.name}</h3>
-        <p class="mt-1 line-clamp-1 text-[0.66rem] font-extrabold text-brand-blue sm:text-[0.75rem]">${product.category}</p>
-        <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-600 sm:text-[0.78rem]">Rating ${product.rating} | ${product.reviewCount} ulasan</p>
-        <p class="mt-1.5 text-sm font-extrabold leading-tight text-brand-blue sm:text-base">${product.type === "pinjam" ? `Gratis <span class="block text-[0.62rem] text-slate-500 sm:inline sm:text-[0.7rem]">layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-[0.65rem] text-slate-500 sm:text-[0.7rem]">/hari</span>`}</p>
-        <p class="mt-1 line-clamp-1 text-[0.68rem] font-semibold text-slate-500 sm:text-[0.78rem]">${product.location}</p>
-        <p class="line-clamp-1 text-[0.68rem] text-slate-500 sm:text-[0.78rem]">${product.campus}</p>
-        <div class="mt-2 flex items-center justify-between gap-1.5">
-          <span class="truncate rounded-full px-2 py-1 text-[0.62rem] font-extrabold ${product.owner.level === "gold" ? "bg-amber-100 text-amber-700" : product.owner.level === "silver" ? "bg-slate-100 text-slate-700" : "bg-lime-100 text-lime-700"}">${product.owner.level[0].toUpperCase() + product.owner.level.slice(1)}</span>
-          <span class="shrink-0 text-[0.65rem] font-bold text-slate-400">${product.owner.initials}</span>
-        </div>
+      <div class="p-3 sm:p-4">
+        <p class="line-clamp-1 text-xs font-bold text-brand-blue sm:text-sm">${product.category}</p>
+        <h3 class="mt-1 line-clamp-2 text-sm font-bold leading-snug text-slate-900 sm:text-base">${product.name}</h3>
+        <p class="mt-2 text-base font-extrabold text-blue-600 sm:text-lg">${product.type === "pinjam" ? `Gratis <span class="text-xs text-slate-500">layanan Rp5.000</span>` : `${rupiah(product.price)} <span class="text-xs text-slate-500">/hari</span>`}</p>
+        <div class="mt-2 flex items-center gap-1 text-xs font-semibold text-slate-600 sm:text-sm">${icon("star", "h-3.5 w-3.5 fill-amber-400 text-amber-400")} <span>${product.rating}</span><span class="text-slate-300">|</span><span>${product.reviewCount} ulasan</span></div>
+        <p class="mt-1 line-clamp-1 text-xs text-slate-500 sm:text-sm">${product.campus} | ${product.location}</p>
         ${goldSeller ? `<div class="mt-2">${goldSeller}</div>` : ""}
       </div>
     </article>`;
   }
-
   function checkboxGroup(title, key, items, iconName) {
     const selected = state.filters[key] || [];
     return `<section class="border-b border-slate-100 py-4">
@@ -252,15 +247,15 @@
   }
 
   function emptyState() {
-    return `<div class="rounded-[32px] border border-slate-100 bg-white p-10 text-center shadow-sm">${icon("search-x", "mx-auto h-16 w-16 text-slate-300")}<h2 class="mt-5 text-2xl font-extrabold text-slate-950">Tidak ada barang yang cocok dengan pencarian kamu.</h2><p class="mt-2 text-slate-500">Coba gunakan kata kunci lain atau hapus beberapa filter.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-secondary rounded-2xl px-6 py-3" data-reset-search>Reset Pencarian</button><button class="btn-primary rounded-2xl px-6 py-3" data-reset-filter>Jelajah Semua Barang</button></div></div>`;
+    return `<div class="rounded-[32px] border border-slate-100 bg-white p-10 text-center shadow-sm">${icon("search-x", "mx-auto h-16 w-16 text-slate-300")}<h2 class="mt-5 text-xl font-bold text-slate-900 sm:text-2xl">Tidak ada barang yang cocok dengan pencarian kamu.</h2><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Coba gunakan kata kunci lain atau hapus beberapa filter.</p><div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><button class="btn-secondary rounded-2xl px-6 py-3" data-reset-search>Reset Pencarian</button><button class="btn-primary rounded-2xl px-6 py-3" data-reset-filter>Jelajah Semua Barang</button></div></div>`;
   }
 
   function resultHeader(total) {
     const query = String(state.filters.query || "").trim();
     return `<div class="mb-5 rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm">
       <p class="text-sm font-bold text-brand-blue">BarangBareng</p>
-      <h1 class="mt-1 text-2xl font-extrabold text-slate-950">${query ? `Hasil pencarian untuk "${query}"` : "Jelajah Semua Barang"}</h1>
-      <p class="mt-2 text-sm font-semibold text-slate-500">Menampilkan ${total} barang yang sesuai dengan pencarian dan filter aktif.</p>
+      <h1 class="mt-1 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${query ? `Hasil pencarian untuk "${query}"` : "Jelajah Semua Barang"}</h1>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Menampilkan ${total} barang yang sesuai dengan pencarian dan filter aktif.</p>
     </div>`;
   }
 

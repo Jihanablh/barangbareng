@@ -100,8 +100,8 @@
         <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,.96fr)] lg:px-8 lg:py-20">
           <div class="min-w-0 max-w-full">
             <span class="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-bold text-brand-blue">Platform Sewa Barang Harian untuk Mahasiswa</span>
-            <h1 class="mt-5 max-w-full break-words text-3xl font-extrabold leading-tight text-slate-950 sm:text-4xl lg:max-w-3xl lg:text-6xl">Sewa Barang Harian Mahasiswa, Lebih Hemat dan Praktis.</h1>
-            <p class="mt-4 max-w-full text-base font-semibold leading-7 text-slate-600 sm:max-w-2xl sm:text-lg sm:leading-8 lg:text-xl">Temukan laptop, kamera, alat kos, outfit sidang, perlengkapan event, sampai kebutuhan harian dari sesama mahasiswa di sekitarmu.</p>
+            <h1 class="mt-5 max-w-full break-words text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl lg:max-w-3xl lg:text-5xl xl:text-6xl">Sewa Barang Harian Mahasiswa, Lebih Hemat dan Praktis.</h1>
+            <p class="mt-4 max-w-full text-base font-semibold leading-relaxed text-slate-600 sm:max-w-2xl sm:text-lg lg:text-xl">Temukan laptop, kamera, alat kos, outfit sidang, perlengkapan event, sampai kebutuhan harian dari sesama mahasiswa di sekitarmu.</p>
             <div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="btn-primary inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-base sm:w-auto" data-nav="browse">Jelajah Barang</button><button class="btn-secondary inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-base sm:w-auto" data-nav="upload-product">Sewakan Barang</button></div>
             <div class="mt-8 w-full max-w-4xl rounded-[28px] border border-slate-100 bg-white/95 p-4 shadow-card-hover backdrop-blur">
               <div class="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
@@ -171,7 +171,7 @@
   }
 
   function sectionTitle(title, subtitle) {
-    return `<div class="mx-auto mb-8 max-w-3xl text-center"><p class="font-bold text-brand-blue">BarangBareng</p><h2 class="mt-2 text-3xl font-extrabold text-slate-950 lg:text-4xl">${title}</h2><p class="mt-3 text-slate-500">${subtitle}</p></div>`;
+    return `<div class="mx-auto mb-8 max-w-3xl text-center"><p class="text-sm font-bold text-brand-blue">BarangBareng</p><h2 class="mt-2 text-xl font-bold text-slate-900 sm:text-2xl">${title}</h2><p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">${subtitle}</p></div>`;
   }
 
   function sectionHeader(title, subtitle) {
