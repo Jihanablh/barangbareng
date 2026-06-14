@@ -1,7 +1,7 @@
 (function () {
   const rupiah = value => components.rupiah(Number(value || 0));
   const icon = (name, cls = "h-5 w-5") => components.icon(name, cls);
-  const backLink = (label, to, className = "mb-5") => `<button type="button" class="${className} inline-flex min-w-0 items-center gap-2 text-sm font-bold text-slate-600 transition hover:-translate-x-0.5 hover:text-blue-600 sm:text-base" data-nav="${to}">${icon("arrow-left", "h-5 w-5 shrink-0")}<span class="min-w-0">${label}</span></button>`;
+  const backLink = (label, to, className = "mb-5", theme = "light") => components.backLink(label, to, className, theme);
   const product = () => components.selectedProduct();
   const fallbackImage = BBData.fallbackProductImage || "/images/products/product-placeholder.svg";
   const getProductImage = item => BBData.getProductImage?.(item) || fallbackImage;
@@ -10,7 +10,7 @@
 
   function shell(title, subtitle, body, width = "max-w-5xl") {
     return `<div class="mx-auto ${width} px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-      ${backLink("Kembali ke Beranda", "home")}
+      ${components.pageTopBar({ backLabel: "Kembali ke Beranda", backTo: "home", breadcrumb: ["BarangBareng", title] })}
       <div class="mb-6"><p class="font-bold text-brand-blue">BarangBareng</p><h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${title}</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">${subtitle}</p></div>
       ${body}
     </div>`;
@@ -361,7 +361,8 @@
     const isFinal = type === "final";
     const invoice = isFinal ? state.finalInvoiceNumber : state.invoiceNumber;
     return `<main class="min-h-screen bg-slate-50"><div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-      <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Checkout &gt; ${title}</p><h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${title}</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">${subtitle}</p></div>
+      ${components.pageTopBar({ backLabel: "Kembali ke Detail Transaksi", backTo: "order-detail", breadcrumb: ["Checkout", title] })}
+      <div class="mb-6"><h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${title}</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">${subtitle}</p></div>
       <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
         <section class="grid gap-5">
           <article class="rounded-[28px] border border-slate-100 bg-white p-6 text-center shadow-sm">

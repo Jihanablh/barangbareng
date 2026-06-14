@@ -4,7 +4,21 @@
   const getProductGallery = product => BBData.getProductGallery?.(product) || [getProductImage(product)];
   const rupiah = value => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
   const icon = (name, cls = "h-5 w-5") => `<i data-lucide="${name}" class="${cls}"></i>`;
-  const backLink = (label, to, className = "mb-5") => `<button type="button" class="${className} inline-flex min-w-0 items-center gap-2 text-sm font-bold text-slate-600 transition hover:-translate-x-0.5 hover:text-blue-600 sm:text-base" data-nav="${to}">${icon("arrow-left", "h-5 w-5 shrink-0")}<span class="min-w-0">${label}</span></button>`;
+  const backLink = (label, to, className = "mb-5", theme = "light") => {
+    const tone = theme === "dark" ? "text-white/90 hover:text-cyan-300" : "text-slate-700 hover:text-cyan-600";
+    return `<button type="button" class="${className} inline-flex w-fit min-w-0 items-center gap-2 text-sm font-bold ${tone} transition hover:-translate-x-0.5 sm:text-base" data-nav="${to}">${icon("arrow-left", "h-5 w-5 shrink-0")}<span class="min-w-0">${label}</span></button>`;
+  };
+  const pageTopBar = ({ backLabel = "Kembali", backTo = "home", breadcrumb = [], theme = "light", className = "mb-6" } = {}) => {
+    const isDark = theme === "dark";
+    const crumbBase = isDark ? "text-white/50" : "text-slate-400";
+    const crumbActive = isDark ? "text-white/75" : "text-slate-500";
+    const separator = isDark ? "text-white/25" : "text-slate-300";
+    const crumbs = Array.isArray(breadcrumb) ? breadcrumb.filter(Boolean) : [];
+    return `<div class="${className} flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      ${backLink(backLabel, backTo, "shrink-0", theme)}
+      ${crumbs.length ? `<nav class="min-w-0 text-xs font-medium ${crumbBase} sm:text-sm" aria-label="Breadcrumb"><div class="flex min-w-0 flex-wrap gap-x-2 gap-y-1 sm:justify-end">${crumbs.map((item, index) => `<span class="${index === crumbs.length - 1 ? crumbActive : ""}">${item}</span>${index < crumbs.length - 1 ? `<span class="${separator}">&gt;</span>` : ""}`).join("")}</div></nav>` : ""}
+    </div>`;
+  };
 
   function imgTag(product, cls) {
     return `<img src="${getProductImage(product)}" alt="${product.name || "Produk BarangBareng"}" class="${cls}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">`;
@@ -166,10 +180,7 @@
     const reviewStats = reviewSummary(product);
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-        <div class="mb-5 flex flex-col gap-3 text-sm font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p class="min-w-0 truncate">Beranda / Jelajah Barang / ${product.category} / ${product.name}</p>
-          ${backLink("Kembali ke Jelajah Barang", "browse", "w-fit")}
-        </div>
+        ${pageTopBar({ backLabel: "Kembali ke Jelajah Barang", backTo: "browse", breadcrumb: ["Beranda", "Jelajah Barang", product.category, product.name] })}
 
         <section class="rounded-[32px] border border-slate-100 bg-white p-5 shadow-sm lg:p-8">
           <div class="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(360px,5fr)] lg:items-stretch">
@@ -711,7 +722,8 @@
     const draft = state.reviewDraft;
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div class="mb-6"><p class="text-sm font-semibold text-slate-500">Beranda / Detail Transaksi / Beri Ulasan</p><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Beri Ulasan</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Bagikan pengalaman kamu agar pengguna lain bisa menyewa dengan lebih percaya diri.</p></div>
+        ${pageTopBar({ backLabel: "Kembali ke Detail Transaksi", backTo: "order-detail", breadcrumb: ["Beranda", "Detail Transaksi", "Beri Ulasan"] })}
+        <div class="mb-6"><h1 class="mt-2 text-3xl font-extrabold text-slate-950">Beri Ulasan</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Bagikan pengalaman kamu agar pengguna lain bisa menyewa dengan lebih percaya diri.</p></div>
         <section class="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
           <div class="flex flex-col gap-4 sm:flex-row"><img src="${getProductImage(product)}" alt="${product.name}" class="h-32 w-full rounded-2xl object-cover sm:w-32" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"><div><span class="badge bg-teal-50 text-teal-700">Status: Selesai</span><h2 class="mt-3 text-xl font-extrabold text-slate-950">${product.name}</h2><p class="mt-2 text-sm font-semibold text-slate-500">Disewa dari: ${product.owner.name}</p><p class="mt-1 text-sm text-slate-500">Tanggal sewa: ${state.bookingStart || "20 Juni 2026"} - ${state.bookingEnd || "22 Juni 2026"}</p><p class="mt-1 text-sm text-slate-500">Nomor transaksi: ${transactionId}</p></div></div>
         </section>
@@ -1315,7 +1327,7 @@
     const back = backMap[activeView] || ["Kembali ke Dashboard", "dashboard-buyer"];
     return `<main class="min-h-screen bg-slate-50 pt-28">
       <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-        ${backLink(back[0], back[1])}
+        ${pageTopBar({ backLabel: back[0], backTo: back[1], breadcrumb: ["e-KYC", title] })}
         <div class="mb-5">${ekycProgress(activeView)}</div>
         <section class="card overflow-hidden">
           <div class="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-teal-50 p-6">
@@ -1612,12 +1624,9 @@
     const categories = ["Anak Kos & Perantau", "Sidang & Wisuda", "Event Kampus", "Organisasi Mahasiswa", "Akademik & Presentasi", "Dokumentasi & Konten", "Outdoor Mahasiswa"];
     mount.innerHTML = `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <nav class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
-          <button class="hover:text-brand-blue" data-nav="home">Beranda</button><span>&gt;</span><button class="hover:text-brand-blue" data-nav="profile">Akun</button><span>&gt;</span><span class="text-slate-900">Pengaturan Akun</span>
-        </nav>
+        ${pageTopBar({ backLabel: "Kembali ke Dashboard", backTo: "dashboard-buyer", breadcrumb: ["Beranda", "Akun", "Pengaturan Akun"] })}
         <header class="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div><h1 class="text-2xl font-extrabold text-slate-950 lg:text-3xl">Pengaturan Akun</h1><p class="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">Kelola informasi profil, keamanan akun, dan preferensi BarangBareng kamu.</p></div>
-          ${backLink("Kembali ke Dashboard", "dashboard-buyer", "w-full sm:w-fit")}
         </header>
 
         <section class="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
@@ -1742,5 +1751,5 @@
   renderProfile = renderProfileAccount;
   // USER ACCOUNT FEATURE END
 
-  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, renderAccountSettings, renderForgotPassword, renderEkycStart, renderEkycData, renderEkycUpload, renderEkycSelfie, renderEkycReview, renderEkycSuccess, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon, backLink };
+  window.components = { renderHome, renderBrowse, renderDetail, renderCart, renderWishlist, renderReviewCreate, renderCheckout, renderBuyer, renderSeller, renderProfile, renderAccountSettings, renderForgotPassword, renderEkycStart, renderEkycData, renderEkycUpload, renderEkycSelfie, renderEkycReview, renderEkycSuccess, bindNavEvents, refreshNavBadges, rupiah, selectedProduct, feeRows, optionList, productCard, icon, backLink, pageTopBar };
 })();

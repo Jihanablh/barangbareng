@@ -112,13 +112,13 @@
         <div class="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl"></div>
       </div>
       <div class="relative mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        ${components.pageTopBar({ backLabel: "Kembali ke Beranda", backTo: "home", breadcrumb: ["Transaksi", "Flow Transaksi"], theme: "dark" })}
         <header class="mb-5 flex flex-col gap-4 rounded-[28px] border border-white/10 bg-white/10 p-5 shadow-2xl backdrop-blur-xl md:flex-row md:items-center md:justify-between">
           <div>
             <p class="text-sm font-extrabold uppercase tracking-wide text-cyan-200">Flow Transaksi</p>
             <h1 class="mt-1 text-2xl font-extrabold leading-tight sm:text-3xl">${transactionData.itemName}</h1>
             <p class="mt-2 text-sm font-semibold text-white/70">${transactionData.ownerName} - ${transactionData.location}</p>
           </div>
-          <button class="rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300" data-nav="home">${icon("arrow-left", "mr-2 inline h-4 w-4")}Kembali ke Beranda</button>
         </header>
         ${progress(flow)}
         <section class="tf-step-enter mt-5">${content}</section>
@@ -228,7 +228,7 @@
 
   function renderChat(flow) {
     return shell(flow, `<div class="mx-auto max-w-4xl">
-      ${card(`<button class="inline-flex items-center gap-2 text-sm font-extrabold text-cyan-200 transition hover:text-cyan-100" data-back-from-chat>${icon("arrow-left", "h-4 w-4")} Kembali</button>
+      ${card(`<button type="button" class="inline-flex w-fit items-center gap-2 text-sm font-bold text-white/90 transition hover:-translate-x-0.5 hover:text-cyan-300 sm:text-base" data-back-from-chat>${icon("arrow-left", "h-5 w-5")} <span>Kembali</span></button>
       <div class="mt-5 flex items-center gap-4 border-b border-white/10 pb-5">
         <span class="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-400 font-extrabold text-[#071B33]">RA</span>
         <div><h2 class="text-xl font-extrabold">${transactionData.ownerName}</h2><p class="text-sm font-bold text-emerald-200">Online</p></div>

@@ -62,10 +62,9 @@
     const total = calculate(product, days);
     return `<main class="min-h-screen bg-slate-50">
       <div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-        ${components.backLink("Kembali ke Detail Produk", "product-detail")}
+        ${components.pageTopBar({ backLabel: "Kembali ke Detail Produk", backTo: "product-detail", breadcrumb: ["Detail Produk", "Checkout"] })}
         <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p class="text-sm font-semibold text-slate-500">Beranda &gt; Detail Produk &gt; Checkout</p>
             <h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">Checkout Sewa Barang</h1>
             <p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Periksa kembali detail sewa sebelum melanjutkan pembayaran DP.</p>
           </div>

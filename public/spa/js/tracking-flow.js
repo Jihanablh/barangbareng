@@ -81,7 +81,7 @@
   function pageShell(title, subtitle, body) {
     return `<main class="min-h-screen bg-slate-50 pt-24">
       <div class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        ${components.backLink("Kembali ke Detail Transaksi", "order-detail", "mb-5")}
+        ${components.pageTopBar({ backLabel: "Kembali ke Detail Transaksi", backTo: "order-detail", breadcrumb: ["Transaksi", title] })}
         <header class="mb-6 rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-sm backdrop-blur md:p-7">
           <p class="text-sm font-extrabold text-brand-blue">BarangBareng Tracking</p>
           <h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-950 sm:text-3xl">${title}</h1>
