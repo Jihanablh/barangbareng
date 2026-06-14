@@ -13,6 +13,7 @@
     register: '<section id="register-view" data-view="register"></section>',
     topup: '<section id="topup-view" data-view="topup"></section>',
     tracking: '<section id="tracking-view" data-view="tracking"></section>',
+    "transaksi-flow": '<section id="transaction-flow-view" data-view="transaksi-flow"></section>',
     "qr-handover": '<section id="qr-handover-view" data-view="qr-handover"></section>',
     chat: '<section id="chat-view" data-view="chat"></section>',
     "upload-product": '<section id="upload-product-view" data-view="upload-product"></section>',
@@ -57,6 +58,7 @@
       register: "partials/register.html",
       topup: "partials/topup.html",
       tracking: "partials/tracking.html",
+      "transaksi-flow": "partials/transaksi-flow.html",
       "qr-handover": "partials/qr-handover.html",
       chat: "partials/chat.html",
       "upload-product": "partials/upload-product.html",
@@ -143,6 +145,9 @@
         id = parts[1];
       } else if (parts[0] === "tracking") {
         viewName = "tracking";
+        id = parts[1];
+      } else if (parts[0] === "transaksi-flow") {
+        viewName = "transaksi-flow";
         id = parts[1];
       } else if (parts[0] === "reviews" && parts[1] === "create") {
         viewName = "reviews-create";

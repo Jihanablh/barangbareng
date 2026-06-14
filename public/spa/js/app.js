@@ -1,5 +1,5 @@
 (function () {
-  const assetVersion = "20260614-10";
+  const assetVersion = "20260614-11";
   const componentFallbacks = {
     "#toast-mount": "",
     "#footer-mount": `<footer class="bg-[#0F172A] text-white"><div class="mx-auto max-w-7xl px-4 py-10 text-sm text-slate-400 sm:px-6 lg:px-8"><strong class="text-lg text-white">BarangBareng</strong><p class="mt-2">Marketplace sewa dan pinjam barang mahasiswa.</p></div></footer>`,
@@ -91,6 +91,7 @@
     "ekyc-success": components.renderEkycSuccess,
     topup: components.renderTopupPage,
     tracking: components.renderTrackingFlow,
+    "transaksi-flow": components.renderTransactionFlow,
     "qr-handover": components.renderQrHandover,
     chat: components.renderChatPage,
     "upload-product": components.renderUploadProduct,
