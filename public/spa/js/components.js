@@ -1375,24 +1375,32 @@
     const user = window.bbUserAccount?.getSessionUser?.();
     if (!user) return renderAuthRequired(mount);
     const identity = { fullName: user.fullName, nik: "", birthPlace: "", birthDate: "", gender: "", address: "", city: "", province: "", ...(user.ekyc?.identity || {}) };
+    const dataReady = isEkycIdentityValid(identity);
     mount.innerHTML = ekycShell("ekyc-data-diri", "Data Diri Mahasiswa", "Pastikan data sesuai dengan KTP dan data kampus kamu.", `<form class="grid gap-4 md:grid-cols-2" data-ekyc-data-form novalidate>
       ${ekycInput("Nama lengkap", "fullName", identity.fullName, errors.fullName)}
       ${ekycInput("NIK", "nik", identity.nik, errors.nik, "text", "", "inputmode=\"numeric\"")}
       ${ekycInput("Tempat lahir", "birthPlace", identity.birthPlace, errors.birthPlace)}
-      ${ekycInput("Tanggal lahir", "birthDate", identity.birthDate, errors.birthDate, "date")}
-      <label class="text-sm font-bold text-slate-700">Jenis kelamin<select class="field mt-2" name="gender"><option value="">Pilih jenis kelamin</option>${["Laki-laki", "Perempuan"].map(item => `<option value="${item}" ${identity.gender === item ? "selected" : ""}>${item}</option>`).join("")}</select>${bbUserAccount.fieldError(errors, "gender")}</label>
+      ${ekycInput("Tanggal lahir", "birthDate", identity.birthDate, errors.birthDate, "date", "", `max="${window.bbEkycValidation?.maxBirthDate || "2010-12-31"}"`)}
+      <label class="text-sm font-bold text-slate-700">Jenis kelamin<select class="field mt-2 ${errors.gender ? "border-red-300 bg-red-50 focus:ring-red-100" : ""}" name="gender"><option value="">Pilih jenis kelamin</option>${["Laki-laki", "Perempuan"].map(item => `<option value="${item}" ${identity.gender === item ? "selected" : ""}>${item}</option>`).join("")}</select>${bbUserAccount.fieldError(errors, "gender")}</label>
       ${ekycInput("Kota", "city", identity.city, errors.city)}
       ${ekycInput("Provinsi", "province", identity.province, errors.province)}
-      <label class="text-sm font-bold text-slate-700 md:col-span-2">Alamat sesuai KTP<textarea class="field mt-2 min-h-24" name="address" placeholder="Alamat lengkap sesuai KTP">${identity.address || ""}</textarea>${bbUserAccount.fieldError(errors, "address")}</label>
-      <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke e-KYC", "ekyc", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3">Lanjut Upload Identitas</button></div>
+      <label class="text-sm font-bold text-slate-700 md:col-span-2">Alamat sesuai KTP<textarea class="field mt-2 min-h-24 ${errors.address ? "border-red-300 bg-red-50 focus:ring-red-100" : ""}" name="address" placeholder="Alamat lengkap sesuai KTP">${identity.address || ""}</textarea>${bbUserAccount.fieldError(errors, "address")}</label>
+      <div class="md:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke e-KYC", "ekyc", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50" ${dataReady ? "" : "disabled"}>Lanjut Upload Identitas</button></div>
     </form>`);
     bindCommonEvents();
+    document.querySelectorAll("[data-ekyc-data-form] input, [data-ekyc-data-form] textarea, [data-ekyc-data-form] select").forEach(field => {
+      const syncDataButton = () => {
+        const form = document.querySelector("[data-ekyc-data-form]");
+        const button = form?.querySelector("button[type='submit'], .btn-primary");
+        if (button) button.disabled = !isEkycIdentityValid(Object.fromEntries(new FormData(form).entries()));
+      };
+      field.addEventListener("input", syncDataButton);
+      field.addEventListener("change", syncDataButton);
+    });
     document.querySelector("[data-ekyc-data-form]")?.addEventListener("submit", event => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(event.currentTarget).entries());
-      const nextErrors = {};
-      ["fullName", "nik", "birthPlace", "birthDate", "gender", "address", "city", "province"].forEach(key => { if (!String(data[key] || "").trim()) nextErrors[key] = "Field ini wajib diisi."; });
-      if (data.nik && !/^\d{16}$/.test(String(data.nik).trim())) nextErrors.nik = "NIK harus berisi 16 angka.";
+      const nextErrors = validateEkycIdentity(data);
       if (Object.keys(nextErrors).length) return renderEkycData(nextErrors);
       bbUserAccount.saveEkycDraft({ identity: data });
       ui.toast("Data diri tersimpan.");
@@ -1401,7 +1409,45 @@
   }
 
   function ekycInput(label, name, value = "", error = "", type = "text", extraClass = "", attrs = "") {
-    return `<label class="text-sm font-bold text-slate-700">${label}<input class="field mt-2 ${extraClass}" name="${name}" type="${type}" value="${value || ""}" ${attrs}>${error ? `<p class="mt-1 text-xs font-bold text-red-600">${error}</p>` : ""}</label>`;
+    const errorClass = error ? "border-red-300 bg-red-50 focus:ring-red-100" : "";
+    return `<label class="text-sm font-bold text-slate-700">${label}<input class="field mt-2 ${errorClass} ${extraClass}" name="${name}" type="${type}" value="${value || ""}" ${attrs}>${error ? `<p class="mt-1 text-xs font-bold text-red-600">${error}</p>` : ""}</label>`;
+  }
+
+  function validateEkycIdentity(identity = {}) {
+    const nextErrors = {};
+    ["fullName", "nik", "birthPlace", "birthDate", "gender", "address", "city", "province"].forEach(key => {
+      if (!String(identity[key] || "").trim()) nextErrors[key] = "Field ini wajib diisi.";
+    });
+    if (identity.nik && !/^\d{16}$/.test(String(identity.nik).trim())) nextErrors.nik = "NIK harus berisi 16 angka.";
+    const birthValidation = window.bbEkycValidation?.validateBirthDate?.(identity.birthDate);
+    if (birthValidation && !birthValidation.isValid) nextErrors.birthDate = birthValidation.error;
+    return nextErrors;
+  }
+
+  function isEkycIdentityValid(identity = {}) {
+    return Object.keys(validateEkycIdentity(identity)).length === 0;
+  }
+
+  function ekycDocumentReady(documentData) {
+    return Boolean(documentData?.name && documentData?.preview && documentData?.isValid && documentData?.isConfirmed);
+  }
+
+  function ekycDraft() {
+    state.ekycPhotoDraft = state.ekycPhotoDraft || {};
+    return state.ekycPhotoDraft;
+  }
+
+  function clearEkycDraft(key) {
+    const draft = ekycDraft();
+    delete draft[key];
+  }
+
+  function validationCardStatus(item, error = "", fallbackInvalid = "") {
+    if (error) return `<div class="mt-3 rounded-2xl bg-red-50 p-4 text-sm font-bold leading-6 text-red-700">${error}</div>`;
+    if (!item?.preview) return "";
+    if (item.isValid) return `<div class="mt-3 rounded-2xl bg-teal-50 p-4 text-sm font-bold leading-6 text-teal-700">Foto berhasil divalidasi.</div>`;
+    const messages = item.errors?.length ? item.errors : [fallbackInvalid || "Foto belum memenuhi syarat."];
+    return `<div class="mt-3 rounded-2xl bg-red-50 p-4 text-sm font-bold leading-6 text-red-700"><p>Foto belum memenuhi syarat:</p><ul class="mt-2 list-disc space-y-1 pl-5">${messages.map(message => `<li>${message}</li>`).join("")}</ul></div>`;
   }
 
   function renderEkycUpload(errors = {}) {
@@ -1410,45 +1456,64 @@
     const user = window.bbUserAccount?.getSessionUser?.();
     if (!user) return renderAuthRequired(mount);
     const docs = user.ekyc?.documents || {};
+    const ktpReady = ekycDocumentReady(docs.ktp);
     mount.innerHTML = ekycShell("ekyc-upload-identitas", "Upload Identitas", "Upload foto KTP. Pastikan seluruh informasi terlihat jelas dan tidak terpotong.", `<div class="grid gap-5">
       ${uploadBox("ktp", "Upload Foto KTP", "Pastikan seluruh informasi pada KTP terlihat jelas dan tidak terpotong.", docs.ktp, errors.ktp)}
-      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke Data Diri", "ekyc-data-diri", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-upload-next>Lanjut Selfie</button></div>
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke Data Diri", "ekyc-data-diri", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50" data-ekyc-upload-next ${ktpReady ? "" : "disabled"}>Lanjut Selfie</button></div>
     </div>`);
     bindCommonEvents();
     bindEkycUploads(renderEkycUpload);
     document.querySelector("[data-ekyc-upload-next]")?.addEventListener("click", () => {
       const latest = bbUserAccount.getSessionUser()?.ekyc?.documents || {};
       const nextErrors = {};
-      if (!latest.ktp?.name) nextErrors.ktp = "Foto KTP wajib diupload.";
+      if (!ekycDocumentReady(latest.ktp)) nextErrors.ktp = "Foto KTP wajib divalidasi dan dikonfirmasi dengan tombol Gunakan Foto.";
       if (Object.keys(nextErrors).length) return renderEkycUpload(nextErrors);
       router.navigate("ekyc-selfie");
     });
   }
 
   function uploadBox(key, title, description, file = {}, error = "") {
+    const draft = ekycDraft()[key];
+    const activeFile = draft || file || {};
+    const isConfirmed = ekycDocumentReady(file);
+    const statusLabel = draft?.preview ? (draft.isValid ? "Siap digunakan" : "Perlu foto ulang") : (isConfirmed ? "Tersimpan" : "Belum upload");
+    const statusClass = draft?.preview ? (draft.isValid ? "bg-teal-50 text-teal-700" : "bg-red-50 text-red-700") : (isConfirmed ? "bg-teal-50 text-teal-700" : "bg-amber-50 text-amber-700");
     return `<article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-      <div class="flex items-start justify-between gap-3"><div><h2 class="font-extrabold text-slate-950">${title}</h2><p class="mt-1 text-sm font-semibold leading-6 text-slate-500">${description}</p><p class="mt-1 text-xs font-bold text-slate-500">JPG/PNG maksimal 5MB</p></div>${file?.name ? `<span class="badge bg-teal-50 text-teal-700">Tersimpan</span>` : `<span class="badge bg-amber-50 text-amber-700">Belum upload</span>`}</div>
-      <div class="mt-4 grid min-h-56 place-items-center overflow-hidden rounded-3xl border border-dashed border-blue-200 bg-blue-50/40 p-4 text-center text-sm font-bold text-slate-500" data-ekyc-drop="${key}">${file?.preview ? `<img src="${file.preview}" alt="${title}" class="h-56 w-full rounded-2xl object-cover">` : `${icon("image-up", "mx-auto mb-2 h-9 w-9 text-brand-blue")}Drag & drop file ke sini<br><span class="text-xs text-slate-400">atau gunakan tombol Browse File</span>`}</div>
-      ${file?.name ? `<p class="mt-3 truncate text-sm font-bold text-slate-600">${file.name}</p>` : ""}
-      ${error ? `<p class="mt-2 text-xs font-bold text-red-600">${error}</p>` : ""}
-      <div class="mt-4 flex flex-col gap-3 sm:flex-row"><label class="btn-secondary flex cursor-pointer justify-center rounded-2xl px-5 py-3 text-sm"><input class="sr-only" type="file" accept="image/png,image/jpeg" data-ekyc-file="${key}">${file?.name ? "Ganti Foto" : "Browse File"}</label>${file?.name ? `<button type="button" class="btn-secondary rounded-2xl px-5 py-3 text-sm text-red-600" data-ekyc-remove="${key}">Hapus Foto</button>` : ""}</div>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><h2 class="font-extrabold text-slate-950">${title}</h2><p class="mt-1 text-sm font-semibold leading-6 text-slate-500">${description}</p><p class="mt-1 text-xs font-bold text-slate-500">JPG, JPEG, atau PNG maksimal 5MB dan minimal 500 x 500 px.</p></div><span class="badge ${statusClass}">${statusLabel}</span></div>
+      <div class="mt-4 grid min-h-56 place-items-center overflow-hidden rounded-3xl border border-dashed border-blue-200 bg-blue-50/40 p-4 text-center text-sm font-bold text-slate-500" data-ekyc-drop="${key}">${activeFile?.preview ? `<img src="${activeFile.preview}" alt="${title}" class="h-56 w-full rounded-2xl object-cover">` : `${icon("image-up", "mx-auto mb-2 h-9 w-9 text-brand-blue")}Drag & drop file ke sini<br><span class="text-xs text-slate-400">atau gunakan tombol Browse File</span>`}</div>
+      ${activeFile?.name ? `<p class="mt-3 truncate text-sm font-bold text-slate-600">${activeFile.name}</p>` : ""}
+      ${validationCardStatus(draft || (isConfirmed ? { ...file, isValid: true } : null), error, "Foto KTP tidak jelas. Pastikan seluruh informasi pada KTP terlihat dengan baik.")}
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        <label class="btn-secondary flex cursor-pointer justify-center rounded-2xl px-5 py-3 text-sm"><input class="sr-only" type="file" accept="image/png,image/jpeg,image/jpg" data-ekyc-file="${key}">${activeFile?.preview ? "Ambil Ulang Foto" : "Browse File"}</label>
+        <button type="button" class="btn-primary rounded-2xl px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50" data-ekyc-confirm="${key}" ${draft?.isValid ? "" : "disabled"}>Gunakan Foto</button>
+        <button type="button" class="btn-secondary rounded-2xl px-5 py-3 text-sm text-red-600" data-ekyc-remove="${key}" ${activeFile?.preview || file?.name ? "" : "disabled"}>Hapus Foto</button>
+      </div>
     </article>`;
   }
 
   function bindEkycUploads(renderFn) {
-    function saveFile(file, key) {
+    async function saveFile(file, key, source = "upload") {
       if (!file) return;
-      if (!["image/jpeg", "image/png"].includes(file.type)) {
-        ui.toast("Format file harus JPG atau PNG.");
+      const validator = key === "selfie" ? window.bbEkycValidation?.validateSelfieImage : window.bbEkycValidation?.validateKtpImage;
+      if (!validator) {
+        ui.toast("Validator e-KYC belum tersedia.");
         return;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        ui.toast("Ukuran file maksimal 5 MB.");
-        return;
-      }
-      const preview = URL.createObjectURL(file);
-      bbUserAccount.saveEkycDraft({ documents: { [key]: { name: file.name, size: file.size, type: file.type, preview } } });
-      ui.toast(key === "ktp" ? "Foto KTP berhasil diupload." : "Foto selfie berhasil diupload.");
+      ui.toast("Memeriksa kualitas foto...");
+      const result = await validator(file);
+      ekycDraft()[key] = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        preview: result.preview || "",
+        isValid: result.isValid,
+        isConfirmed: false,
+        errors: result.errors || [],
+        meta: result.meta || {},
+        source,
+        validatedAt: new Date().toISOString()
+      };
+      ui.toast(result.isValid ? "Foto berhasil divalidasi. Klik Gunakan Foto untuk menyimpan." : "Foto belum memenuhi syarat.");
       renderFn();
     }
     document.querySelectorAll("[data-ekyc-file]").forEach(input => input.addEventListener("change", event => {
@@ -1466,7 +1531,20 @@
         saveFile(event.dataTransfer.files?.[0], area.dataset.ekycDrop);
       });
     });
+    document.querySelectorAll("[data-ekyc-confirm]").forEach(button => button.addEventListener("click", () => {
+      const key = button.dataset.ekycConfirm;
+      const draft = ekycDraft()[key];
+      if (!draft?.isValid) {
+        ui.toast("Foto belum valid. Ambil ulang foto terlebih dahulu.");
+        return;
+      }
+      bbUserAccount.saveEkycDraft({ documents: { [key]: { ...draft, isConfirmed: true, confirmedAt: new Date().toISOString() } } });
+      clearEkycDraft(key);
+      ui.toast(key === "ktp" ? "Foto KTP tersimpan." : "Foto selfie tersimpan.");
+      renderFn();
+    }));
     document.querySelectorAll("[data-ekyc-remove]").forEach(button => button.addEventListener("click", () => {
+      clearEkycDraft(button.dataset.ekycRemove);
       bbUserAccount.saveEkycDraft({ documents: { [button.dataset.ekycRemove]: null } });
       ui.toast("Foto berhasil dihapus.");
       renderFn();
@@ -1484,44 +1562,48 @@
     const user = window.bbUserAccount?.getSessionUser?.();
     if (!user) return renderAuthRequired(mount);
     const selfie = user.ekyc?.documents?.selfie || {};
+    const selfieDraft = ekycDraft().selfie;
+    const activeSelfie = selfieDraft || selfie || {};
+    const selfieReady = ekycDocumentReady(selfie);
     mount.innerHTML = ekycShell("ekyc-selfie", "Selfie Verifikasi", "Ambil foto selfie untuk memastikan identitas Anda sesuai dengan data KTP.", `<div class="grid gap-6 lg:grid-cols-[1fr_320px]">
       <section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-        <div class="grid min-h-72 place-items-center overflow-hidden rounded-3xl bg-slate-50 text-center text-sm font-bold text-slate-500" data-ekyc-camera-frame>${selfie.preview ? `<img src="${selfie.preview}" alt="Selfie verifikasi" class="h-72 w-full object-cover">` : `${icon("camera", "mx-auto mb-3 h-10 w-10 text-brand-blue")}Preview selfie`}</div>
-        ${errors.selfie ? `<p class="mt-3 text-xs font-bold text-red-600">${errors.selfie}</p>` : ""}
-        <div class="mt-4 flex flex-col gap-3 sm:flex-row"><button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-ekyc-camera>Aktifkan Kamera</button><label class="btn-secondary flex cursor-pointer justify-center rounded-2xl px-5 py-3"><input class="sr-only" type="file" accept="image/png,image/jpeg" data-ekyc-file="selfie">Upload Foto</label>${selfie.name ? `<button type="button" class="btn-secondary rounded-2xl px-5 py-3 text-red-600" data-ekyc-remove="selfie">Hapus Foto</button>` : ""}</div>
+        <div class="grid min-h-72 place-items-center overflow-hidden rounded-3xl bg-slate-50 text-center text-sm font-bold text-slate-500" data-ekyc-camera-frame>${activeSelfie.preview ? `<img src="${activeSelfie.preview}" alt="Selfie verifikasi" class="h-72 w-full object-cover">` : `${icon("camera", "mx-auto mb-3 h-10 w-10 text-brand-blue")}Preview selfie`}</div>
+        ${validationCardStatus(selfieDraft || (selfieReady ? { ...selfie, isValid: true } : null), errors.selfie, "Foto selfie tidak memenuhi syarat. Pastikan wajah terlihat jelas dan pencahayaan cukup.")}
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <button type="button" class="btn-secondary rounded-2xl px-5 py-3" data-ekyc-camera>Aktifkan Kamera</button>
+          <label class="btn-secondary flex cursor-pointer justify-center rounded-2xl px-5 py-3"><input class="sr-only" type="file" accept="image/png,image/jpeg,image/jpg" data-ekyc-file="selfie">Upload Foto</label>
+          <button type="button" class="btn-primary rounded-2xl px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50" data-ekyc-confirm="selfie" ${selfieDraft?.isValid ? "" : "disabled"}>Gunakan Foto</button>
+          <button type="button" class="btn-secondary rounded-2xl px-5 py-3 text-red-600 sm:col-span-2 lg:col-span-3" data-ekyc-remove="selfie" ${activeSelfie.preview || selfie.name ? "" : "disabled"}>Hapus Foto</button>
+        </div>
       </section>
       <aside class="h-fit rounded-3xl bg-blue-50 p-5 text-sm font-bold leading-6 text-blue-800"><h2 class="text-lg font-extrabold">Instruksi selfie</h2><p class="mt-3">Pastikan wajah terlihat jelas.</p><p class="mt-3">Gunakan pencahayaan yang cukup.</p><p class="mt-3">Jangan gunakan masker atau kacamata hitam.</p><p class="mt-3">Upload foto tersedia jika kamera tidak dapat digunakan.</p></aside>
-      <div class="lg:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke Upload Identitas", "ekyc-upload-identitas", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3" data-ekyc-selfie-next>Lanjut Review</button></div>
+      <div class="lg:col-span-2 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">${backLink("Kembali ke Upload Identitas", "ekyc-upload-identitas", "w-fit")}<button class="btn-primary rounded-2xl px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50" data-ekyc-selfie-next ${selfieReady ? "" : "disabled"}>Lanjut Review</button></div>
     </div>`);
     bindCommonEvents();
     bindEkycUploads(renderEkycSelfie);
     document.querySelector("[data-ekyc-camera]")?.addEventListener("click", async () => {
       try {
         stopEkycCamera();
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 960 } }, audio: false });
         ekycCameraStream = stream;
         const frame = document.querySelector("[data-ekyc-camera-frame]");
         frame.innerHTML = `<div class="w-full"><video class="h-72 w-full rounded-3xl object-cover" autoplay playsinline muted data-ekyc-video></video><button type="button" class="btn-primary mt-4 w-full rounded-2xl px-5 py-3" data-ekyc-capture>Ambil Foto</button></div>`;
         frame.querySelector("[data-ekyc-video]").srcObject = stream;
-        document.querySelector("[data-ekyc-capture]")?.addEventListener("click", () => {
+        document.querySelector("[data-ekyc-capture]")?.addEventListener("click", async () => {
           const video = document.querySelector("[data-ekyc-video]");
           const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth || 720;
-          canvas.height = video.videoHeight || 720;
-          canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+          const sourceWidth = video.videoWidth || 720;
+          const sourceHeight = video.videoHeight || 720;
+          const cropSize = Math.min(sourceWidth, sourceHeight);
+          const cropX = Math.max(0, Math.floor((sourceWidth - cropSize) / 2));
+          const cropY = Math.max(0, Math.floor((sourceHeight - cropSize) / 2));
+          canvas.width = 720;
+          canvas.height = 720;
+          canvas.getContext("2d").drawImage(video, cropX, cropY, cropSize, cropSize, 0, 0, canvas.width, canvas.height);
           const preview = canvas.toDataURL("image/png");
           stopEkycCamera();
-          bbUserAccount.saveEkycDraft({ documents: { selfie: { name: "selfie-camera.png", size: preview.length, type: "image/png", preview, source: "camera" } } });
-          frame.innerHTML = `<div class="w-full"><img src="${preview}" alt="Selfie verifikasi" class="h-72 w-full rounded-3xl object-cover"><div class="mt-4 flex flex-col gap-3 sm:flex-row"><button type="button" class="btn-secondary flex-1 rounded-2xl px-5 py-3" data-ekyc-retake>Ambil Ulang</button><button type="button" class="btn-primary flex-1 rounded-2xl px-5 py-3" data-ekyc-use-photo>Gunakan Foto</button></div></div>`;
-          document.querySelector("[data-ekyc-retake]")?.addEventListener("click", () => {
-            bbUserAccount.saveEkycDraft({ documents: { selfie: null } });
-            renderEkycSelfie();
-            setTimeout(() => document.querySelector("[data-ekyc-camera]")?.click(), 0);
-          });
-          document.querySelector("[data-ekyc-use-photo]")?.addEventListener("click", () => {
-            ui.toast("Foto selfie tersimpan.");
-            renderEkycSelfie();
-          });
+          const file = window.bbEkycValidation?.dataUrlToFile?.(preview, "selfie-camera.png");
+          await handleEkycCameraSelfie(file);
         });
       } catch {
         ui.toast("Kamera tidak tersedia, gunakan upload foto selfie.");
@@ -1529,9 +1611,33 @@
     });
     document.querySelector("[data-ekyc-selfie-next]")?.addEventListener("click", () => {
       const latest = bbUserAccount.getSessionUser()?.ekyc?.documents?.selfie || {};
-      if (!latest.name) return renderEkycSelfie({ selfie: "Selfie wajib diupload." });
+      if (!ekycDocumentReady(latest)) return renderEkycSelfie({ selfie: "Foto selfie wajib divalidasi dan dikonfirmasi dengan tombol Gunakan Foto." });
       router.navigate("ekyc-review");
     });
+  }
+
+  async function handleEkycCameraSelfie(file) {
+    const validator = window.bbEkycValidation?.validateSelfieImage;
+    if (!file || !validator) {
+      ui.toast("Foto selfie belum bisa diproses.");
+      return renderEkycSelfie();
+    }
+    ui.toast("Memeriksa kualitas selfie...");
+    const result = await validator(file);
+    ekycDraft().selfie = {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      preview: result.preview || "",
+      isValid: result.isValid,
+      isConfirmed: false,
+      errors: result.errors || [],
+      meta: result.meta || {},
+      source: "camera",
+      validatedAt: new Date().toISOString()
+    };
+    ui.toast(result.isValid ? "Selfie berhasil divalidasi. Klik Gunakan Foto untuk menyimpan." : "Foto selfie belum memenuhi syarat.");
+    renderEkycSelfie();
   }
 
   function renderEkycReview() {
@@ -1542,27 +1648,30 @@
     const identity = user.ekyc?.identity || {};
     const docs = user.ekyc?.documents || {};
     const selfie = docs.selfie || {};
+    const identityErrors = validateEkycIdentity(identity);
+    const canSubmit = Object.keys(identityErrors).length === 0 && ekycDocumentReady(docs.ktp) && ekycDocumentReady(selfie);
     mount.innerHTML = ekycShell("ekyc-review", "Review Data e-KYC", "Periksa kembali data sebelum dikirim untuk ditinjau tim BarangBareng.", `<div class="grid gap-5 lg:grid-cols-[1fr_360px]">
       <section class="grid gap-4">
         <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><h2 class="font-extrabold text-slate-950">Data Diri</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="ekyc-data-diri">Edit</button></div><div class="mt-4 grid gap-3 text-sm font-bold text-slate-600 sm:grid-cols-2">${["fullName", "nik", "birthPlace", "birthDate", "gender", "address", "city", "province"].map(key => `<p class="rounded-2xl bg-slate-50 p-3"><span class="block text-xs text-slate-400">${key}</span>${identity[key] || "-"}</p>`).join("")}</div></article>
-        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><h2 class="font-extrabold text-slate-950">Dokumen Identitas</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="ekyc-upload-identitas">Edit</button></div><div class="mt-4 rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-600"><span class="block text-xs text-slate-400">Foto KTP</span>${docs.ktp?.name || "-"}</div>${docs.ktp?.preview ? `<img src="${docs.ktp.preview}" alt="Foto KTP" class="mt-4 h-48 w-full rounded-2xl object-cover">` : ""}</article>
+        <article class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><h2 class="font-extrabold text-slate-950">Dokumen Identitas</h2><button class="text-sm font-extrabold text-brand-blue" data-nav="ekyc-upload-identitas">Edit</button></div><div class="mt-4 rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-600"><span class="block text-xs text-slate-400">Foto KTP</span>${docs.ktp?.name || "-"} ${ekycDocumentReady(docs.ktp) ? `<span class="ml-2 text-teal-600">Valid</span>` : `<span class="ml-2 text-red-600">Belum valid</span>`}</div>${docs.ktp?.preview ? `<img src="${docs.ktp.preview}" alt="Foto KTP" class="mt-4 h-48 w-full rounded-2xl object-cover">` : ""}</article>
       </section>
-      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><h2 class="font-extrabold text-slate-950">Selfie Verifikasi</h2><div class="mt-4 overflow-hidden rounded-3xl bg-slate-50">${selfie.preview ? `<img src="${selfie.preview}" alt="Foto selfie" class="h-56 w-full object-cover">` : `<div class="grid h-56 place-items-center text-sm font-bold text-slate-500">Belum ada selfie</div>`}</div><button class="mt-4 text-sm font-extrabold text-brand-blue" data-nav="ekyc-selfie">Edit selfie</button><button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3" data-ekyc-submit>Kirim Verifikasi</button></aside>
+      <aside class="h-fit rounded-3xl border border-slate-100 bg-white p-5 shadow-sm"><h2 class="font-extrabold text-slate-950">Selfie Verifikasi</h2><div class="mt-4 overflow-hidden rounded-3xl bg-slate-50">${selfie.preview ? `<img src="${selfie.preview}" alt="Foto selfie" class="h-56 w-full object-cover">` : `<div class="grid h-56 place-items-center text-sm font-bold text-slate-500">Belum ada selfie</div>`}</div><p class="mt-3 text-sm font-extrabold ${ekycDocumentReady(selfie) ? "text-teal-600" : "text-red-600"}">${ekycDocumentReady(selfie) ? "Selfie valid" : "Selfie belum valid"}</p><button class="mt-4 text-sm font-extrabold text-brand-blue" data-nav="ekyc-selfie">Edit selfie</button><button class="btn-primary mt-6 w-full rounded-2xl px-5 py-3 disabled:cursor-not-allowed disabled:opacity-50" data-ekyc-submit ${canSubmit ? "" : "disabled"}>Kirim Verifikasi</button></aside>
     </div>`);
     bindCommonEvents();
     document.querySelector("[data-ekyc-submit]")?.addEventListener("click", event => {
-      if (!identity.fullName || !identity.nik || !identity.birthPlace || !identity.birthDate || !identity.gender || !identity.address || !identity.city || !identity.province) {
+      const nextErrors = validateEkycIdentity(identity);
+      if (Object.keys(nextErrors).length) {
         ui.toast("Lengkapi data diri terlebih dahulu.");
         router.navigate("ekyc-data-diri");
         return;
       }
-      if (!docs.ktp?.name) {
-        ui.toast("Foto KTP wajib diupload.");
+      if (!ekycDocumentReady(docs.ktp)) {
+        ui.toast("Foto KTP wajib valid dan dikonfirmasi.");
         router.navigate("ekyc-upload-identitas");
         return;
       }
-      if (!selfie.name) {
-        ui.toast("Selfie wajib diupload.");
+      if (!ekycDocumentReady(selfie)) {
+        ui.toast("Selfie wajib valid dan dikonfirmasi.");
         router.navigate("ekyc-selfie");
         return;
       }
