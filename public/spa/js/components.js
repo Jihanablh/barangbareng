@@ -833,7 +833,7 @@
       PREPARING_ITEM: "Pemilik Menyiapkan Barang",
       WAITING_FINAL_PAYMENT: "Menunggu Pelunasan",
       FULLY_PAID: "Pembayaran Lunas",
-      READY_FOR_PICKUP: "Barang Siap Diambil",
+      READY_FOR_HANDOVER: "Siap Serah Terima",
       RENTED: "Barang Sedang Disewa",
       RETURNED: "Barang Sudah Dikembalikan",
       COMPLETED: "Transaksi Selesai"
@@ -848,25 +848,56 @@
   function renderSeller() {
     const mount = document.querySelector("#seller-view");
     if (!mount) return;
+    const transactions = window.bbTransactions?.all?.() || [];
+    const activeTransactions = transactions.filter(item => item.status && item.status !== "CANCELLED");
+    const income = transactions.filter(item => item.status === "COMPLETED").reduce((sum, item) => sum + Number(item.totalAmount || 0), 0);
+    const monthIncome = transactions.filter(item => ["FULLY_PAID", "READY_FOR_HANDOVER", "RENTED", "RETURNED", "COMPLETED"].includes(window.bbTransactions?.normalizeStatus?.(item.status))).reduce((sum, item) => sum + Number(item.totalAmount || 0), 0);
+    const txCard = (transaction, actions = "") => `<article class="rounded-3xl bg-slate-50 p-4">
+      <div class="flex gap-3">
+        <img src="${transaction.productImage || fallbackImage}" alt="${transaction.productName}" class="h-20 w-20 shrink-0 rounded-2xl object-cover" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2"><b class="truncate">${transaction.productName}</b><span class="badge bg-blue-50 text-brand-blue">${window.bbTransactions?.label?.(transaction.status) || transaction.status}</span></div>
+          <p class="mt-1 text-sm font-semibold text-slate-500">${transaction.renterName} · ${transaction.startDate} - ${transaction.endDate}</p>
+          <p class="mt-1 text-sm text-slate-500">${transaction.durationDays} hari · ${rupiah(transaction.totalAmount)} · COD ${transaction.codLocation}</p>
+          ${transaction.renterNote ? `<p class="mt-2 rounded-2xl bg-white p-3 text-sm font-semibold text-slate-600">${transaction.renterNote}</p>` : ""}
+        </div>
+      </div>
+      ${actions ? `<div class="mt-4 grid gap-2 sm:grid-cols-2">${actions}</div>` : ""}
+    </article>`;
+    const section = (title, items, emptyText, actionFor) => `<section class="card p-6"><div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold">${title}</h2><span class="badge bg-slate-50 text-slate-600">${items.length}</span></div><div class="mt-4 grid gap-3">${items.length ? items.map(item => txCard(item, actionFor?.(item) || "")).join("") : `<p class="rounded-3xl bg-slate-50 p-4 text-sm font-semibold text-slate-500">${emptyText}</p>`}</div></section>`;
     const listings = BBData.products.slice(0, 5).map(product => `<div class="mt-4 grid gap-4 rounded-3xl bg-slate-50 p-4 md:grid-cols-[110px_1fr_auto] md:items-center">
       ${imgTag(product, "h-24 w-full rounded-2xl object-cover")}
       <div><b>${product.name}</b><p class="text-sm text-slate-500">Aktif - Tersedia - ${product.rentedCount} disewa - ${20 + product.id} disimpan</p></div>
       <div class="flex gap-2"><button class="btn-secondary rounded-xl px-3 py-2 text-sm" data-edit-product="${product.id}">Edit</button><button class="btn-secondary rounded-xl px-3 py-2 text-sm" data-product-statistics="${product.id}">Statistik</button></div>
     </div>`).join("");
-    const requests = ["Difa Surya", "Maya Putri", "Raka Pradipta"].map((name, index) => `<div class="mt-4 rounded-3xl bg-slate-50 p-4"><b>${name}</b><p class="text-sm text-slate-500">Silver - Rating 4.${9 - index} - ${12 + index * 4} transaksi</p><p class="mt-2 text-sm">COD: Perpustakaan, besok 14.00</p><div class="mt-3 grid grid-cols-2 gap-2"><button class="rounded-xl bg-teal-500 px-3 py-2 text-sm font-bold text-white transition hover:bg-teal-600 active:scale-[0.98]" data-accept-request="${name}">Terima</button><button class="rounded-xl bg-red-100 px-3 py-2 text-sm font-bold text-red-700 transition hover:bg-red-200 active:scale-[0.98]" data-reject-request="${name}">Tolak</button></div></div>`).join("");
     const chart = [45, 60, 52, 80, 70, 96].map((height, index) => `<div class="flex flex-1 flex-col items-center gap-2"><div class="w-full rounded-t-2xl bg-gradient-brand" style="height:${height}%"></div><span class="text-xs font-bold text-slate-400">B${index + 1}</span></div>`).join("");
     mount.innerHTML = dashboardShell("Dashboard Pemilik", [
-      ["Pendapatan", "Rp1,8jt"], ["Barang Aktif", "12"], ["Sedang Disewa", "4"], ["Request Masuk", "3"], ["Rating", "4.9"], ["Produk Laris", "Jas Formal"]
-    ], `<div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><section class="card p-6"><div class="flex items-center justify-between"><h2 class="text-xl font-bold">Listing Barang</h2><button class="btn-primary rounded-2xl px-4 py-2" data-nav="upload-product">Upload Barang</button></div>${listings}</section><section class="card p-6"><h2 class="text-xl font-bold">Request Masuk</h2>${requests}</section></div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Grafik Pendapatan</h2><div class="mt-5 flex h-48 items-end gap-3">${chart}</div><p class="mt-5 rounded-3xl bg-amber-50 p-4 text-sm font-semibold text-amber-700">Tips: foto real yang terang dan deskripsi kelengkapan meningkatkan peluang disewa.</p></section>`);
+      ["Pendapatan", rupiah(income)], ["Bulan Ini", rupiah(monthIncome)], ["Barang Aktif", "12"], ["Request Masuk", transactions.filter(item => item.status === "WAITING_OWNER_APPROVAL").length], ["Menunggu Pelunasan", transactions.filter(item => item.status === "WAITING_FINAL_PAYMENT").length], ["Selesai", transactions.filter(item => item.status === "COMPLETED").length]
+    ], `<div class="grid gap-6 xl:grid-cols-2">
+      <section class="card p-6"><div class="flex items-center justify-between"><h2 class="text-xl font-bold">Barang Saya</h2><button class="btn-primary rounded-2xl px-4 py-2" data-nav="upload-product">Upload Barang</button></div>${listings}</section>
+      ${section("Permintaan Masuk", transactions.filter(item => item.status === "WAITING_OWNER_APPROVAL"), "Belum ada permintaan sewa masuk.", item => `<button class="rounded-xl bg-teal-500 px-3 py-2 text-sm font-bold text-white transition hover:bg-teal-600 active:scale-[0.98]" data-owner-approve="${item.id}">Setujui Permintaan</button><button class="rounded-xl bg-red-100 px-3 py-2 text-sm font-bold text-red-700 transition hover:bg-red-200 active:scale-[0.98]" data-owner-reject="${item.id}">Tolak Permintaan</button>`)}
+      ${section("Menunggu DP", transactions.filter(item => item.status === "WAITING_DP_PAYMENT"), "Belum ada transaksi menunggu DP.")}
+      ${section("Barang Diproses", transactions.filter(item => ["DP_PAID", "PREPARING_ITEM"].includes(item.status)), "Belum ada barang yang perlu diproses.", item => item.status === "DP_PAID" ? `<button class="btn-primary rounded-2xl px-4 py-3" data-owner-prepare="${item.id}">Siapkan Barang</button><button class="btn-secondary rounded-2xl px-4 py-3" data-nav="chat">Hubungi Penyewa</button>` : `<button class="btn-primary rounded-2xl px-4 py-3" data-owner-ready="${item.id}">Konfirmasi Kesiapan Barang</button><button class="btn-secondary rounded-2xl px-4 py-3" data-nav="chat">Hubungi Penyewa</button>`)}
+      ${section("Menunggu Pelunasan", transactions.filter(item => item.status === "WAITING_FINAL_PAYMENT"), "Belum ada transaksi menunggu pelunasan.")}
+      ${section("Serah Terima", transactions.filter(item => ["FULLY_PAID", "READY_FOR_HANDOVER"].includes(item.status)), "Belum ada transaksi siap serah terima.", item => `<button class="btn-primary rounded-2xl px-4 py-3" data-owner-handover="${item.id}">Generate QR Serah Terima</button><button class="btn-secondary rounded-2xl px-4 py-3" data-nav="qr-handover">Lihat QR</button>`)}
+      ${section("Pengembalian", transactions.filter(item => ["RENTED", "RETURNED"].includes(item.status)), "Belum ada pengembalian aktif.", item => item.status === "RENTED" ? `<button class="btn-primary rounded-2xl px-4 py-3" data-owner-return="${item.id}">Generate QR Pengembalian</button><button class="btn-secondary rounded-2xl px-4 py-3" data-owner-scan-return="${item.id}">Scan QR Pengembalian</button>` : `<button class="btn-primary rounded-2xl px-4 py-3" data-owner-check-return="${item.id}">Periksa Barang</button><button class="btn-secondary rounded-2xl px-4 py-3" data-owner-complete="${item.id}">Selesaikan Transaksi</button>`)}
+      ${section("Riwayat Penyewaan", transactions.filter(item => ["COMPLETED", "REJECTED", "CANCELLED", "PAYMENT_EXPIRED"].includes(item.status)), "Riwayat transaksi masih kosong.")}
+    </div><section class="card mt-6 p-6"><h2 class="text-xl font-bold">Pendapatan</h2><div class="mt-5 flex h-48 items-end gap-3">${chart}</div><p class="mt-5 rounded-3xl bg-amber-50 p-4 text-sm font-semibold text-amber-700">Pendapatan selesai: ${rupiah(income)}. Total transaksi aktif: ${activeTransactions.length}.</p></section>`);
     bindCommonEvents();
-    document.querySelectorAll("[data-accept-request]").forEach(button => button.addEventListener("click", () => {
-      ui.toast(`Request ${button.dataset.acceptRequest} diterima`);
-      button.closest(".rounded-3xl")?.classList.add("ring-2", "ring-teal-200");
+    const refresh = () => renderSeller();
+    document.querySelectorAll("[data-owner-approve]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.updateStatus(button.dataset.ownerApprove, "WAITING_DP_PAYMENT"); ui.toast("Permintaan disetujui. Silakan lakukan pembayaran DP."); refresh(); }));
+    document.querySelectorAll("[data-owner-reject]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.updateStatus(button.dataset.ownerReject, "REJECTED"); ui.toast("Permintaan sewa ditolak oleh penyedia."); refresh(); }));
+    document.querySelectorAll("[data-owner-prepare]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.updateStatus(button.dataset.ownerPrepare, "PREPARING_ITEM"); ui.toast("Barang sedang disiapkan."); refresh(); }));
+    document.querySelectorAll("[data-owner-ready]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.updateStatus(button.dataset.ownerReady, "WAITING_FINAL_PAYMENT"); ui.toast("Barang sudah siap. Silakan lakukan pelunasan."); refresh(); }));
+    document.querySelectorAll("[data-owner-handover]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.generateHandoverQr(button.dataset.ownerHandover); ui.toast("QR serah terima berhasil dibuat."); refresh(); }));
+    document.querySelectorAll("[data-owner-return]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.generateReturnQr(button.dataset.ownerReturn); ui.toast("QR pengembalian berhasil dibuat."); refresh(); }));
+    document.querySelectorAll("[data-owner-scan-return]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.scanReturnQr(button.dataset.ownerScanReturn); ui.toast("Barang berhasil dikembalikan."); refresh(); }));
+    document.querySelectorAll("[data-owner-check-return]").forEach(button => button.addEventListener("click", () => {
+      window.bbTransactions.saveReturnChecklist(button.dataset.ownerCheckReturn, { itemMatch: true, complete: true, noDamage: true, received: true });
+      ui.toast("Pemeriksaan barang selesai.");
+      refresh();
     }));
-    document.querySelectorAll("[data-reject-request]").forEach(button => button.addEventListener("click", () => {
-      ui.toast(`Request ${button.dataset.rejectRequest} ditolak`);
-      button.closest(".rounded-3xl")?.classList.add("opacity-60");
-    }));
+    document.querySelectorAll("[data-owner-complete]").forEach(button => button.addEventListener("click", () => { window.bbTransactions.complete(button.dataset.ownerComplete); ui.toast("Transaksi selesai. Kamu bisa memberi ulasan."); refresh(); }));
   }
   function renderProfile() {
     const mount = document.querySelector("#profile-view");
@@ -1004,7 +1035,7 @@
       PREPARING_ITEM: { label: "Disiapkan", text: "Barang sedang disiapkan untuk jadwal sewa.", tone: "bg-blue-50 text-brand-blue", icon: "package-check", action: "Chat Pemilik", nav: "chat" },
       WAITING_FINAL_PAYMENT: { label: "Menunggu Pelunasan", text: "Selesaikan pelunasan sebelum serah terima.", tone: "bg-amber-50 text-amber-700", icon: "credit-card", action: "Bayar Pelunasan", nav: "payment-final" },
       FULLY_PAID: { label: "Lunas", text: "Pembayaran lunas. Barang siap diproses.", tone: "bg-teal-50 text-teal-700", icon: "badge-check", action: "Kode Serah Terima", nav: "qr-handover" },
-      READY_FOR_PICKUP: { label: "Siap Diambil", text: "Tunjukkan kode serah terima saat bertemu pemilik.", tone: "bg-blue-50 text-brand-blue", icon: "qr-code", action: "Tampilkan Kode", nav: "qr-handover" },
+      READY_FOR_HANDOVER: { label: "Siap Serah Terima", text: "Tunjukkan kode serah terima saat bertemu pemilik.", tone: "bg-blue-50 text-brand-blue", icon: "qr-code", action: "Tampilkan Kode", nav: "qr-handover" },
       RENTED: { label: "Sedang Disewa", text: "Barang sedang kamu gunakan.", tone: "bg-blue-50 text-brand-blue", icon: "clock-3", action: "Detail Sewa", nav: "order-detail" },
       RETURNED: { label: "Dikembalikan", text: "Menunggu konfirmasi akhir dari pemilik.", tone: "bg-slate-100 text-slate-700", icon: "rotate-ccw", action: "Lihat Detail", nav: "order-detail" },
       COMPLETED: { label: "Selesai", text: "Transaksi selesai. Kamu bisa memberi penilaian.", tone: "bg-teal-50 text-teal-700", icon: "star", action: "Beri Penilaian", nav: "reviews-create" },
@@ -1164,7 +1195,7 @@
     if (!mount) return;
     const user = dashboardUser();
     const { active, history } = dashboardOrderData();
-    const activeStatuses = ["WAITING_DP_PAYMENT", "DP_PAID", "PREPARING_ITEM", "WAITING_FINAL_PAYMENT", "FULLY_PAID", "READY_FOR_PICKUP", "RENTED", "RETURNED"];
+    const activeStatuses = ["WAITING_OWNER_APPROVAL", "WAITING_DP_PAYMENT", "DP_PAID", "PREPARING_ITEM", "WAITING_FINAL_PAYMENT", "FULLY_PAID", "READY_FOR_HANDOVER", "RENTED", "RETURNED"];
     const activeOrders = activeStatuses.includes(active.status) ? [active] : [];
     const paymentCount = ["WAITING_DP_PAYMENT", "WAITING_FINAL_PAYMENT", "PAYMENT_EXPIRED"].includes(active.status) ? 1 : 0;
     const cartProducts = state.cart.slice(0, 3).map(item => BBData.products.find(product => product.id === Number(item.productId))).filter(Boolean);

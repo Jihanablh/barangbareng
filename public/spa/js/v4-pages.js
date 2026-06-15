@@ -206,12 +206,16 @@
   }
 
   const statusInfo = {
+    PENDING: { label: "Menunggu Diproses", text: "Transaksi sedang disiapkan.", tone: "bg-slate-100 text-slate-700" },
+    WAITING_OWNER_APPROVAL: { label: "Menunggu Persetujuan Penyedia", text: "Permintaan sewa berhasil dikirim. Menunggu persetujuan dari penyedia barang.", tone: "bg-amber-50 text-amber-700" },
+    REJECTED: { label: "Permintaan Ditolak", text: "Permintaan sewa ditolak oleh penyedia. Silakan pilih barang lain.", tone: "bg-red-50 text-red-700" },
     WAITING_DP_PAYMENT: { label: "Menunggu Pembayaran DP", text: "Selesaikan DP agar pesanan kamu diproses.", tone: "bg-amber-50 text-amber-700" },
     DP_PAID: { label: "DP Berhasil Dibayar", text: "Pemilik sedang memeriksa dan menyiapkan barang.", tone: "bg-teal-50 text-teal-700" },
-    PREPARING_ITEM: { label: "Pemilik Menyiapkan Barang", text: "Barang akan segera siap untuk jadwal sewa kamu.", tone: "bg-blue-50 text-brand-blue" },
+    PREPARING_ITEM: { label: "Barang Sedang Disiapkan", text: "Penyedia sedang menyiapkan barang untuk jadwal sewa kamu.", tone: "bg-blue-50 text-brand-blue" },
     WAITING_FINAL_PAYMENT: { label: "Menunggu Pelunasan", text: "Selesaikan pembayaran sebelum serah terima barang.", tone: "bg-amber-50 text-amber-700" },
     FULLY_PAID: { label: "Pembayaran Lunas", text: "Barang siap untuk proses serah terima.", tone: "bg-teal-50 text-teal-700" },
-    READY_FOR_PICKUP: { label: "Barang Siap Diambil", text: "Tunjukkan atau scan kode serah terima saat bertemu pemilik.", tone: "bg-blue-50 text-brand-blue" },
+    READY_FOR_HANDOVER: { label: "Siap Serah Terima", text: "Tunjukkan atau scan kode serah terima saat bertemu penyedia.", tone: "bg-blue-50 text-brand-blue" },
+    READY_FOR_PICKUP: { label: "Siap Serah Terima", text: "Tunjukkan atau scan kode serah terima saat bertemu penyedia.", tone: "bg-blue-50 text-brand-blue" },
     RENTED: { label: "Barang Sedang Disewa", text: "Gunakan barang sesuai kesepakatan dan kembalikan tepat waktu.", tone: "bg-blue-50 text-brand-blue" },
     RETURNED: { label: "Barang Sudah Dikembalikan", text: "Menunggu pemilik mengonfirmasi kondisi barang.", tone: "bg-slate-100 text-slate-700" },
     COMPLETED: { label: "Transaksi Selesai", text: "Terima kasih sudah menggunakan BarangBareng.", tone: "bg-teal-50 text-teal-700" },
@@ -221,12 +225,14 @@
   };
 
   const timelineSteps = [
-    ["WAITING_DP_PAYMENT", "Checkout Dibuat"],
+    ["WAITING_OWNER_APPROVAL", "Permintaan Dikirim"],
+    ["WAITING_DP_PAYMENT", "Pembayaran DP"],
     ["DP_PAID", "DP Dibayar"],
-    ["PREPARING_ITEM", "Pemilik Menyiapkan Barang"],
+    ["PREPARING_ITEM", "Barang Disiapkan"],
     ["WAITING_FINAL_PAYMENT", "Pelunasan"],
-    ["READY_FOR_PICKUP", "Barang Siap Diambil"],
+    ["READY_FOR_HANDOVER", "Serah Terima"],
     ["RENTED", "Sedang Disewa"],
+    ["RETURNED", "Pengembalian"],
     ["COMPLETED", "Selesai"]
   ];
 
@@ -237,6 +243,12 @@
   function renderPaymentQr() {
     const item = product();
     checkout.ensureCheckoutState(item);
+    const transaction = bbTransactions.current() || bbTransactions.find(state.orderCode);
+    if (!transaction || !["WAITING_DP_PAYMENT", "PAYMENT_EXPIRED"].includes(bbTransactions.normalizeStatus(transaction.status))) {
+      router.navigate("order-detail");
+      return;
+    }
+    const invoice = bbTransactions.ensureInvoice("DP_PAYMENT");
     const total = checkout.calculate(item, checkout.durationFromDates());
     paymentMount("dp").innerHTML = paymentShell({
       title: "Pembayaran DP",
@@ -244,11 +256,12 @@
       type: "dp",
       amount: total.dp,
       total,
-      statusText: state.paymentStatus === "EXPIRED" ? "Waktu Pembayaran Habis" : "Menunggu Pembayaran",
-      actionText: "Cek Status Pembayaran"
+      invoice,
+      statusText: invoice?.status === "EXPIRED" ? "Waktu Pembayaran Habis" : "Menunggu Pembayaran",
+      actionText: "Saya Sudah Bayar"
     });
     bindBase();
-    qris.createQr("payment-page-qr", `GOPAY-MERCHANT-DP-${state.orderCode}-${total.dp}`);
+    qris.createQr("payment-page-qr", invoice?.qrContent || `BB-PAY-DP-${state.orderCode}-${total.dp}`);
     qris.startTimer("payment-page-timer", 900);
     bindPaymentActions("dp");
   }
@@ -286,6 +299,12 @@
   function renderPaymentFinal() {
     const item = product();
     checkout.ensureCheckoutState(item);
+    const transaction = bbTransactions.current();
+    if (!transaction || bbTransactions.normalizeStatus(transaction.status) !== "WAITING_FINAL_PAYMENT") {
+      router.navigate("order-detail");
+      return;
+    }
+    const invoice = bbTransactions.ensureInvoice("FINAL_PAYMENT");
     const total = checkout.calculate(item, checkout.durationFromDates());
     paymentMount("final").innerHTML = paymentShell({
       title: "Pelunasan Pembayaran",
@@ -293,11 +312,12 @@
       type: "final",
       amount: total.remaining,
       total,
+      invoice,
       statusText: "Menunggu Pelunasan",
-      actionText: "Cek Status Pelunasan"
+      actionText: "Saya Sudah Bayar"
     });
     bindBase();
-    qris.createQr("payment-page-qr", `GOPAY-MERCHANT-FINAL-${state.orderCode}-${total.remaining}`);
+    qris.createQr("payment-page-qr", invoice?.qrContent || `BB-PAY-FINAL-${state.orderCode}-${total.remaining}`);
     qris.startTimer("payment-page-timer", 900);
     bindPaymentActions("final");
   }
@@ -306,9 +326,11 @@
     const mount = document.querySelector("#order-detail-view, #orders-view");
     const item = product();
     checkout.ensureCheckoutState(item);
-    const total = checkout.calculate(item, checkout.durationFromDates());
-    const status = state.orderStatus || "WAITING_DP_PAYMENT";
-    const transactionId = state.orderCode || `ORD-20260609-${String(item.id).padStart(4, "0")}`;
+    const transaction = bbTransactions.current();
+    if (transaction) bbTransactions.syncState(transaction);
+    const total = transaction ? { total: transaction.totalAmount, dp: transaction.dpAmount, remaining: transaction.remainingAmount } : checkout.calculate(item, checkout.durationFromDates());
+    const status = bbTransactions.normalizeStatus(transaction?.status || state.orderStatus || "WAITING_OWNER_APPROVAL");
+    const transactionId = transaction?.id || state.orderCode || `TRX-${String(item.id).padStart(4, "0")}`;
     const current = statusInfo[status] || statusInfo.WAITING_DP_PAYMENT;
     const reviewed = state.reviewedTransaction?.(transactionId);
     mount.innerHTML = shell("Detail Transaksi", "Pantau status sewa barang kamu dari pembayaran sampai selesai.", `<section class="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -341,9 +363,9 @@
         <h3 class="text-xl font-extrabold">Ringkasan Pembayaran</h3>
         <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
           ${checkout.summaryRow("Total sewa", rupiah(total.total))}
-          ${checkout.summaryRow("Status DP", status === "WAITING_DP_PAYMENT" ? "Belum dibayar" : "Dibayar", status === "WAITING_DP_PAYMENT" ? "text-amber-600" : "text-teal-600")}
+          ${checkout.summaryRow("Status DP", ["WAITING_OWNER_APPROVAL", "WAITING_DP_PAYMENT", "REJECTED", "CANCELLED", "PAYMENT_EXPIRED"].includes(status) ? "Belum dibayar" : "Dibayar", ["WAITING_OWNER_APPROVAL", "WAITING_DP_PAYMENT", "REJECTED", "CANCELLED", "PAYMENT_EXPIRED"].includes(status) ? "text-amber-600" : "text-teal-600")}
           ${checkout.summaryRow("DP 30%", rupiah(total.dp), "text-brand-blue")}
-          ${checkout.summaryRow("Status pelunasan", ["FULLY_PAID", "READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED", "REVIEWED"].includes(status) ? "Lunas" : "Belum lunas", ["FULLY_PAID", "READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED", "REVIEWED"].includes(status) ? "text-teal-600" : "text-amber-600")}
+          ${checkout.summaryRow("Status pelunasan", ["FULLY_PAID", "READY_FOR_HANDOVER", "READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED", "REVIEWED"].includes(status) ? "Lunas" : "Belum lunas", ["FULLY_PAID", "READY_FOR_HANDOVER", "READY_FOR_PICKUP", "RENTED", "RETURNED", "COMPLETED", "REVIEWED"].includes(status) ? "text-teal-600" : "text-amber-600")}
           ${checkout.summaryRow("Sisa pelunasan", rupiah(total.remaining), "text-teal-600")}
         </div>
         <div class="my-5 border-t border-dashed border-slate-200"></div>
@@ -356,10 +378,10 @@
     bindOrderActions();
   }
 
-  function paymentShell({ title, subtitle, type, amount, total, statusText, actionText }) {
+  function paymentShell({ title, subtitle, type, amount, total, invoice, statusText, actionText }) {
     const item = product();
     const isFinal = type === "final";
-    const invoice = isFinal ? state.finalInvoiceNumber : state.invoiceNumber;
+    const invoiceNumber = invoice?.id || (isFinal ? state.finalInvoiceNumber : state.invoiceNumber);
     return `<main class="min-h-screen bg-slate-50"><div class="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
       ${components.pageTopBar({ backLabel: "Kembali ke Detail Transaksi", backTo: "order-detail", breadcrumb: ["Checkout", title] })}
       <div class="mb-6"><h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${title}</h1><p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">${subtitle}</p></div>
@@ -367,7 +389,7 @@
         <section class="grid gap-5">
           <article class="rounded-[28px] border border-slate-100 bg-white p-6 text-center shadow-sm">
             <span class="badge bg-amber-50 text-amber-700">${statusText}</span>
-            <h2 class="mt-5 text-xl font-bold text-slate-900 sm:text-2xl">QRIS GoPay Merchant</h2>
+            <h2 class="mt-5 text-xl font-bold text-slate-900 sm:text-2xl">Pembayaran QRIS</h2>
             <p class="mt-2 text-sm text-slate-500">${isFinal ? "Pelunasan dilakukan sebelum barang diserahkan kepada penyewa." : "Scan QRIS untuk membayar DP pesanan kamu."}</p>
             <div class="mx-auto mt-6 max-w-sm rounded-[28px] bg-slate-50 p-5">
               <p class="text-sm font-bold text-slate-500">${isFinal ? "Sisa pelunasan" : "DP yang harus dibayar"}</p>
@@ -386,19 +408,20 @@
                 <li>Setelah membayar, klik ${actionText}.</li>
               </ol>
             </div>
-            <div class="mt-5 grid gap-3 sm:grid-cols-2"><button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-payment-qr>Buat QRIS Baru</button>${backLink("Kembali ke Detail Transaksi", "order-detail", "w-fit")}</div>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2"><button class="btn-secondary rounded-2xl px-5 py-3" data-refresh-payment-qr>Buat QRIS Baru</button><button class="btn-secondary rounded-2xl px-5 py-3" data-payment-check="${type}">Cek Status Pembayaran</button></div>
             <button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-payment-paid="${type}">${actionText}</button>
+            ${backLink("Kembali ke Detail Transaksi", "order-detail", "mt-3 w-fit")}
           </article>
         </section>
         <aside class="h-fit rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-28">
           <h2 class="text-xl font-extrabold">Detail Invoice</h2>
           <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
-            ${checkout.summaryRow("Nomor invoice", invoice)}
+            ${checkout.summaryRow("Nomor invoice", invoiceNumber)}
             ${checkout.summaryRow("Nama barang", item.name)}
             ${checkout.summaryRow("Total sewa", rupiah(total.total))}
             ${checkout.summaryRow("DP dibayar", isFinal ? rupiah(total.dp) : rupiah(amount), isFinal ? "text-teal-600" : "text-brand-blue")}
             ${checkout.summaryRow("Sisa pelunasan", rupiah(total.remaining), "text-teal-600")}
-            ${checkout.summaryRow("Deadline", isFinal ? `${state.bookingStart}, 12.00 WIB` : "15 menit")}
+            ${checkout.summaryRow("Deadline", "15 menit")}
             ${checkout.summaryRow("Status transaksi", statusInfo[state.orderStatus || "WAITING_DP_PAYMENT"].label)}
           </div>
           <div class="mt-5 rounded-2xl bg-teal-50 p-4 text-sm font-semibold leading-6 text-teal-800"><b class="block">Pembayaran Aman</b>Pembayaran kamu akan tercatat otomatis setelah berhasil diproses.</div>
@@ -413,16 +436,18 @@
 
   function statusProgress(status) {
     const map = {
-      WAITING_DP_PAYMENT: 0,
-      DP_PAID: 1,
-      PREPARING_ITEM: 2,
-      WAITING_FINAL_PAYMENT: 3,
-      FULLY_PAID: 3,
-      READY_FOR_PICKUP: 4,
-      RENTED: 5,
-      RETURNED: 5,
-      COMPLETED: 6,
-      REVIEWED: 6
+      WAITING_OWNER_APPROVAL: 0,
+      WAITING_DP_PAYMENT: 1,
+      DP_PAID: 2,
+      PREPARING_ITEM: 3,
+      WAITING_FINAL_PAYMENT: 4,
+      FULLY_PAID: 4,
+      READY_FOR_HANDOVER: 5,
+      READY_FOR_PICKUP: 5,
+      RENTED: 6,
+      RETURNED: 7,
+      COMPLETED: 8,
+      REVIEWED: 8
     };
     return map[status] ?? 0;
   }
@@ -430,7 +455,7 @@
   function timeline(status) {
     const current = statusProgress(status);
     return `<div class="mt-6 overflow-x-auto pb-2">
-      <div class="grid min-w-[760px] grid-cols-7 gap-3">
+      <div class="grid min-w-[980px] grid-cols-9 gap-3">
         ${timelineSteps.map((step, index) => {
           const done = index < current;
           const active = index === current;
@@ -462,14 +487,16 @@
   }
 
   function orderActions(status, item, transactionId, reviewed) {
+    if (status === "WAITING_OWNER_APPROVAL") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-cancel-request>Batalkan Permintaan</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="dashboard-seller">Lihat Dashboard Penyedia</button>`;
+    if (status === "REJECTED") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Pilih Barang Lain</button>`;
     if (status === "WAITING_DP_PAYMENT") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-qr">Bayar DP Sekarang</button>`;
-    if (status === "DP_PAID") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Lihat Detail Barang</button><button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-next-status="PREPARING_ITEM">Lanjut Pantau Persiapan</button>`;
-    if (status === "PREPARING_ITEM") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-next-status="WAITING_FINAL_PAYMENT">Barang Siap Diproses</button>`;
-    if (status === "WAITING_FINAL_PAYMENT") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Sisa Pelunasan</button>`;
-    if (status === "FULLY_PAID") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="transaksi-flow">Mulai Flow Transaksi</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Lihat Kode Serah Terima</button>`;
-    if (status === "READY_FOR_PICKUP") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="transaksi-flow">Buka Flow Transaksi</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Tampilkan Kode Serah Terima</button>`;
-    if (status === "RENTED") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="transaksi-flow">Lanjutkan Pengembalian</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button>`;
-    if (status === "RETURNED") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" disabled>Menunggu Konfirmasi Pemilik</button><button class="btn-primary mt-3 w-full rounded-2xl px-5 py-3" data-complete-order>Konfirmasi Transaksi Selesai</button>`;
+    if (status === "DP_PAID") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="dashboard-seller">Pantau Proses Penyedia</button>`;
+    if (status === "PREPARING_ITEM") return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" disabled>Menunggu Barang Siap</button>`;
+    if (status === "WAITING_FINAL_PAYMENT") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="payment-final">Bayar Pelunasan</button>`;
+    if (status === "FULLY_PAID") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Scan QR Serah Terima</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="dashboard-seller">Generate QR dari Penyedia</button>`;
+    if (status === "READY_FOR_HANDOVER" || status === "READY_FOR_PICKUP") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-nav="qr-handover">Scan QR Serah Terima</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button>`;
+    if (status === "RENTED") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-request-return>Kembalikan Barang</button><button class="btn-secondary mt-3 w-full rounded-2xl px-5 py-3" data-nav="chat">Chat Pemilik</button>`;
+    if (status === "RETURNED") return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-complete-order>Selesaikan Transaksi</button>`;
     if (status === "COMPLETED" && !reviewed) return `<button class="btn-primary mt-5 w-full rounded-2xl px-5 py-3" data-review-transaction="${transactionId}">Beri Penilaian</button>`;
     if (status === "COMPLETED" && reviewed) return `<button class="btn-secondary mt-5 w-full rounded-2xl px-5 py-3" data-product="${item.id}">Ulasan Terkirim</button>`;
     return `${backLink("Kembali ke Jelajah Barang", "browse", "mt-5 w-fit")}`;
@@ -477,18 +504,28 @@
 
   function bindOrderActions() {
     document.querySelectorAll("[data-next-status]").forEach(button => button.addEventListener("click", () => {
-      state.orderStatus = button.dataset.nextStatus;
+      bbTransactions.updateStatus(state.orderCode, button.dataset.nextStatus);
       ui.toast(statusInfo[state.orderStatus]?.label || "Status transaksi diperbarui");
       renderOrderDetail();
     }));
+    document.querySelector("[data-cancel-request]")?.addEventListener("click", () => {
+      bbTransactions.updateStatus(state.orderCode, "CANCELLED");
+      ui.toast("Permintaan sewa dibatalkan.");
+      renderOrderDetail();
+    });
     document.querySelector("[data-complete-order]")?.addEventListener("click", () => {
-      state.orderStatus = "COMPLETED";
+      bbTransactions.complete(state.orderCode);
       state.notifications = ["Transaksi selesai. Kamu bisa memberi penilaian sekarang.", ...state.notifications.filter(item => !item.includes("Transaksi selesai"))];
       ui.toast("Transaksi selesai");
       renderOrderDetail();
     });
+    document.querySelector("[data-request-return]")?.addEventListener("click", () => {
+      bbTransactions.generateReturnQr(state.orderCode);
+      ui.toast("Permintaan pengembalian dikirim ke penyedia.");
+      router.navigate("dashboard-seller");
+    });
     document.querySelector("[data-mark-returned]")?.addEventListener("click", () => {
-      state.orderStatus = "RETURNED";
+      bbTransactions.updateStatus(state.orderCode, "RETURNED");
       ui.toast("Pengembalian barang tercatat");
       renderOrderDetail();
     });
@@ -497,38 +534,49 @@
 
   function bindPaymentActions(type) {
     document.querySelector("[data-refresh-payment-qr]")?.addEventListener("click", () => {
-      qris.createQr("payment-page-qr", `GOPAY-MERCHANT-${type.toUpperCase()}-${state.orderCode}-${Date.now()}`);
+      const invoice = bbTransactions.ensureInvoice(type === "final" ? "FINAL_PAYMENT" : "DP_PAYMENT", true);
+      qris.createQr("payment-page-qr", invoice?.qrContent || `BB-PAY-${type.toUpperCase()}-${state.orderCode}-${Date.now()}`);
       qris.startTimer("payment-page-timer", 900);
       ui.toast("QRIS berhasil diperbarui");
     });
+    document.querySelectorAll("[data-payment-check]").forEach(button => button.addEventListener("click", () => {
+      ui.toast("Pembayaran masih menunggu konfirmasi.");
+    }));
     document.querySelectorAll("[data-payment-paid]").forEach(button => button.addEventListener("click", () => {
+      button.disabled = true;
+      button.textContent = "Memeriksa pembayaran...";
+      bbTransactions.markPaymentChecking(button.dataset.paymentPaid);
       if (button.dataset.paymentPaid === "final") {
-        state.paymentStatus = "PAID";
-        state.orderStatus = "FULLY_PAID";
-        ui.toast("Pembayaran lunas");
-        router.navigate("order-detail");
+        setTimeout(() => {
+          bbTransactions.markPaymentPaid("final");
+          ui.toast("Pembayaran lunas berhasil. Transaksi siap untuk serah terima.");
+          router.navigate("order-detail");
+        }, 2000);
         return;
       }
-      state.paymentStatus = "PAID";
-      state.orderStatus = "DP_PAID";
-      ui.toast("Pembayaran DP berhasil diterima");
-      animations.confetti();
-      router.navigate("transaction-success");
+      setTimeout(() => {
+        bbTransactions.markPaymentPaid("dp");
+        ui.toast("Pembayaran DP berhasil. Penyedia akan menyiapkan barangmu.");
+        animations.confetti();
+        router.navigate("transaction-success");
+      }, 2000);
     }));
   }
 
   function renderQrHandover() {
-    if (state.orderStatus === "FULLY_PAID") state.orderStatus = "READY_FOR_PICKUP";
-    const isReady = ["FULLY_PAID", "READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus);
+    const transaction = bbTransactions.current();
+    if (transaction?.status === "FULLY_PAID") bbTransactions.generateHandoverQr(transaction.id);
+    const latest = bbTransactions.current();
+    const status = bbTransactions.normalizeStatus(latest?.status || state.orderStatus);
+    const isReady = ["FULLY_PAID", "READY_FOR_HANDOVER", "RENTED"].includes(status);
     const item = product();
-    const code = state.handoverCode || "482913";
-    state.handoverCode = code;
+    const code = latest?.handoverQr?.content || `BB-HANDOVER-${state.orderCode || "TRX"}`;
     document.querySelector("#qr-handover-view, #serah-terima-view").innerHTML = shell("Serah Terima Barang", "Tunjukkan kode ini kepada pemilik saat serah terima barang.", `<section class="grid gap-6 lg:grid-cols-[1fr_360px]">
       <article class="rounded-[28px] border border-slate-100 bg-white p-6 text-center shadow-sm">
         <span class="badge ${isReady ? "bg-blue-50 text-brand-blue" : "bg-amber-50 text-amber-700"}">${isReady ? "Kode Serah Terima Aktif" : "Menunggu Pembayaran Lunas"}</span>
         <div id="handover-page-qr" class="qr-container mx-auto mt-6 w-[240px] max-w-full"></div>
-        <p class="mt-4 text-sm font-bold text-slate-500">Kode manual</p>
-        <p class="mt-2 tracking-[0.45em] text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">${code}</p>
+        <p class="mt-4 text-sm font-bold text-slate-500">Kode serah terima</p>
+        <p class="mt-2 break-all text-xl font-extrabold leading-tight text-slate-900 sm:text-2xl">${code}</p>
         <p class="mt-4 font-bold text-brand-blue">Berlaku <span id="handover-page-timer">10:00</span></p>
         <p class="mx-auto mt-4 max-w-xl text-sm font-semibold leading-6 ${isReady ? "text-slate-600" : "text-amber-600"}">${isReady ? "Kode hanya berlaku untuk transaksi ini dan tidak boleh dibagikan kepada orang lain." : "Selesaikan pelunasan dulu sebelum serah terima."}</p>
         <div class="mt-6 grid gap-3 sm:grid-cols-2">
@@ -550,12 +598,13 @@
       </aside>
     </section>`, "max-w-6xl");
     bindBase();
-    qris.createQr("handover-page-qr", `BB-COD-${state.selectedProductId}-${Date.now()}`);
+    qris.createQr("handover-page-qr", code);
     qris.startTimer("handover-page-timer", 600);
     document.querySelector("[data-refresh-handover-page]")?.addEventListener("click", renderQrHandover);
     document.querySelector("[data-start-scan]")?.addEventListener("click", async () => {
       const result = document.querySelector("#scan-result");
-      if (!["FULLY_PAID", "READY_FOR_PICKUP", "RENTED"].includes(state.orderStatus)) {
+      const current = bbTransactions.current();
+      if (!["FULLY_PAID", "READY_FOR_HANDOVER", "RENTED"].includes(bbTransactions.normalizeStatus(current?.status))) {
         result.textContent = "QR belum bisa dipakai karena pelunasan belum selesai.";
         ui.toast("Selesaikan pelunasan sebelum serah terima");
         return;
@@ -565,8 +614,8 @@
       } catch {
         result.textContent = "Kamera tidak aktif. Masukkan kode serah terima secara manual.";
       }
-      state.orderStatus = state.orderStatus === "RENTED" ? "RETURNED" : "RENTED";
-      const message = state.orderStatus === "RENTED" ? "Scan valid. Barang diterima penyewa." : "Scan valid. Barang dikembalikan ke pemilik.";
+      const updated = bbTransactions.scanHandoverQr(state.orderCode);
+      const message = updated?.status === "RENTED" ? "Serah terima berhasil. Masa sewa dimulai." : "Scan QR serah terima belum valid.";
       state.notifications = [message, ...state.notifications.filter(item => item !== message)];
       result.textContent = message;
       ui.toast(message);

@@ -13,7 +13,7 @@
     state.bookingStart = state.bookingStart || todayOffset(1);
     state.bookingEnd = state.bookingEnd || todayOffset(Math.max(2, state.bookingDays || product.minDays || 1));
     state.renterNote = state.renterNote || "";
-    state.orderStatus = state.orderStatus || "WAITING_DP_PAYMENT";
+    state.orderStatus = state.orderStatus || "WAITING_OWNER_APPROVAL";
     state.paymentStatus = state.paymentStatus || "PENDING";
     state.orderCode = state.orderCode || `ORD-20260609-${String(product.id).padStart(4, "0")}`;
     state.invoiceNumber = state.invoiceNumber || `INV-DP-20260609-${String(product.id).padStart(4, "0")}`;
@@ -66,10 +66,10 @@
         <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl lg:text-4xl">Checkout Sewa Barang</h1>
-            <p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Periksa kembali detail sewa sebelum melanjutkan pembayaran DP.</p>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">Periksa detail sewa sebelum mengirim permintaan ke penyedia barang.</p>
           </div>
           <div class="flex gap-2 overflow-x-auto rounded-[24px] border border-slate-100 bg-white p-2 text-xs font-bold text-slate-500 shadow-sm">
-            ${["Checkout", "Bayar DP", "Pelunasan", "Selesai"].map((label, index) => `<span class="shrink-0 rounded-2xl px-3 py-2 ${index === 0 ? "bg-blue-50 text-brand-blue" : "bg-slate-50"}">${index + 1}. ${label}</span>`).join("")}
+            ${["Checkout", "Persetujuan", "Bayar DP", "Pelunasan", "Selesai"].map((label, index) => `<span class="shrink-0 rounded-2xl px-3 py-2 ${index === 0 ? "bg-blue-50 text-brand-blue" : "bg-slate-50"}">${index + 1}. ${label}</span>`).join("")}
           </div>
         </div>
 
@@ -128,7 +128,7 @@
             </div>
             <div class="my-5 border-t border-dashed border-slate-200"></div>
             <div class="flex justify-between gap-4 text-lg font-extrabold text-slate-950"><span>Bayar sekarang</span><span class="text-brand-blue">${components.rupiah(total.dp)}</span></div>
-            <button class="mt-5 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3.5 font-bold text-white shadow-md transition hover:scale-[1.01] hover:shadow-lg active:scale-[0.98]" data-create-dp-payment>Lanjut Bayar DP</button>
+            <button class="mt-5 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-3.5 font-bold text-white shadow-md transition hover:scale-[1.01] hover:shadow-lg active:scale-[0.98]" data-create-rental-request>Ajukan Permintaan Sewa</button>
           </aside>
         </div>
       </div>
@@ -143,7 +143,7 @@
     }));
     document.querySelector("#renter-note")?.addEventListener("input", event => { state.renterNote = event.target.value.slice(0, 300); });
     document.querySelector("#checkout-cod")?.addEventListener("change", event => { state.codLocation = event.target.value; });
-    document.querySelector("[data-create-dp-payment]")?.addEventListener("click", () => {
+    document.querySelector("[data-create-rental-request]")?.addEventListener("click", () => {
       const product = components.selectedProduct();
       if (product.owner.name === state.currentUser.name || product.owner.initials === state.currentUser.initials) {
         ui.toast("Kamu tidak bisa checkout barang milik sendiri");
@@ -153,14 +153,15 @@
         ui.toast("Tanggal sewa belum valid");
         return;
       }
-      const button = document.querySelector("[data-create-dp-payment]");
+      const button = document.querySelector("[data-create-rental-request]");
       button.disabled = true;
-      button.textContent = "Menyiapkan pembayaran...";
-      state.orderStatus = "WAITING_DP_PAYMENT";
+      button.textContent = "Mengirim permintaan...";
+      const totals = calculate(product, durationFromDates());
+      const transaction = window.bbTransactions?.createTransaction?.({ product, totals, renterNote: state.renterNote, codLocation: state.codLocation });
+      state.orderStatus = "WAITING_OWNER_APPROVAL";
       state.paymentStatus = "PENDING";
-      ui.toast("Checkout berhasil dibuat");
-      setTimeout(() => ui.toast("QRIS pembayaran DP berhasil dibuat"), 350);
-      setTimeout(() => router.navigate("payment-dp", { productId: state.orderCode }), 500);
+      ui.toast("Permintaan sewa berhasil dikirim ke penyedia.");
+      setTimeout(() => router.navigate("order-detail", { orderId: transaction?.id || state.orderCode }), 450);
     });
     components.bindNavEvents();
     if (window.lucide) lucide.createIcons();

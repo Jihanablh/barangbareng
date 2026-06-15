@@ -63,7 +63,7 @@
   const faq = [
     ["BarangBareng itu untuk siapa?", "BarangBareng dibuat untuk mahasiswa yang butuh barang sementara atau ingin menyewakan barang yang jarang dipakai."],
     ["Apakah harus mahasiswa?", "Ya, alur utama dirancang untuk pengguna mahasiswa dengan verifikasi identitas dan kampus."],
-    ["Bagaimana cara bayar DP?", "DP dibayar melalui QRIS GoPay Merchant dan transaksi tercatat di sistem."],
+    ["Bagaimana cara bayar DP?", "DP dibayar melalui QRIS BarangBareng dan transaksi tercatat di sistem."],
     ["Apakah bisa pakai QRIS?", "Bisa. Top up dan pembayaran DP mendukung QRIS BarangBareng."],
     ["Bagaimana proses COD?", "Penyewa dan pemilik bertemu di lokasi kampus atau area kos, lalu memakai QR serah terima."],
     ["Apakah bisa pinjam gratis?", "Bisa. Beberapa barang tersedia sebagai Pinjam Gratis dengan biaya layanan kecil."],
