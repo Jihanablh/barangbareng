@@ -105,14 +105,14 @@
             <h1 class="mt-5 max-w-full break-words text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl lg:max-w-3xl lg:text-5xl xl:text-6xl">Sewa Barang Harian Mahasiswa, Lebih Hemat dan Praktis.</h1>
             <p class="mt-4 max-w-full text-base font-semibold leading-relaxed text-slate-600 sm:max-w-2xl sm:text-lg lg:text-xl">Temukan laptop, kamera, alat kos, outfit sidang, perlengkapan event, sampai kebutuhan harian dari sesama mahasiswa di sekitarmu.</p>
             <div class="mt-7 flex flex-col gap-3 sm:flex-row"><button class="btn-primary inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-base sm:w-auto" data-nav="browse">Jelajah Barang</button><button class="btn-secondary inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-base sm:w-auto" data-nav="upload-product">Sewakan Barang</button></div>
-            <div class="mt-8 w-full max-w-4xl rounded-[28px] border border-slate-100 bg-white/95 p-4 shadow-card-hover backdrop-blur">
-              <div class="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
-                <label class="field flex min-w-0 items-center gap-3 lg:col-span-5">${icon("search", "h-5 w-5 shrink-0 text-brand-blue")}<input id="home-search" class="min-w-0 flex-1 outline-none" placeholder="Cari produk, kategori, kampus..."></label>
-                <select id="home-category" class="field min-w-0 lg:col-span-2">${components.optionList(["all", ...BBData.categories.map(c => c.name)], "all", "Kategori")}</select>
-                <select id="home-campus" class="field min-w-0 lg:col-span-3">${components.optionList(["all", ...BBData.campuses], "all", "Kampus/Lokasi")}</select>
-                <button class="btn-primary w-full rounded-2xl px-5 py-3 lg:col-span-2" id="home-search-btn">Cari Barang</button>
+            <div class="mt-8 w-full max-w-5xl rounded-[28px] border border-slate-100 bg-white/95 p-4 shadow-card-hover backdrop-blur">
+              <div class="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-[minmax(300px,1fr)_150px_210px_150px] lg:items-stretch">
+                <label class="field flex min-w-0 items-center gap-3">${icon("search", "h-5 w-5 shrink-0 text-brand-blue")}<input id="home-search" class="min-w-0 flex-1 outline-none" placeholder="Cari produk, kategori, kampus..."></label>
+                <select id="home-category" class="field min-w-0 truncate">${components.optionList(["all", ...BBData.categories.map(c => c.name)], "all", "Kategori")}</select>
+                <select id="home-campus" class="field min-w-0 truncate">${components.optionList(["all", ...BBData.campuses], "all", "Kampus/Lokasi")}</select>
+                <button class="btn-primary w-full whitespace-nowrap rounded-2xl px-5 py-3" id="home-search-btn">Cari Barang</button>
               </div>
-              <div class="mt-4 flex gap-2 overflow-x-auto pb-1">${["anak kos", "wisuda", "sidang", "event", "organisasi", "kamera", "proyektor", "rice cooker", "jas"].map(chip => `<button class="badge shrink-0 bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
+              <div class="mt-3 flex flex-wrap gap-2">${["anak kos", "wisuda", "sidang", "event", "organisasi", "kamera", "proyektor", "rice cooker", "jas"].map(chip => `<button class="badge shrink-0 bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-brand-blue" data-chip="${chip}">${chip}</button>`).join("")}</div>
             </div>
           </div>
           <div class="relative hidden min-h-[520px] lg:block">
